@@ -23,6 +23,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static NetworkScanner.IPInfo;
+using static NetworkScanner.IPRange;
 
 namespace NetworkScanner
 {
@@ -41,7 +43,7 @@ namespace NetworkScanner
 
         private void InitializeApp()
         {
-            LvIPList.ItemsSource = IPinformation.GetInstance();
+            LvIPList.ItemsSource = IPInfo.GetInstance();
             LvIPRange.ItemsSource = IPRangeInfo.GetInstance();
             LoadIPRange();
         }
@@ -49,9 +51,22 @@ namespace NetworkScanner
         private void LoadIPRange()
         {
             string filename = Directory.GetCurrentDirectory() + @"\" + IPRangeFileName;
-            string[] lines = System.IO.File.ReadAllLines(filename);
 
-            ParsingIPRange(lines);
+            FileInfo fi = new FileInfo(filename);
+
+            if (fi.Exists)
+            {
+                string[] lines = System.IO.File.ReadAllLines(filename);
+                ParsingIPRange(lines);
+            }
+            else
+            {
+                using (File.Create(filename))
+                {
+                    DisplayMsg("iprange.ini 파일 생성");
+                }
+            }
+
         }
 
         private void ParsingIPRange(string[] raw)
@@ -73,7 +88,7 @@ namespace NetworkScanner
             }
         }
 
-        private void LoadInformation(string filename)
+        private void LoadIPInformation(string filename)
         {
             string[] lines = System.IO.File.ReadAllLines(filename);
 
@@ -84,39 +99,56 @@ namespace NetworkScanner
 
         private void ParsingIP(string[] raw)
         {
-            IPinformation.GetInstance().Clear();
+            IPInfo.GetInstance().Clear();
             foreach (string line in raw)
             {
                 string[] token = line.Split(",");
 
                 if (token.Length > 0)
                 {
-                    IPinformation ip = new IPinformation();
+                    IPInfo ip = new IPInfo();
                     ip.Ip = IPAddress.Parse(token[0]);
                     ip.Port = Int32.Parse(token[1]);
                     ip.SystemName = token[2];
                     ip.Description = token[3];
                     ip.CommitDate = DateTime.Parse(token[4]);
-                    IPinformation.GetInstance().Add(ip);
+                    IPInfo.GetInstance().Add(ip);
                 }
             }
         }
 
-        public async Task Doasync(IPAddress start, IPAddress end)
+        public async Task Doasync(IPRangeInfo info)
         {
             await Task.Run(() =>
             {
-                foreach (IPinformation item in IPinformation.GetInstance())
-                {
-                    var reply = PingTester.SendPing(item.Ip);
+            foreach (IPRangeInfo item in IPRangeInfo.GetInstance())
+            {
+                int startip = Int32.Parse(item.StartIP.ToString().Split('.')[3]);
+                int endip = Int32.Parse(item.EndIP.ToString().Split('.')[3]);
 
-                    item.RountTime = reply.RoundtripTime;
-                    DisplayMsg(reply.Address.ToString());
-                    Thread.Sleep(1000);
-                    Console.WriteLine("Doasync");
+                    for (int i = startip; i <= endip; i++)
+                    {
+                        string[] parseIP = item.StartIP.ToString().Split('.');
+                        string ipbyte4 = (Int32.Parse(item.StartIP.ToString().Split('.')[3]) + 1).ToString();
+                        parseIP[3] = ipbyte4;
+
+                        IPAddress newip = IPAddress.Parse(string.Format("{0}.{1}.{2}.{3}", parseIP[0], parseIP[1], parseIP[2], parseIP[3]));
+
+                        var reply = PingTester.SendPing(newip);
+                        DisplayMsg(reply.Address.ToString());
+                        Thread.Sleep(300);
+                    }
                 }
                 DisplayMsg("Scanning is Completed.");
             });
+        }
+
+        private bool IsExistOnIPList(IPAddress ip)
+        {
+            if (IPInfo.GetInstance().FindIndex(x => x.Ip == ip) > 0)
+                return true;
+            else
+                return false;
         }
 
         private void DisplayMsg(string msg)
@@ -148,7 +180,7 @@ namespace NetworkScanner
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
             //ping
-            Task k = Doasync(IPAddress.Parse("10.100.113.1"), IPAddress.Parse("10.100.113.100"));
+            //Task k = Doasync(IPAddress.Parse("10.100.113.1"), IPAddress.Parse("10.100.113.100"));
             //refresh list
         }
 
@@ -174,7 +206,7 @@ namespace NetworkScanner
 
             if (openFileDialog.ShowDialog() == true)
             {
-                LoadInformation(openFileDialog.FileName);
+                LoadIPInformation(openFileDialog.FileName);
             }
 
         }
@@ -212,7 +244,7 @@ namespace NetworkScanner
             if (LvIPRange.SelectedItems.Count == 0) return;
             IPRangeInfo item = (IPRangeInfo)LvIPRange.SelectedItems[0];
 
-            if (MessageBox.Show(String.Format("{0} 대역을 삭제하시겠습니까?", item.Index),"삭제",MessageBoxButton.YesNo)== MessageBoxResult.Yes)
+            if (MessageBox.Show(String.Format("{0} 대역을 삭제하시겠습니까?", item.Index), "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 DelelteIPRange(item.Index);
             }
@@ -225,7 +257,7 @@ namespace NetworkScanner
         {
             int iprangeIndex = IPRangeInfo.GetInstance().FindIndex(x => x.Index == index);
 
-            if(iprangeIndex != -1)
+            if (iprangeIndex != -1)
             {
                 IPRangeInfo.GetInstance().RemoveAt(iprangeIndex);
             }
@@ -240,7 +272,7 @@ namespace NetworkScanner
         {
             List<string> lines = new List<string>();
 
-            foreach (IPinformation info in IPinformation.GetInstance())
+            foreach (IPInfo info in IPInfo.GetInstance())
             {
                 string line = string.Format("{0},{1},{2},{3},{4}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate);
                 lines.Add(line);
@@ -267,130 +299,34 @@ namespace NetworkScanner
 
             DisplayMsg(string.Format("Write IP Range File."));
         }
-    }
 
-    public class PingTester
-    {
-        public static PingReply SendPing(IPAddress targetIP)
+        private void btnScanIPRange_Click(object sender, RoutedEventArgs e)
         {
-            Ping pingSender = new Ping();
-            PingOptions options = new PingOptions();
-            options.DontFragment = true;
-            string data = "a";
-
-            byte[] buffer = Encoding.ASCII.GetBytes(data);
-
-            int timeout = 120;
-
-            PingReply reply = pingSender.Send(targetIP, timeout, buffer, options);
-
-            return reply;
-        }
-    }
-
-    public class IPInformationListViewModel
-    {
-        private readonly IPInformationList items;
-
-        public IPInformationListViewModel()
-        {
-            this.items = new IPInformationList();
-        }
-
-        public IPInformationList Items
-        {
-            get { return this.items; }
-        }
-    }
-
-    public class IPInformationList : ObservableCollection<IPinformation>
-    {
-
-    }
-
-    public class IPinformation : INotifyPropertyChanged
-    {
-        private IPAddress ip;
-        private int port;
-        private string systemName;
-        private long rountTime;
-        private bool alive;
-        private DateTime commitDate;
-        private string description;
-
-        public IPAddress Ip { get => ip; set => ip = value; }
-        public int Port { get => port; set => port = value; }
-        public string SystemName { get => systemName; set => systemName = value; }
-        public long RountTime { get => rountTime; set => rountTime = value; }
-        public bool Alive { get => alive; set => alive = value; }
-        public DateTime CommitDate { get => commitDate; set => commitDate = value; }
-        public string Description { get => description; set => description = value; }
-
-        private static List<IPinformation> instance;
-
-        public static List<IPinformation> GetInstance()
-        {
-            if (instance == null)
-                instance = new List<IPinformation>();
-
-            return instance;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged([CallerMemberName] string name = null)
-        {
-            if (!String.IsNullOrEmpty(name))
+            foreach (IPRangeInfo info in IPRangeInfo.GetInstance())
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        public class AliveColorConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                bool overTen = (bool)value;
-                if (overTen)
-                {
-                    return new SolidColorBrush(Colors.Red);
-                }
-                else
-                {
-                    return new SolidColorBrush(Colors.Black);
-                }
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotImplementedException();
+                Task k = Doasync(info);
             }
         }
     }
 
-    public class IPRangeInfo : INotifyPropertyChanged
+    public class AliveColorConverter : IValueConverter
     {
-        public int Index { get; set; }
-        public IPAddress StartIP { get; set; }
-        public IPAddress EndIP { get; set; }
-        public string Description { get; set; }
-
-        private static List<IPRangeInfo> instance;
-
-        public static List<IPRangeInfo> GetInstance()
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (instance == null)
-                instance = new List<IPRangeInfo>();
-
-            return instance;
-        }     
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged([CallerMemberName] string name = null)
-        {
-            if (!String.IsNullOrEmpty(name))
+            bool overTen = (bool)value;
+            if (overTen)
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+                return new SolidColorBrush(Colors.Red);
             }
+            else
+            {
+                return new SolidColorBrush(Colors.Black);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

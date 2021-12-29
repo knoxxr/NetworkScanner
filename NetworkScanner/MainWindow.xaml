@@ -23,8 +23,19 @@
                 <RowDefinition ></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0">검색 IP 대역</TextBlock>
-            <ListView Grid.Row="1" Grid.ColumnSpan="5" Name="LvIPRange">
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0">검색 IP 대역</TextBlock>
+                <Button Grid.Column="2" Margin="2" Name="btnScanIPRange" Click="btnScanIPRange_Click">검색 대역 새로 스캔</Button>
+                <Button Grid.Column="3"  Name="BtnRefresh" Margin="3" Click="BtnRefresh_Click">현대 리스트 갱신</Button>
+            </Grid>
+
+            <ListView  Grid.Row="1" Name="LvIPRange">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="번호" Width="30" DisplayMemberBinding="{Binding Index}"/>
@@ -34,7 +45,8 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-            <Grid Grid.Row="2">                
+
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"></ColumnDefinition>
                     <ColumnDefinition Width="200"></ColumnDefinition>
@@ -44,22 +56,22 @@
                     <ColumnDefinition Width="80"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60"></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Label>시작주소</Label>
-                <TextBox Grid.Column="1" Name="tbStartIP" Margin="3">
-                </TextBox>
-            </Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label>시작주소</Label>
+                    <TextBox Grid.Column="1" Name="tbStartIP" Margin="3">
+                    </TextBox>
+                </Grid>
                 <Grid Grid.Row="1" Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60"></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Label>종료주소</Label>
-                <TextBox Grid.Column="2" Name="tbEndIP" Margin="3"/>
-            </Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label>종료주소</Label>
+                    <TextBox Grid.Column="2" Name="tbEndIP" Margin="3"/>
+                </Grid>
                 <Grid Grid.Column="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"></ColumnDefinition>
@@ -68,14 +80,19 @@
                     <TextBlock Grid.Column="0">비고</TextBlock>
                     <TextBox  Grid.Column="1" Name="TbRangeDescription"></TextBox>
                 </Grid>
-           
-            <Button Grid.Column="4" Margin="3,0,3,3" Name="BtnAddIPRange" Click="BtnAddIPRange_Click" Height="24" VerticalAlignment="Bottom">대역대 추가</Button>
-            <Button Grid.Column="5" Margin="3" Name="BtnDelIPRange" Click="BtnDelIPRange_Click" >대역대 삭제</Button>
+
+                <Button Grid.Column="4" Margin="3" Name="BtnAddIPRange" Click="BtnAddIPRange_Click" >대역대 추가</Button>
+                <Button Grid.Column="5" Margin="3" Name="BtnDelIPRange" Click="BtnDelIPRange_Click" >대역대 삭제</Button>
             </Grid>
         </Grid>
-
-        <ListView Grid.Row="1" Name="LvIPList" ItemsSource="{Binding Items}">
-            <!--ListView.ItemTemplate>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock>검색된 IP 정보</TextBlock>
+            <ListView Grid.Row="1" Name="LvIPList" ItemsSource="{Binding Items}">
+                <!--ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -93,30 +110,30 @@
                     </Grid>
                 </DataTemplate>
              </ListView.ItemTemplate-->
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Alive" Width="50" DisplayMemberBinding="{Binding Alive}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button  HorizontalAlignment="Center" Background="Yellow" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="IP" Width="150" DisplayMemberBinding="{Binding Ip}"/>
-                    <GridViewColumn Header="이름" Width="150" DisplayMemberBinding="{Binding SystemName}"/>
-                    <GridViewColumn Header="Ping Time" Width="50" DisplayMemberBinding="{Binding RountTime}"/>
-                    <GridViewColumn Header="생성일" Width="200" DisplayMemberBinding="{Binding CommitDate}"/>
-                    <GridViewColumn Header="비고" Width="200" DisplayMemberBinding="{Binding Description}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBox  HorizontalAlignment="Center" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Background="Yellow" ></TextBox>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Alive" Width="50" DisplayMemberBinding="{Binding Alive}">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button  HorizontalAlignment="Center" Background="Yellow" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="IP" Width="150" DisplayMemberBinding="{Binding Ip}"/>
+                        <GridViewColumn Header="이름" Width="150" DisplayMemberBinding="{Binding SystemName}"/>
+                        <GridViewColumn Header="Ping Time" Width="50" DisplayMemberBinding="{Binding RountTime}"/>
+                        <GridViewColumn Header="생성일" Width="200" DisplayMemberBinding="{Binding CommitDate}"/>
+                        <GridViewColumn Header="비고" Width="200" DisplayMemberBinding="{Binding Description}">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox  HorizontalAlignment="Center" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Background="Yellow" ></TextBox>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="400"></ColumnDefinition>
@@ -127,7 +144,6 @@
                 <ColumnDefinition Width="100"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0"  Name="TbMsg" Margin="3" ></TextBlock>
-            <Button Grid.Column="2"  Name="BtnRefresh" Margin="3" Click="BtnRefresh_Click">갱신</Button>
             <Button Grid.Column="4"  Name="BtnLoad" Margin="3" Click="BtnLoad_Click">불러오기</Button>
             <Button Grid.Column="5"  Name="BtnSave" Margin="3" Click="BtnSave_Click">저장</Button>
         </Grid>
