@@ -117,14 +117,39 @@ namespace NetworkScanner
             }
         }
 
-        public async Task Doasync(IPRangeInfo info)
+        public async Task DoasyncRefreshIPRange()
         {
             await Task.Run(() =>
             {
-            foreach (IPRangeInfo item in IPRangeInfo.GetInstance())
+                foreach (IPInfo item in IPInfo.GetInstance())
+                {
+                    var reply = PingTester.SendPing(item.Ip);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        item.RountTime = reply.RoundtripTime;
+                        item.Alive = true;
+                    }
+                    else
+                    {
+                        item.RountTime = 9999;
+                        item.Alive = false;
+                    }
+                    DisplayMsg(reply.Address.ToString());
+                    Thread.Sleep(300);
+                    DisplayMsg("Scanning is Completed.");
+                    RefreshIPList();
+                }
+            });
+        }
+
+        public async Task DoasyncScanIPRange(IPRangeInfo info)
+        {
+            await Task.Run(() =>
             {
-                int startip = Int32.Parse(item.StartIP.ToString().Split('.')[3]);
-                int endip = Int32.Parse(item.EndIP.ToString().Split('.')[3]);
+                foreach (IPRangeInfo item in IPRangeInfo.GetInstance())
+                {
+                    int startip = Int32.Parse(item.StartIP.ToString().Split('.')[3]);
+                    int endip = Int32.Parse(item.EndIP.ToString().Split('.')[3]);
 
                     for (int i = startip; i <= endip; i++)
                     {
@@ -135,12 +160,41 @@ namespace NetworkScanner
                         IPAddress newip = IPAddress.Parse(string.Format("{0}.{1}.{2}.{3}", parseIP[0], parseIP[1], parseIP[2], parseIP[3]));
 
                         var reply = PingTester.SendPing(newip);
+
+                        IPInfo info = GetIPList(newip);
+
+                        if (info != null)
+                        {
+                            info.RountTime = reply.RoundtripTime;
+                            info.Alive = reply.RoundtripTime == 9999 ? false : true;
+                        }
+                        else
+                        {
+                            IPInfo newIpInfo = new IPInfo();
+                            newIpInfo.Ip = newip;
+                            newIpInfo.Port = 0;
+                            newIpInfo.SystemName = "";
+                            newIpInfo.Description = "";
+                            newIpInfo.CommitDate = DateTime.Now;
+                            newIpInfo.RountTime = reply.RoundtripTime;
+                            newIpInfo.Alive = reply.RoundtripTime == 9999?false:true;
+
+                            IPInfo.GetInstance().Add(newIpInfo);
+                        }
+
                         DisplayMsg(reply.Address.ToString());
                         Thread.Sleep(300);
+
+                        RefreshIPList();
                     }
                 }
                 DisplayMsg("Scanning is Completed.");
             });
+        }
+
+        private IPInfo? GetIPList(IPAddress ip)
+        {
+            return IPInfo.GetInstance().Find(x => x.Ip == ip);
         }
 
         private bool IsExistOnIPList(IPAddress ip)
@@ -156,6 +210,14 @@ namespace NetworkScanner
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
                 TbMsg.Text = msg;
+            }));
+        }
+
+        private void RefreshIPList()
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                LvIPList.Items.Refresh();
             }));
         }
 
@@ -179,9 +241,7 @@ namespace NetworkScanner
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            //ping
-            //Task k = Doasync(IPAddress.Parse("10.100.113.1"), IPAddress.Parse("10.100.113.100"));
-            //refresh list
+            Task k = DoasyncRefreshIPRange();
         }
 
         private void BtnStopPing_Click(object sender, RoutedEventArgs e)
@@ -304,7 +364,7 @@ namespace NetworkScanner
         {
             foreach (IPRangeInfo info in IPRangeInfo.GetInstance())
             {
-                Task k = Doasync(info);
+                Task k = DoasyncScanIPRange(info);
             }
         }
     }
