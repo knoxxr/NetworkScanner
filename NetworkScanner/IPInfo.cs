@@ -10,52 +10,51 @@ using System.Threading.Tasks;
 
 namespace NetworkScanner
 {
-    public class IPInformationListViewModel
+    public class IPInformationListViewModel 
     {
-        private readonly IPInformationList items;
+        private readonly IPInfoList items;
 
         public IPInformationListViewModel()
         {
-            this.items = new IPInformationList();
+            this.items = new IPInfoList();
         }
 
-        public IPInformationList Items
+        public IPInfoList Items
         {
             get { return this.items; }
         }
     }
 
-    public class IPInformationList : ObservableCollection<IPInfo>
+    public class IPInfoList : ObservableCollection<IPInfo>
     {
-
-    }
-
-    public class IPInfo : INotifyPropertyChanged
-    {
-        private IPAddress ip;
-        private int port;
-        private string systemName;
-        private long rountTime;
-        private bool alive;
-        private DateTime commitDate;
-        private string description;
-
-        public IPAddress Ip { get => ip; set => ip = value; }
-        public int Port { get => port; set => port = value; }
-        public string SystemName { get => systemName; set => systemName = value; }
-        public long RountTime { get => rountTime; set => rountTime = value; }
-        public bool Alive { get => alive; set => alive = value; }
-        public DateTime CommitDate { get => commitDate; set => commitDate = value; }
-        public string Description { get => description; set => description = value; }
-
-        private static List<IPInfo> instance;
-
-        public static List<IPInfo> GetInstance()
+        public void AddItem(IPInfo newitem)
         {
-            if (instance == null)
-                instance = new List<IPInfo>();
+            if(IsExist(newitem.Ip))
+            {
+                this.Add(newitem);
+            }
+        }
 
-            return instance;
+        public IPInfo GetItem(IPAddress ip)
+        {
+            return this.Items.FirstOrDefault(x => x.Ip == ip);
+        }
+
+        public void DelItem(IPAddress ip)
+        {
+            if (IsExist(ip))
+            {
+                this.Remove(this.Where(x => x.Ip == ip).FirstOrDefault());
+            }
+
+        }
+
+        public bool IsExist(IPAddress ip)
+        {
+            if( this.Where(x=>x.Ip==ip).FirstOrDefault() == null)
+                return false;
+            else 
+                return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -66,5 +65,34 @@ namespace NetworkScanner
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
         }
+    }
+
+    public class IPInfo 
+    {
+        private IPAddress ip;
+        private int port;
+        private string systemName;
+        private long rountTime;
+        private bool alive;
+        private DateTime commitDate;
+        private string description;
+
+        public IPAddress Ip
+        {
+            get => ip; 
+            set
+            {
+                ip = value; 
+                //NotifyPropertyChanged();
+            }
+        }
+        public int Port { get => port; set => port = value; }
+        public string SystemName { get => systemName; set => systemName = value; }
+        public long RountTime { get => rountTime; set => rountTime = value; }
+        public bool Alive { get => alive; set => alive = value; }
+        public DateTime CommitDate { get => commitDate; set => commitDate = value; }
+        public string Description { get => description; set => description = value; }
+
+       
     }
 }

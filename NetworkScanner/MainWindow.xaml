@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkScanner"
         mc:Ignorable="d"
-        Title="Network Scanner" Height="800" Width="1280">
+        Title="Network Scanner v0.5" Height="800" Width="1280">
 
-    <!--Window.Resources>
+    <Window.Resources>
+        <local:IPInfoList x:Key="ipinfoList" />
+        <local:IPRangeList x:Key="ipRangeList" />
         <local:AliveColorConverter x:Key="aliveColorConverter"/>
-    </Window.Resources-->
-
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
@@ -30,18 +32,37 @@
                     <ColumnDefinition Width="200"></ColumnDefinition>
                     <ColumnDefinition Width="200"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0">검색 IP 대역</TextBlock>
+                <TextBlock Grid.Column="0" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="3,3,3,3"> ◎ 검색 IP 대역</TextBlock>
                 <Button Grid.Column="2" Margin="2" Name="btnScanIPRange" Click="btnScanIPRange_Click">검색 대역 새로 스캔</Button>
-                <Button Grid.Column="3"  Name="BtnRefresh" Margin="3" Click="BtnRefresh_Click">현대 리스트 갱신</Button>
+                <Button Grid.Column="3"  Name="BtnRefresh" Margin="3" Click="BtnRefresh_Click">현재 리스트 갱신</Button>
             </Grid>
 
-            <ListView  Grid.Row="1" Name="LvIPRange">
+            <ListView  Grid.Row="1" Name="LvIPRange" ItemsSource="{Binding Source={StaticResource ipRangeList}}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="번호" Width="30" DisplayMemberBinding="{Binding Index}"/>
-                        <GridViewColumn Header="시작 IP" Width="150" DisplayMemberBinding="{Binding StartIP}"/>
-                        <GridViewColumn Header="종료 IP" Width="150" DisplayMemberBinding="{Binding EndIP}"/>
-                        <GridViewColumn Header="비고" Width="150" DisplayMemberBinding="{Binding Description}"/>
+                        <GridViewColumn Header="번호" Width="30" DisplayMemberBinding="{Binding Path=Index}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="시작 IP" Width="150">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox  Width="Auto"  Text="{Binding Path=StartIP, Mode=TwoWay}" HorizontalAlignment="Center" SourceUpdated="StartIP_SourceUpdated" BorderBrush="White"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="종료 IP" Width="150">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox  Width="Auto" Text="{Binding Path=EndIP, Mode=TwoWay}" HorizontalAlignment="Center" SourceUpdated="EndIP_SourceUpdated" BorderBrush="White"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="비고" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox  Width="Auto" Text="{Binding Path=Description, Mode=TwoWay}" SourceUpdated="Desc_SourceUpdated" BorderBrush="White"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -61,7 +82,7 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Label>시작주소</Label>
-                    <TextBox Grid.Column="1" Name="tbStartIP" Margin="3">
+                    <TextBox Grid.Column="1" Name="tbStartIP" Margin="3" >
                     </TextBox>
                 </Grid>
                 <Grid Grid.Row="1" Grid.Column="1">
@@ -78,7 +99,7 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0">비고</TextBlock>
-                    <TextBox  Grid.Column="1" Name="TbRangeDescription"></TextBox>
+                    <TextBox  Grid.Column="1" Name="TbRangeDescription" Margin="3"></TextBox>
                 </Grid>
 
                 <Button Grid.Column="4" Margin="3" Name="BtnAddIPRange" Click="BtnAddIPRange_Click" >대역대 추가</Button>
@@ -86,47 +107,60 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"/>
+                <ColumnDefinition Width="23*"/>
+                <ColumnDefinition Width="95*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock>검색된 IP 정보</TextBlock>
-            <ListView Grid.Row="1" Name="LvIPList" ItemsSource="{Binding Items}">
-                <!--ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Alive}"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Ip}"/>
-                        <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding SystemName}"/>
-                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding CommitDate}"/>
-                        <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding Description}"/>
-                    </Grid>
-                </DataTemplate>
-             </ListView.ItemTemplate-->
+            <TextBlock Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="3,3,3,3"> ◎ 검색된 IP 정보</TextBlock>
+            <ListView Grid.Row="1" Name="LvIPList"  Grid.ColumnSpan="3" ItemsSource="{Binding Source={StaticResource ipinfoList}}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Alive" Width="50" DisplayMemberBinding="{Binding Alive}">
+                        <GridViewColumn Header="Alive" Width="50" >
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button  HorizontalAlignment="Center" Background="Yellow" />
+                                    <Ellipse Margin="3" Width="20" Height="20" Fill="{Binding Path=Alive, Converter={StaticResource aliveColorConverter},Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" StrokeThickness="0" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="IP" Width="150" DisplayMemberBinding="{Binding Ip}"/>
-                        <GridViewColumn Header="이름" Width="150" DisplayMemberBinding="{Binding SystemName}"/>
-                        <GridViewColumn Header="Ping Time" Width="50" DisplayMemberBinding="{Binding RountTime}"/>
-                        <GridViewColumn Header="생성일" Width="200" DisplayMemberBinding="{Binding CommitDate}"/>
-                        <GridViewColumn Header="비고" Width="200" DisplayMemberBinding="{Binding Description}">
+                        <GridViewColumn Header="IP" Width="160">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBox  HorizontalAlignment="Center" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Background="Yellow" ></TextBox>
+                                    <Label  Width="Auto" Content="{Binding Path=Ip, Mode=OneWay}">
+                                    </Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="이름" Width="150">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox  Width="Auto" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Round Time(ms)" Width="120">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Width="120" Content="{Binding Path=RountTime, Mode=OneWay}" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="비고" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Path=Description, Mode=TwoWay}" Width="Auto"  BorderBrush="White">
+                                    </TextBox>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="생성일" Width="200">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label  Width="200" Content="{Binding Path=CommitDate, Mode=OneWay}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
