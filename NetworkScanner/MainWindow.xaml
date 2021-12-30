@@ -8,14 +8,14 @@
         Title="Network Scanner v0.5" Height="800" Width="1280">
 
     <Window.Resources>
-        <local:IPInfoList x:Key="ipinfoList" />
-        <local:IPRangeList x:Key="ipRangeList" />
+        <local:IPInfoList x:Key="IPInfoList" />
+        <local:ScanRangeList x:Key="ScanRangeList" />
         <local:AliveColorConverter x:Key="aliveColorConverter"/>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="200"></RowDefinition>
         </Grid.RowDefinitions>
@@ -29,15 +29,15 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition Width="200"></ColumnDefinition>
-                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition Width="40"></ColumnDefinition>
+                    <ColumnDefinition Width="40"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="3,3,3,3"> ◎ 검색 IP 대역</TextBlock>
-                <Button Grid.Column="2" Margin="2" Name="btnScanIPRange" Click="btnScanIPRange_Click">검색 대역 새로 스캔</Button>
+                <TextBlock Grid.Column="0" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Margin="3,3,3,3"> ◎ 스캔 대역 ◎</TextBlock>
+                <Button Grid.Column="2" Margin="2" Name="btnScanIPRange" Click="btnScanAllRange_Click">새로 스캔</Button>
                 <Button Grid.Column="3"  Name="BtnRefresh" Margin="3" Click="BtnRefresh_Click">현재 리스트 갱신</Button>
             </Grid>
 
-            <ListView  Grid.Row="1" Name="LvIPRange" ItemsSource="{Binding Source={StaticResource ipRangeList}}">
+            <ListView  Grid.Row="1" Name="LvIPRange" ItemsSource="{Binding Source={StaticResource ScanRangeList}}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="번호" Width="30" DisplayMemberBinding="{Binding Path=Index}">
@@ -102,22 +102,25 @@
                     <TextBox  Grid.Column="1" Name="TbRangeDescription" Margin="3"></TextBox>
                 </Grid>
 
-                <Button Grid.Column="4" Margin="3" Name="BtnAddIPRange" Click="BtnAddIPRange_Click" >대역대 추가</Button>
-                <Button Grid.Column="5" Margin="3" Name="BtnDelIPRange" Click="BtnDelIPRange_Click" >대역대 삭제</Button>
+                <Button Grid.Column="4" Margin="3" Name="BtnAddIPRange" Click="BtnAddScanRange_Click" >대역대 추가</Button>
+                <Button Grid.Column="5" Margin="3" Name="BtnDelIPRange" Click="BtnDelScanRange_Click" >대역대 삭제</Button>
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10*"/>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="46*"/>
+                <ColumnDefinition Width="151*"/>
+                <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="23*"/>
-                <ColumnDefinition Width="95*"/>
+                <ColumnDefinition Width="55"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Grid.ColumnSpan="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="3,3,3,3"> ◎ 검색된 IP 정보</TextBlock>
-            <ListView Grid.Row="1" Name="LvIPList"  Grid.ColumnSpan="3" ItemsSource="{Binding Source={StaticResource ipinfoList}}">
+            <TextBlock Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="3,0,0,0"> ◎ 검색된 IP 리스트 ◎</TextBlock>
+            <ListView Grid.Row="1" Name="LvIPList"  Grid.ColumnSpan="6" ItemsSource="{Binding Source={StaticResource IPInfoList}}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Alive" Width="50" >
@@ -174,12 +177,20 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition Width="100"></ColumnDefinition>
                 <ColumnDefinition Width="20"></ColumnDefinition>
-                <ColumnDefinition Width="100"></ColumnDefinition>
-                <ColumnDefinition Width="100"></ColumnDefinition>
+                <ColumnDefinition Width="40"></ColumnDefinition>
+                <ColumnDefinition Width="40"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0"  Name="TbMsg" Margin="3" ></TextBlock>
-            <Button Grid.Column="4"  Name="BtnLoad" Margin="3" Click="BtnLoad_Click">불러오기</Button>
-            <Button Grid.Column="5"  Name="BtnSave" Margin="3" Click="BtnSave_Click">저장</Button>
+            <Button Grid.Column="4"  Name="BtnLoad" Margin="3" Click="BtnLoad_Click" ToolTip="기존 IP List를 불러옵니다.">
+                <Button.Content>
+                    <Image Source="/LoadFile.png"></Image>
+                </Button.Content>
+            </Button>
+            <Button Grid.Column="5"  Name="BtnSave" Margin="3" Click="BtnSave_Click" ToolTip="IP 목록을 파일로 저장합니다.파일명은 날짜-시간 조합으로 자동 생성됩니다. ">
+                <Button.Content>
+                <Image Source="/SaveFile.png"></Image>
+                </Button.Content>
+            </Button>
         </Grid>
     </Grid>
 </Window>

@@ -29,7 +29,7 @@ namespace NetworkScanner
     {
         public void AddItem(IPInfo newitem)
         {
-            if(IsExist(newitem.Ip))
+            if(!IsExist(newitem.Ip))
             {
                 this.Add(newitem);
             }

@@ -15,11 +15,11 @@ namespace NetworkScanner
             Ping pingSender = new Ping();
             PingOptions options = new PingOptions();
             options.DontFragment = true;
-            string data = "a";
+            string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
             byte[] buffer = Encoding.ASCII.GetBytes(data);
 
-            int timeout = 120;
+            int timeout = 300;
 
             PingReply reply = pingSender.Send(targetIP, timeout, buffer, options);
 

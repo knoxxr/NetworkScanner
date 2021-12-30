@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NetworkScanner
 {
-    public class IPRangeInfo
+    public class ScanRangeInfo
     {
         public int Index { get; set; }
         public string StartIP { get; set; }
@@ -18,13 +18,13 @@ namespace NetworkScanner
         public string Description { get; set; }
     }
 
-    public class IPRangeList : List<IPRangeInfo>
+    public class ScanRangeList : List<ScanRangeInfo>
     {
-        public IPRangeList()
+        public ScanRangeList()
         { 
         } 
 
-        public void AddItem(IPRangeInfo item)
+        public void AddItem(ScanRangeInfo item)
         {
             if (!IsExist(item.Index))
             {
