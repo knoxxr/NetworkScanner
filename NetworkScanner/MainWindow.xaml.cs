@@ -32,8 +32,8 @@ namespace NetworkScanner
     public partial class MainWindow : Window
     {
         public const string IPRangeFileName = "iprange.ini";
-        IPRangeList ipRangeList = new IPRangeList();
-        IPInfoList ipInfoList = new IPInfoList();
+        ScanRangeList _ScanRangeList = new ScanRangeList();
+        IPInfoList _IPInfoList = new IPInfoList();
 
         public MainWindow()
         {
@@ -46,8 +46,8 @@ namespace NetworkScanner
         {
 
             /*LvIPList.ItemsSource = ipInfoList;*/
-            ipInfoList = Resources["ipinfoList"] as IPInfoList;
-            ipRangeList = Resources["ipRangeList"] as IPRangeList;
+            _IPInfoList = Resources["IPInfoList"] as IPInfoList;
+            _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
             LoadIPRange();
         }
 
@@ -74,24 +74,24 @@ namespace NetworkScanner
 
         private void ParsingIPRange(string[] raw)
         {
-            ipRangeList.Clear();
+            _ScanRangeList.Clear();
             foreach (string line in raw)
             {
                 string[] token = line.Split(",");
 
                 if (token.Length > 0)
                 {
-                    IPRangeInfo info = new IPRangeInfo();
+                    ScanRangeInfo info = new ScanRangeInfo();
                     info.Index = int.Parse(token[0]);
                     info.StartIP = token[1] ;
                     info.EndIP = token[2] ;
                     info.Description = token[3];
-                    ipRangeList.AddItem(info);
+                    _ScanRangeList.AddItem(info);
                 }
             }
         }
 
-        private void LoadIPInformation(string filename)
+        private void LoadIPInfo(string filename)
         {
             string[] lines = System.IO.File.ReadAllLines(filename);
 
@@ -102,7 +102,7 @@ namespace NetworkScanner
 
         private void ParsingIP(string[] raw)
         {
-            ipInfoList.Clear();
+            _IPInfoList.Clear();
             foreach (string line in raw)
             {
                 string[] token = line.Split(",");
@@ -115,16 +115,16 @@ namespace NetworkScanner
                     ip.SystemName = token[2];
                     ip.Description = token[3];
                     ip.CommitDate = DateTime.Parse(token[4]);
-                    ipInfoList.Add(ip);
+                    _IPInfoList.Add(ip);
                 }
             }
         }
 
-        public async Task DoasyncRefreshIPRange()
+        public async Task DoasyncRefreshScanRange()
         {
             await Task.Run(() =>
             {
-                foreach (IPInfo item in ipInfoList)
+                foreach (IPInfo item in _IPInfoList)
                 {
                     var reply = PingTester.SendPing(item.Ip);
                     if (reply.Status == IPStatus.Success)
@@ -139,18 +139,17 @@ namespace NetworkScanner
                     }
                     DisplayMsg(reply.Address.ToString());
                     Thread.Sleep(500);
-                    DisplayMsg("Scanning is Completed.");
                     RefreshIPList();
                 }
+                    DisplayMsg("Scanning is Completed.");
             });
         }
 
-        public async Task DoasyncScanIPRange()
+        public async Task DoasyncScanRange()
         {
             await Task.Run(() =>
             {
-                ipRangeList.Clear();
-                foreach (IPRangeInfo item in ipRangeList)
+                foreach (ScanRangeInfo item in _ScanRangeList)
                 {
                     string[] parseStartIP = item.StartIP.Split('.');
                     string[] parseEndIP = item.EndIP.Split('.');
@@ -166,12 +165,13 @@ namespace NetworkScanner
                         if (reply.Status == IPStatus.Success)
                         {
 
-                            IPInfo info = ipInfoList.GetItem(newip);
+                            IPInfo info = _IPInfoList.GetItem(newip);
 
                             if (info != null)
                             {
                                 info.RountTime = reply.RoundtripTime ;
                                 info.Alive = true;
+                                RefreshIPList();
                             }
                             else
                             {
@@ -184,16 +184,16 @@ namespace NetworkScanner
                                 newIpInfo.RountTime = reply.RoundtripTime;
                                 newIpInfo.Alive = true;
 
-                                ipInfoList.Add(newIpInfo);
-
+                                //ipInfoList.Add(newIpInfo);
+                                AddIPInfo(newIpInfo);
                                 RefreshIPList();
                             }
                         }
                         else
                         {
-                            if(ipInfoList.GetItem(newip) != null)
+                            if(_IPInfoList.GetItem(newip) != null)
                             {
-                                ipInfoList.DelItem(newip);
+                                _IPInfoList.DelItem(newip);
                             }
                         }
 
@@ -208,8 +208,13 @@ namespace NetworkScanner
                 DisplayMsg("Scanning is Completed.");
             });
         }
-
-
+        private void AddIPInfo(IPInfo info)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                _IPInfoList.AddItem(info);
+            }));
+        }
         private void DisplayMsg(string msg)
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
@@ -226,7 +231,7 @@ namespace NetworkScanner
             }));
         }
 
-        private void CkearIPList()
+        private void ClearIPList()
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
@@ -255,7 +260,7 @@ namespace NetworkScanner
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            Task k = DoasyncRefreshIPRange();
+            Task k = DoasyncRefreshScanRange();
         }
 
         private void BtnStopPing_Click(object sender, RoutedEventArgs e)
@@ -280,12 +285,12 @@ namespace NetworkScanner
 
             if (openFileDialog.ShowDialog() == true)
             {
-                LoadIPInformation(openFileDialog.FileName);
+                LoadIPInfo(openFileDialog.FileName);
             }
 
         }
 
-        private void BtnAddIPRange_Click(object sender, RoutedEventArgs e)
+        private void BtnAddScanRange_Click(object sender, RoutedEventArgs e)
         {
             if (!IsValidIP(tbStartIP.Text))
             {
@@ -301,29 +306,29 @@ namespace NetworkScanner
 
             IPAddress.Parse(tbEndIP.Text);
 
-            IPRangeInfo newinfo = new IPRangeInfo();
-            newinfo.Index = ipRangeList.Count + 1;
+            ScanRangeInfo newinfo = new ScanRangeInfo();
+            newinfo.Index = _ScanRangeList.Count + 1;
             newinfo.StartIP = tbStartIP.Text;
             newinfo.EndIP = tbEndIP.Text;
             newinfo.Description = TbRangeDescription.Text;
 
-            ipRangeList.AddItem(newinfo);
+            _ScanRangeList.AddItem(newinfo);
 
-            WriteIPRangeInfo();
+            WriteScanRangeInfo();
             LvIPRange.Items.Refresh();
         }
 
-        private void BtnDelIPRange_Click(object sender, RoutedEventArgs e)
+        private void BtnDelScanRange_Click(object sender, RoutedEventArgs e)
         {
             if (LvIPRange.SelectedItems.Count == 0) return;
-            IPRangeInfo item = (IPRangeInfo)LvIPRange.SelectedItems[0];
+            ScanRangeInfo item = (ScanRangeInfo)LvIPRange.SelectedItems[0];
 
             if (MessageBox.Show(String.Format("{0} 대역을 삭제하시겠습니까?", item.Index), "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                ipRangeList.DelItem(item.Index);
+                _ScanRangeList.DelItem(item.Index);
             }
 
-            WriteIPRangeInfo();
+            WriteScanRangeInfo();
             LvIPRange.Items.Refresh();
         }
 
@@ -334,26 +339,28 @@ namespace NetworkScanner
 
         public async void WriteIPInfo()
         {
+            if (_IPInfoList.Count == 0) return;
+
             List<string> lines = new List<string>();
 
-            foreach (IPInfo info in ipInfoList)
+            foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate);
+                string line = string.Format("{0},{1},{2},{3},{4}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate.ToString("yyyy/MM/dd HH:mm:ss"));
                 lines.Add(line);
             }
 
-            string path = Directory.GetCurrentDirectory() + @"\env\" + IPRangeFileName;
+            string path = Directory.GetCurrentDirectory() + @"\env\";
             string filename = string.Format("{0}.csv", DateTime.Now.ToString("yyyyMMdd HHmmss"));
             await File.WriteAllLinesAsync(path+filename, lines);
 
             DisplayMsg(string.Format("Write File. File Name : {0}", filename));
         }
 
-        public async void WriteIPRangeInfo()
+        public async void WriteScanRangeInfo()
         {
             List<string> lines = new List<string>();
 
-            foreach (IPRangeInfo info in ipRangeList)
+            foreach (ScanRangeInfo info in _ScanRangeList)
             {
                 string line = string.Format("{0},{1},{2},{3}", info.Index, info.StartIP, info.EndIP, info.Description);
                 lines.Add(line);
@@ -364,24 +371,25 @@ namespace NetworkScanner
             DisplayMsg(string.Format("Write IP Range File."));
         }
 
-        private void btnScanIPRange_Click(object sender, RoutedEventArgs e)
+        private void btnScanAllRange_Click(object sender, RoutedEventArgs e)
         {
-            Task task = DoasyncScanIPRange();
+            _IPInfoList.Clear();
+            Task task = DoasyncScanRange();
         }
 
         private void StartIP_SourceUpdated(object sender, DataTransferEventArgs e)
         {
-            WriteIPRangeInfo();
+            WriteScanRangeInfo();
         }
 
         private void EndIP_SourceUpdated(object sender, DataTransferEventArgs e)
         {
-            WriteIPRangeInfo();
+            WriteScanRangeInfo();
         }
 
         private void Desc_SourceUpdated(object sender, DataTransferEventArgs e)
         {
-            WriteIPRangeInfo();
+            WriteScanRangeInfo();
         }
     }
 
