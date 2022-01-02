@@ -393,7 +393,7 @@ namespace NetworkScanner
         }
     }
 
-    public class AliveColorConverter : IValueConverter
+    /*public class AliveColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -412,5 +412,5 @@ namespace NetworkScanner
         {
             throw new NotImplementedException();
         }
-    }
+    }*/
 }

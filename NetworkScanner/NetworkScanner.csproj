@@ -2,19 +2,65 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="447-4474862_search-button-png-transparent.png" />
+    <None Remove="782-7824434_contact-icon-tick-list-png-icon-white.png" />
+    <None Remove="depositphotos_232868672-stock-illustration-processor-chip-computer-microchip-cpu.jpg" />
+    <None Remove="document-48.png" />
+    <None Remove="icons8-file-48.png" />
+    <None Remove="icons8-save-48.png" />
+    <None Remove="icons8-search-48.png" />
+    <None Remove="icons8-tune-48.png" />
+    <None Remove="icons8-upload-file-48.png" />
+    <None Remove="images %281%29.png" />
+    <None Remove="images %282%29.png" />
+    <None Remove="images %283%29.png" />
+    <None Remove="images.png" />
     <None Remove="LoadFile.png" />
+    <None Remove="networkscanner.png" />
+    <None Remove="open-in-browser-48.png" />
+    <None Remove="pngtree-lens-icon-image_1338506.jpg" />
+    <None Remove="Refresh.png" />
+    <None Remove="save-as-48.png" />
     <None Remove="SaveFile.png" />
+    <None Remove="Search-PNG-Image-File.png" />
+    <None Remove="settings-2-48.png" />
+    <None Remove="Setup.png" />
+    <None Remove="unnamed %281%29.png" />
+    <None Remove="unnamed.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="447-4474862_search-button-png-transparent.png" />
+    <Resource Include="782-7824434_contact-icon-tick-list-png-icon-white.png" />
+    <Resource Include="depositphotos_232868672-stock-illustration-processor-chip-computer-microchip-cpu.jpg" />
+    <Resource Include="document-48.png" />
+    <Resource Include="icons8-file-48.png" />
+    <Resource Include="icons8-save-48.png" />
+    <Resource Include="icons8-search-48.png" />
+    <Resource Include="icons8-tune-48.png" />
+    <Resource Include="icons8-upload-file-48.png" />
+    <Resource Include="images (1).png" />
+    <Resource Include="images (2).png" />
+    <Resource Include="images (3).png" />
+    <Resource Include="images.png" />
     <Resource Include="LoadFile.png" />
+    <Resource Include="networkscanner.png" />
+    <Resource Include="open-in-browser-48.png" />
+    <Resource Include="pngtree-lens-icon-image_1338506.jpg" />
+    <Resource Include="Refresh.png" />
+    <Resource Include="save-as-48.png" />
     <Resource Include="SaveFile.png" />
+    <Resource Include="Search-PNG-Image-File.png" />
+    <Resource Include="settings-2-48.png" />
+    <Resource Include="Setup.png" />
+    <Resource Include="unnamed (1).png" />
+    <Resource Include="unnamed.png" />
   </ItemGroup>
 
 </Project>

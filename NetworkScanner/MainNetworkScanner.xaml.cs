@@ -1,0 +1,154 @@
+﻿using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace NetworkScanner
+{
+    /// <summary>
+    /// MainNetworkScanner.xaml에 대한 상호 작용 논리
+    /// </summary>
+    /// 
+    public partial class MainNetworkScanner : Window
+    {
+        public const string IPRangeFileName = "iprange.ini";
+        ScanRangeList _ScanRangeList = new ScanRangeList();
+        IPInfoList _IPInfoList = new IPInfoList();
+
+        UCIPList ucIPList = new UCIPList();
+        UCIPRange ucIPRange = new UCIPRange();  
+        public MainNetworkScanner()
+        {
+            InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeApp();
+        }
+
+        private void InitializeApp()
+        {
+            /*LvIPList.ItemsSource = ipInfoList;*/
+            _IPInfoList = Resources["IPInfoList"] as IPInfoList;
+            _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
+            /**//*LoadIPRange();*/
+
+            ucIPList.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
+            ucIPRange.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ucIPRange.VerticalAlignment = VerticalAlignment.Stretch;
+
+
+            BdContent.Child = ucIPList;
+        }
+
+        /*private void LoadIPRange()
+        {
+            string filename = Directory.GetCurrentDirectory() + @"\" + IPRangeFileName;
+
+            FileInfo fi = new FileInfo(filename);
+
+            if (fi.Exists)
+            {
+                string[] lines = System.IO.File.ReadAllLines(filename);
+                ParsingIPRange(lines);
+            }
+            else
+            {
+                using (File.Create(filename))
+                {
+                    DisplayMsg("iprange.ini 파일 생성");
+                }
+            }
+
+        }*/
+
+        private void ParsingIPRange(string[] raw)
+        {
+            _ScanRangeList.Clear();
+            foreach (string line in raw)
+            {
+                string[] token = line.Split(",");
+
+                if (token.Length > 0)
+                {
+                    ScanRangeInfo info = new ScanRangeInfo();
+                    info.Index = int.Parse(token[0]);
+                    info.StartIP = token[1];
+                    info.EndIP = token[2];
+                    info.Description = token[3];
+                    _ScanRangeList.AddItem(info);
+                }
+            }
+        }
+
+        private void RefreshIPList()
+        {
+            ucIPList.RefreshItems();
+        }
+
+        private void ClearIPList()
+        {
+            ucIPList.ClearItems();
+        }
+
+        private void BtnLoadFile_Click(object sender, RoutedEventArgs e)
+        {
+            string path = Directory.GetCurrentDirectory() + "\\env";
+            DirectoryInfo di = new DirectoryInfo(path);
+            if (!di.Exists)
+            {
+                di.Create();
+            }
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = path + @"\env";
+            openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                ucIPList.LoadIPInfo(openFileDialog.FileName);
+            }
+            BdContent.Child = ucIPList;
+        }
+
+        private void BtnNewFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("리스트를 모두 삭제할까요?", "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                ucIPList.ClearItems();
+                BdContent.Child = ucIPList;
+            }
+        }
+
+        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
+        {
+            ucIPList.WriteIPInfo();
+        }
+
+        private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            BdContent.Child = ucIPRange;
+        }
+
+        private void BtnIPList_Click(object sender, RoutedEventArgs e)
+        {
+            BdContent.Child = ucIPList;
+        }
+    }
+}
