@@ -10,12 +10,13 @@
     <UserControl.Resources>
         <local:IPInfoList x:Key="IPInfoList" />
         <local:AliveColorConverter x:Key="aliveColorConverter"/>
-        <SolidColorBrush x:Key="IPInfoBackgroundBrush" Color="DarkBlue"></SolidColorBrush>
+        <SolidColorBrush x:Key="IPInfoBackgroundBrush" Color="#FF326678"></SolidColorBrush>
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
@@ -81,9 +82,9 @@
                     </StackPanel>
                 </Grid>
             </Grid>
-
         </Border>
-        <ListView Grid.Row="1" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}">
+        <ProgressBar Grid.Row="1" Value="0" Name="pbProgress"></ProgressBar>
+        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" Height="485" VerticalAlignment="Bottom">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Alive" Width="50" >
@@ -96,7 +97,7 @@
                     <GridViewColumn Header="IP" Width="160">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label  Width="Auto" Content="{Binding Path=Ip, Mode=OneWay}">
+                                <Label  Content="{Binding Path=Ip, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 </Label>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -104,21 +105,21 @@
                     <GridViewColumn Header="이름" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="Auto" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White"/>
+                                <TextBox  Width="145" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Round Time(ms)" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label Width="120" Content="{Binding Path=RountTime, Mode=OneWay}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Path=RountTime, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Center" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="비고" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding Path=Description, Mode=TwoWay}" Width="Auto"  BorderBrush="White">
+                                <TextBox Text="{Binding Path=Description, Mode=TwoWay}" Width="295"  BorderBrush="White"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 </TextBox>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -126,13 +127,13 @@
                     <GridViewColumn Header="생성일" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label  Width="200" Content="{Binding Path=CommitDate, Mode=OneWay}" />
+                                <Label  Width="200" Content="{Binding Path=CommitDate, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <TextBlock Grid.Row="2" Name="TbMsg"></TextBlock>
+        <TextBlock Grid.Row="3" Name="TbMsg"></TextBlock>
     </Grid>
 </UserControl>

@@ -25,14 +25,35 @@ namespace NetworkScanner
     {
         public const string IPRangeFileName = "iprange.ini";
         public static ScanRangeList _ScanRangeList = new ScanRangeList();
+
+        public static int IPCount
+        {
+            get
+            {
+                int cnt = 0;
+                foreach (ScanRangeInfo info in _ScanRangeList)
+                {
+                    string[] startip = info.StartIP.Split('.');
+                    string[] endip = info.EndIP.Split('.');
+
+                    int startNo = Int32.Parse(startip[3]);
+                    int endNo = Int32.Parse(endip[3]);
+
+                    cnt += endNo - startNo + 1;
+
+                }
+                return cnt;
+            }
+        }
+
         public UCIPRange()
         {
             InitializeComponent();
+            InitializeControl();
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeControl();
         }
 
         private void InitializeControl()
