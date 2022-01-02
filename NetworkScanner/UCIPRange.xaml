@@ -8,19 +8,16 @@
              d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" Loaded="UserControl_Loaded" FontFamily="Consolas" >
     <UserControl.Resources>
         <local:ScanRangeList x:Key="ScanRangeList" />
+        <SolidColorBrush x:Key="RangeBackgroundBrush" Color="#FF403D54"></SolidColorBrush>
     </UserControl.Resources>
-
-    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray" >
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0">
-            <Border.Background>
-                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.WindowFrameColorKey}}"/>
-            </Border.Background>
+        <Border Grid.Row="0" Background ="{StaticResource RangeBackgroundBrush}">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition></ColumnDefinition>
@@ -29,13 +26,13 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" Grid.Column="0">
                     <Image Margin="10" Source="/Setup.png"></Image>
-                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas">설정 화면</Label>
+                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White">설정 화면</Label>
                 </StackPanel>
                 <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#00DDDDDD" BorderBrush="#00707070" Name="Btn_SaveFile" Click="Btn_SaveFile_Click">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Source="/save-as-48.png" Margin="3" Height="30" Width="30"></Image>
-                            <Label>설정 저장</Label>
+                            <Label FontWeight="Bold" Foreground="White">설정 저장</Label>
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -49,21 +46,21 @@
                     <GridViewColumn Header="시작 IP" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="Auto"  Text="{Binding Path=StartIP, Mode=TwoWay}" HorizontalAlignment="Center" BorderBrush="White"/>
+                                <TextBox  Text="{Binding Path=StartIP, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="White"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="종료 IP" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="Auto" Text="{Binding Path=EndIP, Mode=TwoWay}" HorizontalAlignment="Center" BorderBrush="White"/>
+                                <TextBox   Text="{Binding Path=EndIP, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="White"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="비고" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="Auto" Text="{Binding Path=Description, Mode=TwoWay}" BorderBrush="White"/>
+                                <TextBox  Text="{Binding Path=Description, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

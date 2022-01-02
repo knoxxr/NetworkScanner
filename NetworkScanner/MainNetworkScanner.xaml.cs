@@ -53,6 +53,8 @@ namespace NetworkScanner
 
 
             BdContent.Child = ucIPList;
+
+            tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         /*private void LoadIPRange()

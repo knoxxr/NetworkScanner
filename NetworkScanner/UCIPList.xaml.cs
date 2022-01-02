@@ -28,6 +28,7 @@ namespace NetworkScanner
     public partial class UCIPList : UserControl
     {
         private IPInfoList _IPInfoList;
+        private int _SleepTime = 500;
         public UCIPList()
         {
             InitializeComponent();
@@ -55,7 +56,7 @@ namespace NetworkScanner
                     ip.Port = Int32.Parse(token[1]);
                     ip.SystemName = token[2];
                     ip.Description = token[3];
-                    ip.CommitDate = DateTime.Parse(token[4]);
+                    ip.CommitDate = token[4];
                     _IPInfoList.Add(ip);
                 }
             }
@@ -104,7 +105,7 @@ namespace NetworkScanner
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate.ToString("yyyy/MM/dd HH:mm:ss"));
+                string line = string.Format("{0},{1},{2},{3},{4}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate);
                 lines.Add(line);
             }
 
@@ -130,6 +131,8 @@ namespace NetworkScanner
 
         public async Task DoasyncRefreshIPList()
         {
+            InitProgress(_IPInfoList.Count);
+            int idx = 0;
             await Task.Run(() =>
             {
                 foreach (IPInfo item in _IPInfoList)
@@ -146,73 +149,80 @@ namespace NetworkScanner
                         item.Alive = false;
                     }
                     DisplayMsg(reply.Address.ToString());
-                    Thread.Sleep(500);
+                    SetProgress(idx++);
+                    Thread.Sleep(_SleepTime);
                     RefreshItems();
                 }
                 DisplayMsg("스캐닝을 완료했습니다.");
             });
+            InitProgress(0);
         }
 
         public async Task DoasyncScanAllRange()
         {
+            InitProgress(UCIPRange.IPCount);
+            int idx = 0;
+
             await Task.Run(() =>
-        {
-            foreach (ScanRangeInfo item in UCIPRange._ScanRangeList)
             {
-                string[] parseStartIP = item.StartIP.Split('.');
-                string[] parseEndIP = item.EndIP.Split('.');
-                int startip = Int32.Parse(parseStartIP[3]);
-                int endip = Int32.Parse(parseEndIP[3]);
-
-                for (int i = startip; i <= endip; i++)
+                foreach (ScanRangeInfo item in UCIPRange._ScanRangeList)
                 {
-                    IPAddress newip = IPAddress.Parse(string.Format("{0}.{1}.{2}.{3}", parseStartIP[0], parseStartIP[1], parseStartIP[2], parseStartIP[3]));
+                    string[] parseStartIP = item.StartIP.Split('.');
+                    string[] parseEndIP = item.EndIP.Split('.');
+                    int startip = Int32.Parse(parseStartIP[3]);
+                    int endip = Int32.Parse(parseEndIP[3]);
 
-                    var reply = PingTester.SendPing(newip);
-
-                    if (reply.Status == IPStatus.Success)
+                    for (int i = startip; i <= endip; i++)
                     {
+                        IPAddress newip = IPAddress.Parse(string.Format("{0}.{1}.{2}.{3}", parseStartIP[0], parseStartIP[1], parseStartIP[2], parseStartIP[3]));
 
-                        IPInfo info = _IPInfoList.GetItem(newip);
+                        var reply = PingTester.SendPing(newip);
 
-                        if (info != null)
+                        if (reply.Status == IPStatus.Success)
                         {
-                            info.RountTime = reply.RoundtripTime;
-                            info.Alive = true;
-                            RefreshItems();
+
+                            IPInfo info = _IPInfoList.GetItem(newip);
+
+                            if (info != null)
+                            {
+                                info.RountTime = reply.RoundtripTime;
+                                info.Alive = true;
+                                RefreshItems();
+                            }
+                            else
+                            {
+                                IPInfo newIpInfo = new IPInfo();
+                                newIpInfo.Ip = newip;
+                                newIpInfo.Port = 0;
+                                newIpInfo.SystemName = "";
+                                newIpInfo.Description = "";
+                                newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                                newIpInfo.RountTime = reply.RoundtripTime;
+                                newIpInfo.Alive = true;
+
+                                AddNewItem(newIpInfo);
+                            }
                         }
                         else
                         {
-                            IPInfo newIpInfo = new IPInfo();
-                            newIpInfo.Ip = newip;
-                            newIpInfo.Port = 0;
-                            newIpInfo.SystemName = "";
-                            newIpInfo.Description = "";
-                            newIpInfo.CommitDate = DateTime.Now;
-                            newIpInfo.RountTime = reply.RoundtripTime;
-                            newIpInfo.Alive = true;
-
-                            AddNewItem(newIpInfo);
+                            if (_IPInfoList.GetItem(newip) != null)
+                            {
+                                _IPInfoList.DelItem(newip);
+                            }
                         }
+
+                        DisplayMsg(reply.Address.ToString());
+                        string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
+                        parseStartIP[3] = ipbyte4;
+                        SetProgress(idx++);
+
+                        Thread.Sleep(_SleepTime);
+
                     }
-                    else
-                    {
-                        if (_IPInfoList.GetItem(newip) != null)
-                        {
-                            _IPInfoList.DelItem(newip);
-                        }
-                    }
-
-                    DisplayMsg(reply.Address.ToString());
-                    string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
-                    parseStartIP[3] = ipbyte4;
-
-                    Thread.Sleep(200);
-
                 }
-            }
-            DisplayMsg("스캐닝을 완료했습니다.");
-        });
+                DisplayMsg("스캐닝을 완료했습니다.");
+            });
+            InitProgress(0);
         }
         private void DisplayMsg(string msg)
         {
@@ -230,6 +240,23 @@ namespace NetworkScanner
             }));
             RefreshItems();
         }
+        private void SetProgress(int value)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                pbProgress.Value = value;
+            }));
+        }
+        private void InitProgress(int maxvalue)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                pbProgress.Maximum = maxvalue;
+                pbProgress.Value = 0;
+            }));
+        }
+
+
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
         {
@@ -263,7 +290,6 @@ namespace NetworkScanner
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
         {
             WriteIPInfo();
-
         }
     }
     public class AliveColorConverter : IValueConverter

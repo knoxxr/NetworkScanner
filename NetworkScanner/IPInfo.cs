@@ -74,7 +74,7 @@ namespace NetworkScanner
         private string systemName;
         private long rountTime;
         private bool alive;
-        private DateTime commitDate;
+        private string commitDate;
         private string description;
 
         public IPAddress Ip
@@ -90,7 +90,7 @@ namespace NetworkScanner
         public string SystemName { get => systemName; set => systemName = value; }
         public long RountTime { get => rountTime; set => rountTime = value; }
         public bool Alive { get => alive; set => alive = value; }
-        public DateTime CommitDate { get => commitDate; set => commitDate = value; }
+        public string CommitDate { get => commitDate; set => commitDate = value; }
         public string Description { get => description; set => description = value; }
 
        
