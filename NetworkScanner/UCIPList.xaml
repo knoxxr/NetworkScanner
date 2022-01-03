@@ -61,10 +61,10 @@
                 </StackPanel>
                 <Grid Grid.Column="4">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="140"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                <Button Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnRefresh" Click="BtnRefresh_Click" >
+                    <Button  Grid.Column="1"  Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnRefresh" Click="BtnRefresh_Click" >
                     <Button.Content>
                         <Grid >
                             <Grid.ColumnDefinitions>
@@ -76,7 +76,7 @@
                         </Grid>
                     </Button.Content>
                 </Button>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 IP만 갱신</RadioButton>
                         <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 다시 갱신</RadioButton>
                     </StackPanel>
@@ -84,7 +84,15 @@
             </Grid>
         </Border>
         <ProgressBar Grid.Row="1" Value="0" Name="pbProgress"></ProgressBar>
-        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" Height="485" VerticalAlignment="Bottom">
+        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
+                    <Separator />
+                    <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
+                </ContextMenu>
+            </ListView.ContextMenu>
+
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Alive" Width="50" >
@@ -102,7 +110,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="이름" Width="150">
+                    <GridViewColumn Header="이름" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox  Width="145" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />

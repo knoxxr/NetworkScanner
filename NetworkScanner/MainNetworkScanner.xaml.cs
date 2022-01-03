@@ -28,7 +28,9 @@ namespace NetworkScanner
         IPInfoList _IPInfoList = new IPInfoList();
 
         UCIPList ucIPList = new UCIPList();
-        UCIPRange ucIPRange = new UCIPRange();  
+        UCSetting ucSetting = new UCSetting();
+
+        public static bool? UseFTP;
         public MainNetworkScanner()
         {
             InitializeComponent();
@@ -48,13 +50,15 @@ namespace NetworkScanner
 
             ucIPList.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
-            ucIPRange.HorizontalAlignment = HorizontalAlignment.Stretch;
-            ucIPRange.VerticalAlignment = VerticalAlignment.Stretch;
+            ucSetting.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ucSetting.VerticalAlignment = VerticalAlignment.Stretch;
 
 
             BdContent.Child = ucIPList;
 
             tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            UseFTP = ucSetting.UseTFP;
         }
 
         /*private void LoadIPRange()
@@ -77,6 +81,11 @@ namespace NetworkScanner
             }
 
         }*/
+
+        public string GetSystemName()
+        {
+            return ucSetting.SystemName;
+        }
 
         private void ParsingIPRange(string[] raw)
         {
@@ -145,7 +154,7 @@ namespace NetworkScanner
 
         private void BtnSetting_Click(object sender, RoutedEventArgs e)
         {
-            BdContent.Child = ucIPRange;
+            BdContent.Child = ucSetting;
         }
 
         private void BtnIPList_Click(object sender, RoutedEventArgs e)

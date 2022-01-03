@@ -26,24 +26,31 @@ namespace NetworkScanner
 
         public void AddItem(ScanRangeInfo item)
         {
-            if (!IsExist(item.Index))
+            if (!IsExist(item.StartIP, item.EndIP))
             {
                 this.Add(item);
             }
         }
 
-        public void DelItem(int index)
+        public void DelItem(string startIp, string endIp)
         {
-            if (IsExist(index))
+            if (IsExist(startIp, endIp))
             {
-                this.Remove(this.Where(x => x.Index == index).FirstOrDefault());
+                this.Remove(this.Where(x => x.StartIP == startIp && x.EndIP == endIp).FirstOrDefault());
             }
-
         }
 
         public bool IsExist(int index)
         {
             if (this.Where(x => x.Index == index).FirstOrDefault() == null)
+                return false;
+            else
+                return true;
+        }
+
+        public bool IsExist(string startIp, string endIp)
+        {
+            if (this.Where(x => x.StartIP == startIp).FirstOrDefault() == null && this.Where(x => x.EndIP == endIp).FirstOrDefault() == null)
                 return false;
             else
                 return true;

@@ -35,12 +35,12 @@ namespace NetworkScanner
             }
         }
 
-        public IPInfo GetItem(IPAddress ip)
+        public IPInfo GetItem(string ip)
         {
             return this.Items.FirstOrDefault(x => x.Ip == ip);
         }
 
-        public void DelItem(IPAddress ip)
+        public void DelItem(string ip)
         {
             if (IsExist(ip))
             {
@@ -49,7 +49,7 @@ namespace NetworkScanner
 
         }
 
-        public bool IsExist(IPAddress ip)
+        public bool IsExist(string ip)
         {
             if( this.Where(x=>x.Ip==ip).FirstOrDefault() == null)
                 return false;
@@ -69,7 +69,7 @@ namespace NetworkScanner
 
     public class IPInfo 
     {
-        private IPAddress ip;
+        private string ip;
         private int port;
         private string systemName;
         private long rountTime;
@@ -77,7 +77,7 @@ namespace NetworkScanner
         private string commitDate;
         private string description;
 
-        public IPAddress Ip
+        public string Ip
         {
             get => ip; 
             set
