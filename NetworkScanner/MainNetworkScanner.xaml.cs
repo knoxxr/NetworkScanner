@@ -32,7 +32,7 @@ namespace NetworkScanner
         UCIPList ucIPList = new UCIPList();
         UCSetting ucSetting = new UCSetting();
 
-        Timer _Timer;
+        DispatcherTimer _Timer = new DispatcherTimer();
 
         bool _Scanning = false;
 
@@ -66,10 +66,37 @@ namespace NetworkScanner
 
             UseFTP = ucSetting.UseFTP;
 
-            _Timer = new Timer(60000);
-            _Timer.Elapsed += _Timer_Elapsed;
-            _Timer.AutoReset = true;    
-            _Timer.Enabled = true;  
+            _Timer.Interval = TimeSpan.FromMilliseconds(1000);
+            _Timer.Tick += _Timer_Tick;
+            _Timer.Start();
+        }
+
+        private void _Timer_Tick(object? sender, EventArgs e)
+        {
+            bool? useSchd = false;
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                useSchd = ucSetting.ChkScheduling.IsChecked;
+            }));
+
+            if (useSchd != true) return;
+
+            int curHour = int.Parse(DateTime.Now.ToString("HH"));
+            int curmin = DateTime.Now.Minute;
+            if (curmin != 0) return;
+
+            bool? onTime = false;
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                onTime = ucSetting.IsInScheduleHour(curHour);
+            }));
+
+            if (ucIPList.IsScanning() == true) return;
+
+            if (onTime == true)
+            {
+                ucIPList.SchedulingScan();
+            }
         }
 
         private void _Timer_Elapsed(object? sender, ElapsedEventArgs e)
@@ -226,7 +253,7 @@ namespace NetworkScanner
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
 #if DEBUG
-            ucIPList.SchedulingScan();
+            //ucIPList.SchedulingScan();
 #endif
         }
     }

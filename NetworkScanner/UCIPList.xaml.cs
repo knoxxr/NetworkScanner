@@ -158,7 +158,8 @@ namespace NetworkScanner
         CancellationTokenSource ts = new CancellationTokenSource();
         public void SchedulingScan()
         {
-            Scanning = DoasyncScanAllRange(true, ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName());
+            string systemname = ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName();
+            Scanning = DoasyncScanAllRange(true, systemname);
             //Scanning.Wait();
 
         }
@@ -167,10 +168,11 @@ namespace NetworkScanner
         {
             if (rbRefreshAllRange.IsChecked == true)
             {
-                Scanning = DoasyncScanAllRange(false, ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName());
+                string systemname = ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName();
+                Scanning = DoasyncScanAllRange(false, systemname);
                 //Scanning.Wait();
             }
-            else if(rbRefreshOnlyOnList.IsChecked == true)
+            else if (rbRefreshOnlyOnList.IsChecked == true)
             {
                 Scanning = DoasyncRefreshIPList();
                 //Scanning.Wait();
