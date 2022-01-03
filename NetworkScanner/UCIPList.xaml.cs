@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,9 @@ namespace NetworkScanner
         private IPInfoList _IPInfoList;
         private int _SleepTime = 10;
         FTPService FTP = new FTPService();
+
+        public Task Scanning;
+
         public UCIPList()
         {
             InitializeComponent();
@@ -115,7 +119,7 @@ namespace NetworkScanner
                 LvIPList.Items.Refresh();
             }));
         }
-        public async void WriteIPInfo()
+        public async void WriteIPInfo(bool autosave=false)
         {
             if (_IPInfoList.Count == 0)
             {
@@ -139,7 +143,8 @@ namespace NetworkScanner
             { 
                 Directory.CreateDirectory(path);    
             }
-            string filename = string.Format("{0}.csv", ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName()+ DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
+            string autosavetag = autosave==true ? "(SCHEDULING)" : "";
+            string filename = autosavetag + string.Format("{0}.csv", ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName()+ DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
             await File.WriteAllLinesAsync(path + filename, lines, Encoding.UTF8);
 
             if(((MainNetworkScanner)Application.Current.MainWindow).GetUseFTP() == true)
@@ -150,18 +155,47 @@ namespace NetworkScanner
             DisplayMsg(string.Format("파일을 저장했습니다.  File Name : {0}", filename));
         }
 
+        CancellationTokenSource ts = new CancellationTokenSource();
+        public void SchedulingScan()
+        {
+            Scanning = DoasyncScanAllRange(true);
+            //Scanning.Wait();
+
+        }
+
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
             if (rbRefreshAllRange.IsChecked == true)
             {
-                Task k = DoasyncScanAllRange();
+                Scanning = DoasyncScanAllRange(false);
+                //Scanning.Wait();
             }
             else if(rbRefreshOnlyOnList.IsChecked == true)
             {
-                Task k = DoasyncRefreshIPList();
+                Scanning = DoasyncRefreshIPList();
+                //Scanning.Wait();
             }
         }
 
+        public void ScanningStop()
+        {
+            if (Scanning == null) return;
+
+            if(Scanning.Status == TaskStatus.Running)
+            {
+                //Scanning.
+            }
+
+        }
+
+        public bool IsScanning()
+        {
+            if (Scanning == null) return false;
+            if(Scanning.Status == TaskStatus.Running && !Scanning.IsCompleted)
+                return true;
+            else
+                return false;
+        }
 
         public async Task DoasyncRefreshIPList()
         {
@@ -196,10 +230,11 @@ namespace NetworkScanner
             InitProgress(0);
         }
 
-        public async Task DoasyncScanAllRange()
+        public async Task DoasyncScanAllRange(bool scheduling)
         {
             InitProgress(UCSetting.IPCount);
             int idx = 0;
+            DisplayMsg(string.Format("스캐줄링 스캔을 시작합니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
 
             await Task.Run(() =>
             {
@@ -217,53 +252,19 @@ namespace NetworkScanner
                         var reply = PingTester.SendPing(newIp);
 
                         RefreshIPInfo(reply, strIP);
-                        /*if (reply.Status == IPStatus.Success)
-                        {
-                            IPInfo info = _IPInfoList.GetItem(strIP);
-
-                            if (info != null)
-                            {
-                                info.RountTime = reply.RoundtripTime;
-                                info.Alive = true;
-                                if (info.SystemName == "")
-                                    info.SystemName = GetHostName(newIp);
-                                RefreshItems();
-                            }
-                            else
-                            {
-                                IPInfo newIpInfo = new IPInfo();
-                                newIpInfo.Ip = strIP;
-                                newIpInfo.Port = 0;
-                                newIpInfo.Description = "";
-                                newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-                                newIpInfo.RountTime = reply.RoundtripTime;
-                                newIpInfo.Alive = true;
-
-                                newIpInfo.SystemName = GetHostName(newIp);
-
-                                AddNewItem(newIpInfo);
-                            }
-                        }
-                        else
-                        {
-                            if (_IPInfoList.GetItem(strIP) != null)
-                            {
-                                DeleteItem(strIP);
-                            }
-                        }
-*/
                         DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
                         string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
                         parseStartIP[3] = ipbyte4;
                         SetProgress(idx++);
 
                         Thread.Sleep(_SleepTime);
-
                     }
                 }
-                DisplayMsg("스캐닝을 완료했습니다.");
             });
             InitProgress(0);
+            DisplayMsg(string.Format("스캐줄링 스캔을 완료했습니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+
+            if (scheduling) WriteIPInfo(true);
         }
 
         private void RefreshIPInfo(PingReply reply, string targetip)
@@ -279,20 +280,24 @@ namespace NetworkScanner
                 newIpInfo.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime : 9999;
                 newIpInfo.Alive = reply.Status == IPStatus.Success ? true : false;
                 newIpInfo.SystemName = GetHostName(IPAddress.Parse(targetip));
+                RefreshItems();
             }
             else
             {
-                IPInfo newIpInfo = new IPInfo();
-                newIpInfo.Ip = targetip;
-                newIpInfo.Port = 0;
-                newIpInfo.Description = "";
-                newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-                newIpInfo.RountTime = reply.RoundtripTime;
-                newIpInfo.Alive = true;
-                newIpInfo.SystemName = GetHostName(targetip);
-                AddNewItem(newIpInfo);
+                if (reply.Status == IPStatus.Success)
+                {
+                    IPInfo newIpInfo = new IPInfo();
+                    newIpInfo.Ip = targetip;
+                    newIpInfo.Port = 0;
+                    newIpInfo.Description = "";
+                    newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                    newIpInfo.RountTime = reply.RoundtripTime;
+                    newIpInfo.Alive = true;
+                    newIpInfo.SystemName = GetHostName(targetip);
+                    AddNewItem(newIpInfo);
+                    RefreshItems();
+                }
             }
-            RefreshItems();
         }
 
         private string GetHostName(IPAddress hostip)
@@ -334,10 +339,17 @@ namespace NetworkScanner
 
         private void AddNewItem(IPInfo item)
         {
-            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            try
             {
-                _IPInfoList.Add(item);
-            }));
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+                  {
+                      _IPInfoList.Add(item);
+                  }));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.ToString()); 
+            }
             RefreshItems();
         }
         private void SetProgress(int value)

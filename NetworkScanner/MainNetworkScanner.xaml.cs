@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,6 +31,10 @@ namespace NetworkScanner
 
         UCIPList ucIPList = new UCIPList();
         UCSetting ucSetting = new UCSetting();
+
+        Timer _Timer;
+
+        bool _Scanning = false;
 
         public static bool? UseFTP;
         public MainNetworkScanner()
@@ -59,7 +64,40 @@ namespace NetworkScanner
 
             tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            UseFTP = ucSetting.UseTFP;
+            UseFTP = ucSetting.UseFTP;
+
+            _Timer = new Timer(60000);
+            _Timer.Elapsed += _Timer_Elapsed;
+            _Timer.AutoReset = true;    
+            _Timer.Enabled = true;  
+        }
+
+        private void _Timer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            bool? useSchd = false;
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                useSchd = ucSetting.ChkScheduling.IsChecked;
+            }));
+
+            if (useSchd != true) return;
+
+            int curHour = int.Parse(DateTime.Now.ToString("HH"));
+            int curmin = DateTime.Now.Minute;
+            if (curmin != 0) return;
+
+            bool? onTime = false;
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                onTime = ucSetting.IsInScheduleHour(curHour);
+            }));
+
+            if(ucIPList.IsScanning() == true) return;
+
+            if (onTime == true)
+            {
+                ucIPList.SchedulingScan();
+            }
         }
 
         public bool? GetUseFTP()
@@ -69,6 +107,7 @@ namespace NetworkScanner
 
         public IPAddress GetFTPIP()
         {
+            if (ucSetting.TbFTPIP.Text == "") return    null;
             return IPAddress.Parse(ucSetting.TbFTPIP.Text);
         }
 
@@ -84,6 +123,7 @@ namespace NetworkScanner
 
         public int GetFTPPort()
         {
+            if (ucSetting.TbFTPPort.Text == "") return 0;
             return Int32.Parse(ucSetting.TbFTPPort.Text);
         }
 
@@ -186,6 +226,13 @@ namespace NetworkScanner
         private void BtnIPList_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucIPList;
+        }
+
+        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+#if DEBUG
+            ucIPList.SchedulingScan();
+#endif
         }
     }
 }

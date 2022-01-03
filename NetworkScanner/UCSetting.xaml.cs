@@ -58,7 +58,7 @@ namespace NetworkScanner
         private const string StrFTPPORT = "ftpport";
         private const string StrSYSTEMNAME = "systemname";
 
-        public bool? UseTFP
+        public bool? UseFTP
         {
             get
             {
@@ -103,6 +103,14 @@ namespace NetworkScanner
             get
             {
                 return tbCurSystemName.Text;
+            }
+        }
+
+        public bool? UseScheduling
+        {
+            get
+            {
+                return ChkScheduling.IsChecked;
             }
         }
 
@@ -202,7 +210,6 @@ namespace NetworkScanner
                 }
             }
         }
-
         private void ParsingSetting(string[] raw)
         {
             foreach (string line in raw)
@@ -310,6 +317,37 @@ namespace NetworkScanner
                 }
             }
         }
+
+        public bool IsInScheduleHour(int hour)
+        {
+            if (Chk01.IsChecked == true && hour==1) return true;
+            if (Chk02.IsChecked == true && hour==2) return true;
+            if (Chk03.IsChecked == true && hour==3) return true;
+            if (Chk04.IsChecked == true && hour==4) return true;
+            if (Chk05.IsChecked == true && hour==5) return true;
+            if (Chk06.IsChecked == true && hour==6) return true;
+            if (Chk07.IsChecked == true && hour==7) return true;
+            if (Chk08.IsChecked == true && hour==8) return true;
+            if (Chk09.IsChecked == true && hour==9) return true;
+            if (Chk10.IsChecked == true && hour==10) return true;
+            if (Chk11.IsChecked == true && hour==11) return true;
+            if (Chk12.IsChecked == true && hour==12) return true;
+            if (Chk13.IsChecked == true && hour==13) return true;
+            if (Chk14.IsChecked == true && hour==14) return true;
+            if (Chk15.IsChecked == true && hour==15) return true;
+            if (Chk16.IsChecked == true && hour==16) return true;
+            if (Chk17.IsChecked == true && hour==17) return true;
+            if (Chk18.IsChecked == true && hour==18) return true;
+            if (Chk19.IsChecked == true && hour==19) return true;
+            if (Chk20.IsChecked == true && hour==20) return true;
+            if (Chk21.IsChecked == true && hour==21) return true;
+            if (Chk22.IsChecked == true && hour==22) return true;
+            if (Chk23.IsChecked == true && hour==23) return true;
+            if (Chk24.IsChecked == true && hour ==0) return true;
+
+            return false;
+        }
+
         public async void WriteScanRangeInfo()
         {
             List<string> lines = new List<string>();

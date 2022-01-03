@@ -19,7 +19,7 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition Height="50"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Image Source="/unnamed (1).png"></Image>
+                    <Image Source="/unnamed (1).png" MouseDown="Image_MouseDown"></Image>
                     <Label Grid.Row="0"  Height="40" FontSize="18" Margin="30,0" FontWeight="Bold" FontStyle="Normal" FontFamily="Consolas" Foreground="#FFFFFEFE">Network Scanner</Label>
                     <StackPanel Grid.Row="1"  >
                         <Button Name="BtnIPList" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="{StaticResource SideBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnIPList_Click">
