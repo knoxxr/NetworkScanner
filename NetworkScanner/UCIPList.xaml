@@ -30,14 +30,14 @@
                     <ColumnDefinition Width="270"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Image Margin="10" Source="/unnamed.png"></Image>
+                    <Image Margin="10" Source="/img/unnamed.png"/>
                     <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White">IP List</Label>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Button Name="BtnNewFile" Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnNewFile_Click">
                         <Button.Content>
                             <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="0">
-                                <Image Width="30" Height="30" Source="/document-48.png"></Image>
+                                <Image Width="30" Height="30" Source="/img/document-48.png"/>
                                 <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">새로 만들기</Label>
                             </StackPanel>
                         </Button.Content>
@@ -45,7 +45,7 @@
                     <Button Name="BtnLoadFile"  Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnLoadFile_Click">
                         <Button.Content>
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
-                                <Image Width="30" Height="30" Source="/open-in-browser-48.png"></Image>
+                                <Image Width="30" Height="30" Source="/img/open-in-browser-48.png"></Image>
                                 <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 열기</Label>
                             </StackPanel>
                         </Button.Content>
@@ -53,7 +53,7 @@
                     <Button Name="BtnSaveFile" Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnSaveFile_Click">
                         <Button.Content>
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
-                                <Image Width="30" Height="30" Source="/save-as-48.png"></Image>
+                                <Image Width="30" Height="30" Source="/img/save-as-48.png"/>
                                 <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 저장</Label>
                             </StackPanel>
                         </Button.Content>
@@ -71,7 +71,7 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" Source="/Search-PNG-Image-File.png" Margin="10"/>
+                            <Image Grid.Column="0" Margin="10" Source="/img/Search-PNG-Image-File.png"/>
                             <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">Refresh</TextBlock>
                         </Grid>
                     </Button.Content>
