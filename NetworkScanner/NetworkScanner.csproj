@@ -7,8 +7,9 @@
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
     <ApplicationIcon>Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.1.1.*</AssemblyVersion>
+    <FileVersion>1.1.1.*</FileVersion>
+<Deterministic>false</Deterministic>
   </PropertyGroup>
 
   <ItemGroup>

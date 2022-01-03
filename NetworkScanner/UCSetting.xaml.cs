@@ -479,6 +479,16 @@ namespace NetworkScanner
             }));
         }
 
+        public string GetSystemName()
+        {
+            string result = "";
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                result  = tbCurSystemName.Text;
+            }));
+
+            return result;
+        }
         private void Btn_SaveFile_Click(object sender, RoutedEventArgs e)
         {
             WriteScanRangeInfo();

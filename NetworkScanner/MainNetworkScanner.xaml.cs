@@ -150,7 +150,7 @@ namespace NetworkScanner
 
         public string GetSystemName()
         {
-            return ucSetting.SystemName;
+            return ucSetting.GetSystemName();
         }
 
         private void ParsingIPRange(string[] raw)
@@ -211,11 +211,6 @@ namespace NetworkScanner
                 ucIPList.ClearItems();
                 BdContent.Child = ucIPList;
             }
-        }
-
-        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
-        {
-            ucIPList.WriteIPInfo();
         }
 
         private void BtnSetting_Click(object sender, RoutedEventArgs e)

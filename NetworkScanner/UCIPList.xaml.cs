@@ -119,7 +119,7 @@ namespace NetworkScanner
                 LvIPList.Items.Refresh();
             }));
         }
-        public async void WriteIPInfo(bool autosave=false)
+        public async void WriteIPInfo(bool autosave, string systemName)
         {
             if (_IPInfoList.Count == 0)
             {
@@ -144,7 +144,7 @@ namespace NetworkScanner
                 Directory.CreateDirectory(path);    
             }
             string autosavetag = autosave==true ? "(SCHEDULING)" : "";
-            string filename = autosavetag + string.Format("{0}.csv", ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName()+ DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
+            string filename = autosavetag + string.Format("{0}.csv", systemName + DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
             await File.WriteAllLinesAsync(path + filename, lines, Encoding.UTF8);
 
             if(((MainNetworkScanner)Application.Current.MainWindow).GetUseFTP() == true)
@@ -158,7 +158,7 @@ namespace NetworkScanner
         CancellationTokenSource ts = new CancellationTokenSource();
         public void SchedulingScan()
         {
-            Scanning = DoasyncScanAllRange(true);
+            Scanning = DoasyncScanAllRange(true, ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName());
             //Scanning.Wait();
 
         }
@@ -167,7 +167,7 @@ namespace NetworkScanner
         {
             if (rbRefreshAllRange.IsChecked == true)
             {
-                Scanning = DoasyncScanAllRange(false);
+                Scanning = DoasyncScanAllRange(false, ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName());
                 //Scanning.Wait();
             }
             else if(rbRefreshOnlyOnList.IsChecked == true)
@@ -230,7 +230,7 @@ namespace NetworkScanner
             InitProgress(0);
         }
 
-        public async Task DoasyncScanAllRange(bool scheduling)
+        public async Task DoasyncScanAllRange(bool scheduling, string systemname)
         {
             InitProgress(UCSetting.IPCount);
             int idx = 0;
@@ -264,7 +264,7 @@ namespace NetworkScanner
             InitProgress(0);
             DisplayMsg(string.Format("스캐줄링 스캔을 완료했습니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
 
-            if (scheduling) WriteIPInfo(true);
+            if (scheduling) WriteIPInfo(true, systemname);
         }
 
         private void RefreshIPInfo(PingReply reply, string targetip)
@@ -398,7 +398,7 @@ namespace NetworkScanner
 
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
         {
-            WriteIPInfo();
+            WriteIPInfo(false, ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName());
         }
 
         private void LvIPList_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
