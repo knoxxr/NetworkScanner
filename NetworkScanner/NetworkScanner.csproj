@@ -2,9 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.20348.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <StartupObject>NetworkScanner.App</StartupObject>
+    <ApplicationIcon>Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +37,10 @@
     <None Remove="Setup.png" />
     <None Remove="unnamed %281%29.png" />
     <None Remove="unnamed.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Kyo-Tux-Delikate-Network.ico" />
   </ItemGroup>
 
   <ItemGroup>

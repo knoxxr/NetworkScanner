@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkScanner"
         mc:Ignorable="d"
-        Title="Network Scanner" Height="700" Width="1280" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="Network Scanner" Height="700" Width="1280" Loaded="Window_Loaded" >
 
     <Window.Resources>
         <SolidColorBrush x:Key="SideBackgroundBrush" Color="#FF252469"></SolidColorBrush>
@@ -17,7 +17,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="120"></RowDefinition>
                         <RowDefinition></RowDefinition>
-                        <RowDefinition Height="120"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Image Source="/unnamed (1).png"></Image>
                     <Label Grid.Row="0"  Height="40" FontSize="18" Margin="30,0" FontWeight="Bold" FontStyle="Normal" FontFamily="Consolas" Foreground="#FFFFFEFE">Network Scanner</Label>
