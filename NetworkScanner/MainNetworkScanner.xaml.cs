@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -59,6 +60,31 @@ namespace NetworkScanner
             tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             UseFTP = ucSetting.UseTFP;
+        }
+
+        public bool? GetUseFTP()
+        {
+            return ucSetting.ChkUseFTP.IsChecked;
+        }
+
+        public IPAddress GetFTPIP()
+        {
+            return IPAddress.Parse(ucSetting.TbFTPIP.Text);
+        }
+
+        public string GetFTPID()
+        {
+            return ucSetting.TbFTPID.Text;
+        }
+
+        public string GetFTPPW()
+        {
+            return ucSetting.TbFTPPW.Text;
+        }
+
+        public int GetFTPPort()
+        {
+            return Int32.Parse(ucSetting.TbFTPPort.Text);
         }
 
         /*private void LoadIPRange()

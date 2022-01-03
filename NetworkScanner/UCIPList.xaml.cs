@@ -29,6 +29,7 @@ namespace NetworkScanner
     {
         private IPInfoList _IPInfoList;
         private int _SleepTime = 10;
+        FTPService FTP = new FTPService();
         public UCIPList()
         {
             InitializeComponent();
@@ -82,6 +83,15 @@ namespace NetworkScanner
         private void InitializeControl()
         {
             _IPInfoList  = Resources["IPInfoList"] as IPInfoList;
+            InitFTP();
+        }
+
+        private void InitFTP()
+        {
+            FTP.HostIP = ((MainNetworkScanner)Application.Current.MainWindow).GetFTPIP();
+            FTP.ID = ((MainNetworkScanner)Application.Current.MainWindow).GetFTPID();
+            FTP.PW = ((MainNetworkScanner)Application.Current.MainWindow).GetFTPPW();
+            FTP.Port = ((MainNetworkScanner)Application.Current.MainWindow).GetFTPPort();
         }
 
         public void ClearItems()
@@ -115,7 +125,7 @@ namespace NetworkScanner
 
             List<string> lines = new List<string>();
 
-            string title = string.Format("IP Address,Port,SystemName,Description,Commitdate");
+            string title = string.Format("IPAddress,Port,SystemName,Description,Commitdate,Alive");
             lines.Add(title);
 
             foreach (IPInfo info in _IPInfoList)
@@ -131,6 +141,11 @@ namespace NetworkScanner
             }
             string filename = string.Format("{0}.csv", ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName()+ DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
             await File.WriteAllLinesAsync(path + filename, lines, Encoding.UTF8);
+
+            if(((MainNetworkScanner)Application.Current.MainWindow).GetUseFTP() == true)
+            {
+                FTP.UploadFileList(path, filename);
+            }
 
             DisplayMsg(string.Format("파일을 저장했습니다.  File Name : {0}", filename));
         }
