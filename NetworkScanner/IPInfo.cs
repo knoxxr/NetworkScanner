@@ -29,6 +29,11 @@ namespace NetworkScanner
 
     public class IPInfoList : ObservableCollection<IPInfo>
     {
+        public IPInfoList()
+        {
+
+        }
+
         public void AddItem(IPInfo newitem)
         {
             if(!IsExist(newitem.Ip))
@@ -114,7 +119,7 @@ namespace NetworkScanner
             {
                 destinationIPAddressStringArray[i] = destinationIPAddressByteArray[i].ToString("X2");
             }
-            string maxAddress = string.Join(":", destinationIPAddressStringArray); 
+            string maxAddress = string.Join("-", destinationIPAddressStringArray); 
             return maxAddress;
         }
 

@@ -30,13 +30,16 @@ namespace NetworkScanner
     {
         private IPInfoList _IPInfoList;
         private int _SleepTime = 1;
-        FTPService FTP = new FTPService();
+        private FTPService FTP = new FTPService();
+        private OUIInfo OUI = new OUIInfo();
+
 
         public Task Scanning;
 
         public UCIPList()
         {
             InitializeComponent();
+
         }
         public void LoadIPInfo(string filename)
         {
@@ -92,6 +95,7 @@ namespace NetworkScanner
         {
             _IPInfoList  = Resources["IPInfoList"] as IPInfoList;
             InitFTP();
+            OUI.LoadInfo();
         }
 
         private void InitFTP()
@@ -241,7 +245,7 @@ namespace NetworkScanner
                     if (item.Macaddr == "" || item.Macaddr != mac)
                     {
                         item.Macaddr = mac;
-                        item.Vendor = _IPInfoList.LookupMac(item.Ip).Result;
+                        item.Vendor = OUI.GetVender(mac);
                     }
 
 
@@ -301,7 +305,7 @@ namespace NetworkScanner
                 info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
                 info.Alive = reply.Status == IPStatus.Success ? true : false;
                 info.Macaddr = _IPInfoList.GetMACAddress(targetip);
-                info.Vendor = _IPInfoList.LookupMac(targetip).Result;
+                info.Vendor = OUI.GetVender(info.Macaddr); 
 
                 if (info.SystemName == "")
                     info.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
@@ -319,7 +323,7 @@ namespace NetworkScanner
                     newIpInfo.RountTime = reply.RoundtripTime.ToString();
                     newIpInfo.Alive = true;
                     newIpInfo.Macaddr = _IPInfoList.GetMACAddress(targetip);
-                    newIpInfo.Vendor = _IPInfoList.LookupMac(targetip).Result;
+                    newIpInfo.Vendor = OUI.GetVender(newIpInfo.Macaddr);
                     newIpInfo.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                     AddNewItem(newIpInfo);
                     RefreshItems();

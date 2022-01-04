@@ -7,8 +7,8 @@
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
     <ApplicationIcon>img\Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
-    <AssemblyVersion>1.2.3.*</AssemblyVersion>
-    <FileVersion>1.2.3.*</FileVersion>
+    <AssemblyVersion>1.3.3.*</AssemblyVersion>
+    <FileVersion>1.3.3.*</FileVersion>
 <Deterministic>false</Deterministic>
 <Description>Scan all network system on ip range .</Description>
 <PackageIcon>networkscanner.png</PackageIcon>
@@ -92,6 +92,9 @@
     <None Update="img\networkscanner.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+    </None>
+    <None Update="ouiinfo.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
