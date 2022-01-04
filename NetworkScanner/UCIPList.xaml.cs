@@ -145,8 +145,8 @@ namespace NetworkScanner
             { 
                 Directory.CreateDirectory(path);    
             }
-            string autosavetag = autosave==true ? "(SCHEDULING)" : "";
-            string filename = autosavetag + string.Format("{0}.csv", systemName + DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss")));
+            string autosavetag = autosave==true ? "_(SCHEDULING)" : "";
+            string filename = string.Format("{0}.csv", systemName + DateTime.Now.ToString(String.Format("_yyyyMMdd_HHmmss"))+ autosavetag);
             await File.WriteAllLinesAsync(path + filename, lines, Encoding.UTF8);
 
             if(((MainNetworkScanner)Application.Current.MainWindow).GetUseFTP() == true)

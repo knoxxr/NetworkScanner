@@ -145,7 +145,7 @@ namespace NetworkScanner
 
         public string GetFTPPW()
         {
-            return ucSetting.TbFTPPW.Text;
+            return ucSetting.TbFTPPW.Password;
         }
 
         public int GetFTPPort()

@@ -86,7 +86,7 @@ namespace NetworkScanner
         {
             get
             {
-                return TbFTPPW.Text;
+                return TbFTPPW.Password;
             }
         }
 
@@ -305,7 +305,7 @@ namespace NetworkScanner
                             TbFTPID.Text = token[1];
                             break;
                         case StrFTPPW:
-                            TbFTPPW.Text= token[1];
+                            TbFTPPW.Password= token[1];
                             break;
                         case StrFTPPORT:
                             TbFTPPort.Text= token[1];
@@ -395,7 +395,7 @@ namespace NetworkScanner
             lines.Add(string.Format("{0}={1}", StrUseFTP, ChkUseFTP.IsChecked));
             lines.Add(string.Format("{0}={1}", StrFTPIP, TbFTPIP.Text));
             lines.Add(string.Format("{0}={1}", StrFTPID, TbFTPID.Text));
-            lines.Add(string.Format("{0}={1}", StrFTPPW, TbFTPPW.Text));
+            lines.Add(string.Format("{0}={1}", StrFTPPW, TbFTPPW.Password));
             lines.Add(string.Format("{0}={1}", StrFTPPORT, TbFTPPort.Text));
             lines.Add(string.Format("{0}={1}", StrSYSTEMNAME, tbCurSystemName.Text));
 
