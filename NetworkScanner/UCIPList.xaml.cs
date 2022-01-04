@@ -223,12 +223,12 @@ namespace NetworkScanner
                     var reply = PingTester.SendPing(IPAddress.Parse(item.Ip));
                     if (reply.Status == IPStatus.Success)
                     {
-                        item.RountTime = reply.RoundtripTime;
+                        item.RountTime = reply.RoundtripTime.ToString();
                         item.Alive = true;
                     }
                     else
                     {
-                        item.RountTime = 9999;
+                        item.RountTime = "Timeout";
                         item.Alive = false;
                     }
 
@@ -294,7 +294,7 @@ namespace NetworkScanner
             if (info != null)
             {
                 info.Port = 0;
-                info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime : 9999;
+                info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
                 info.Alive = reply.Status == IPStatus.Success ? true : false;
                 info.Macaddr = _IPInfoList.GetMACAddress(targetip);
                 if (info.SystemName == "")
@@ -310,7 +310,7 @@ namespace NetworkScanner
                     newIpInfo.Port = 0;
                     newIpInfo.Description = "";
                     newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-                    newIpInfo.RountTime = reply.RoundtripTime;
+                    newIpInfo.RountTime = reply.RoundtripTime.ToString();
                     newIpInfo.Alive = true;
                     newIpInfo.Macaddr = _IPInfoList.GetMACAddress(targetip);
                     newIpInfo.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));

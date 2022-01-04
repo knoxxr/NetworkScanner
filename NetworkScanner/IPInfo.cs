@@ -124,7 +124,7 @@ namespace NetworkScanner
         private string ip;
         private int port;
         private string systemName;
-        private long rountTime;
+        private string rountTime;
         private bool alive;
         private string commitDate;
         private string description;
@@ -140,7 +140,7 @@ namespace NetworkScanner
         }
         public int Port { get => port; set => port = value; }
         public string SystemName { get => systemName; set => systemName = value; }
-        public long RountTime { get => rountTime; set => rountTime = value; }
+        public string RountTime { get => rountTime; set => rountTime = value; }
         public bool Alive { get => alive; set => alive = value; }
         public string CommitDate { get => commitDate; set => commitDate = value; }
         public string Description { get => description; set => description = value; }
