@@ -76,6 +76,8 @@ namespace NetworkScanner
                         ip.Alive = bool.Parse(token[5]);
                     if(token.Length>=7)
                         ip.Macaddr = token[6];
+                    if (token.Length >= 8)
+                        ip.Vendor = token[7];
                     _IPInfoList.Add(ip);
                 }
             }
@@ -136,7 +138,7 @@ namespace NetworkScanner
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4},{5},{6}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr);
+                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor);
                 lines.Add(line);
             }
 
@@ -239,7 +241,9 @@ namespace NetworkScanner
                     if (item.Macaddr == "" || item.Macaddr != mac)
                     {
                         item.Macaddr = mac;
+                        item.Vendor = _IPInfoList.LookupMac(item.Ip).Result;
                     }
+
 
                     DisplayMsg(reply.Address.ToString());
                     SetProgress(idx++);
@@ -297,6 +301,8 @@ namespace NetworkScanner
                 info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
                 info.Alive = reply.Status == IPStatus.Success ? true : false;
                 info.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                info.Vendor = _IPInfoList.LookupMac(targetip).Result;
+
                 if (info.SystemName == "")
                     info.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                 RefreshItems();
@@ -313,6 +319,7 @@ namespace NetworkScanner
                     newIpInfo.RountTime = reply.RoundtripTime.ToString();
                     newIpInfo.Alive = true;
                     newIpInfo.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                    newIpInfo.Vendor = _IPInfoList.LookupMac(targetip).Result;
                     newIpInfo.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                     AddNewItem(newIpInfo);
                     RefreshItems();

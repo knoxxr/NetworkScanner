@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -117,6 +118,21 @@ namespace NetworkScanner
             return maxAddress;
         }
 
+       /* public async Task<string> LookupMac(string MacAddress)
+        {
+            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
+            using (var wc = new HttpClient())
+                return await wc.GetStringAsync(uri);
+        }*/
+
+        public async Task<string> LookupMac(string MacAddress)
+        {
+            return "";
+            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
+            using (var wc = new HttpClient())
+                return await wc.GetStringAsync(uri);
+        }
+
     }
 
     public class IPInfo 
@@ -129,6 +145,7 @@ namespace NetworkScanner
         private string commitDate;
         private string description;
         private string macaddr;
+        private string vendor;
 
         public string Ip
         {
@@ -145,5 +162,6 @@ namespace NetworkScanner
         public string CommitDate { get => commitDate; set => commitDate = value; }
         public string Description { get => description; set => description = value; }
         public string Macaddr { get => macaddr; set => macaddr = value; }
+        public string Vendor { get => vendor; set => vendor = value; }
     }
 }

@@ -124,6 +124,13 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+					<GridViewColumn Header="Vendor" Width="200">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBox  Width="120" Text="{Binding Path=Vendor, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
                     <GridViewColumn Header="Round Time(ms)" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
