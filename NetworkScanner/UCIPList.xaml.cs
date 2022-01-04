@@ -158,6 +158,11 @@ namespace NetworkScanner
         CancellationTokenSource ts = new CancellationTokenSource();
         public void SchedulingScan()
         {
+            if (Scanning!= null && Scanning.Status == TaskStatus.Running)
+            {
+                DisplayMsg("이미 스캐닝 중입니다.");
+                return;
+            }
             string systemname = ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName();
             Scanning = DoasyncScanAllRange(true, systemname);
             //Scanning.Wait();
@@ -166,6 +171,12 @@ namespace NetworkScanner
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
+            if (Scanning!= null && Scanning.Status == TaskStatus.Running)
+            {
+                DisplayMsg("이미 스캐닝 중입니다.");
+                return;
+            }
+
             if (rbRefreshAllRange.IsChecked == true)
             {
                 string systemname = ((MainNetworkScanner)Application.Current.MainWindow).GetSystemName();

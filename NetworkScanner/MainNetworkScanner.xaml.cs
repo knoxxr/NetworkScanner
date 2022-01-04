@@ -66,7 +66,7 @@ namespace NetworkScanner
 
             UseFTP = ucSetting.UseFTP;
 
-            _Timer.Interval = TimeSpan.FromMilliseconds(1000);
+            _Timer.Interval = TimeSpan.FromMilliseconds(1000*60);
             _Timer.Tick += _Timer_Tick;
             _Timer.Start();
         }
