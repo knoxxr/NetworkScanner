@@ -7,9 +7,12 @@
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
     <ApplicationIcon>img\Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
-    <AssemblyVersion>1.1.1.*</AssemblyVersion>
-    <FileVersion>1.1.1.*</FileVersion>
+    <AssemblyVersion>1.2.1.*</AssemblyVersion>
+    <FileVersion>1.2.1.*</FileVersion>
 <Deterministic>false</Deterministic>
+<Description>Scan all network system on ip range .</Description>
+<PackageIcon>networkscanner.png</PackageIcon>
+<PackageTags>network scan;ping;mac address;arp</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +39,6 @@
     <None Remove="img\images.png" />
     <None Remove="img\iplist.png" />
     <None Remove="img\LoadFile.png" />
-    <None Remove="img\networkscanner.png" />
     <None Remove="img\open-in-browser-48.png" />
     <None Remove="img\pngtree-lens-icon-image_1338506.jpg" />
     <None Remove="img\Refresh.png" />
@@ -84,6 +86,13 @@
     <Resource Include="img\Setup.png" />
     <Resource Include="img\unnamed (1).png" />
     <Resource Include="img\unnamed.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="img\networkscanner.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -65,6 +66,57 @@ namespace NetworkScanner
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
         }
+
+        public string GetHostName(string hostip)
+        {
+            string result = "";
+            try
+            {
+                IPHostEntry host = Dns.GetHostByAddress(IPAddress.Parse(hostip));
+                result = host.HostName;
+            }
+            catch (System.Net.Sockets.SocketException ex)
+            {
+                return result;
+            }
+            return result;
+        }
+
+        public string GetHostName(IPAddress hostip)
+        {
+            string result = "";
+            try
+            {
+                IPHostEntry host = Dns.GetHostByAddress(hostip);
+                result = host.HostName;
+            }
+            catch (System.Net.Sockets.SocketException ex)
+            {
+                return result;
+            }
+            return result;
+        }
+        [DllImport("iphlpapi.dll", ExactSpelling = true)] private static extern int SendARP(int destinationIPValue, int sourceIPValue, byte[] physicalAddressArray, ref uint physicalAddresArrayLength);
+        public string GetMACAddress(string ip)
+        {
+            IPAddress destinationIPAddress = IPAddress.Parse(ip);
+            byte[] destinationIPAddressByteArray = new byte[6];
+            uint destinationIPAddressByteArrayLength = (uint)destinationIPAddressByteArray.Length;
+            int destinationIPValue = BitConverter.ToInt32(destinationIPAddress.GetAddressBytes(), 0);
+            int returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
+            if (returnCode != 0)
+            {
+                return null;
+            }
+            string[] destinationIPAddressStringArray = new string[(int)destinationIPAddressByteArrayLength];
+            for (int i = 0; i < destinationIPAddressByteArrayLength; i++)
+            {
+                destinationIPAddressStringArray[i] = destinationIPAddressByteArray[i].ToString("X2");
+            }
+            string maxAddress = string.Join(":", destinationIPAddressStringArray); 
+            return maxAddress;
+        }
+
     }
 
     public class IPInfo 
@@ -76,6 +128,7 @@ namespace NetworkScanner
         private bool alive;
         private string commitDate;
         private string description;
+        private string macaddr;
 
         public string Ip
         {
@@ -83,7 +136,6 @@ namespace NetworkScanner
             set
             {
                 ip = value; 
-                //NotifyPropertyChanged();
             }
         }
         public int Port { get => port; set => port = value; }
@@ -92,7 +144,6 @@ namespace NetworkScanner
         public bool Alive { get => alive; set => alive = value; }
         public string CommitDate { get => commitDate; set => commitDate = value; }
         public string Description { get => description; set => description = value; }
-
-       
+        public string Macaddr { get => macaddr; set => macaddr = value; }
     }
 }

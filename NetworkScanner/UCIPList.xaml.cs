@@ -29,7 +29,7 @@ namespace NetworkScanner
     public partial class UCIPList : UserControl
     {
         private IPInfoList _IPInfoList;
-        private int _SleepTime = 10;
+        private int _SleepTime = 1;
         FTPService FTP = new FTPService();
 
         public Task Scanning;
@@ -74,6 +74,8 @@ namespace NetworkScanner
                     ip.CommitDate = token[4];
                     if(token.Length>=6)
                         ip.Alive = bool.Parse(token[5]);
+                    if(token.Length>=7)
+                        ip.Macaddr = token[6];
                     _IPInfoList.Add(ip);
                 }
             }
@@ -134,7 +136,7 @@ namespace NetworkScanner
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4},{5}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive);
+                string line = string.Format("{0},{1},{2},{3},{4},{5},{6}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr);
                 lines.Add(line);
             }
 
@@ -231,7 +233,13 @@ namespace NetworkScanner
                     }
 
                     if(item.SystemName=="")
-                        item.SystemName = GetHostName(IPAddress.Parse(item.Ip));
+                        item.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(item.Ip));
+
+                    string mac = _IPInfoList.GetMACAddress(item.Ip);
+                    if (item.Macaddr == "" || item.Macaddr != mac)
+                    {
+                        item.Macaddr = mac;
+                    }
 
                     DisplayMsg(reply.Address.ToString());
                     SetProgress(idx++);
@@ -285,35 +293,34 @@ namespace NetworkScanner
             IPInfo info = _IPInfoList.GetItem(targetip);
             if (info != null)
             {
-                IPInfo newIpInfo = new IPInfo();
-                newIpInfo.Ip = targetip;
-                newIpInfo.Port = 0;
-                newIpInfo.Description = "";
-                newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-                newIpInfo.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime : 9999;
-                newIpInfo.Alive = reply.Status == IPStatus.Success ? true : false;
-                newIpInfo.SystemName = GetHostName(IPAddress.Parse(targetip));
+                info.Port = 0;
+                info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime : 9999;
+                info.Alive = reply.Status == IPStatus.Success ? true : false;
+                info.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                if (info.SystemName == "")
+                    info.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                 RefreshItems();
             }
             else
             {
                 if (reply.Status == IPStatus.Success)
                 {
-                    IPInfo newIpInfo = new IPInfo();
+                    IPInfo newIpInfo = new();
                     newIpInfo.Ip = targetip;
                     newIpInfo.Port = 0;
                     newIpInfo.Description = "";
                     newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                     newIpInfo.RountTime = reply.RoundtripTime;
                     newIpInfo.Alive = true;
-                    newIpInfo.SystemName = GetHostName(targetip);
+                    newIpInfo.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                    newIpInfo.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                     AddNewItem(newIpInfo);
                     RefreshItems();
                 }
             }
         }
 
-        private string GetHostName(IPAddress hostip)
+       /* private string GetHostName(IPAddress hostip)
         {
             string result = "";
             try
@@ -327,13 +334,8 @@ namespace NetworkScanner
             }
 
             return result;
-        }
-
-        private string GetHostName(string hostip)
-        {
-            IPAddress ip = IPAddress.Parse(hostip);
-            return GetHostName(ip); 
-        }
+        }*/
+               
         private void DisplayMsg(string msg)
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
