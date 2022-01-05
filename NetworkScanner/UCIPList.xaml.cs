@@ -39,7 +39,7 @@ namespace NetworkScanner
         public UCIPList()
         {
             InitializeComponent();
-
+            OUI.LoadInfo();
         }
         public void LoadIPInfo(string filename)
         {
@@ -95,7 +95,6 @@ namespace NetworkScanner
         {
             _IPInfoList  = Resources["IPInfoList"] as IPInfoList;
             InitFTP();
-            OUI.LoadInfo();
         }
 
         private void InitFTP()

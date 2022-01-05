@@ -14,7 +14,6 @@ namespace NetworkScanner
         private int port;
         private string iD;
         private string pW;
-
         public IPAddress HostIP { get => hostIP; set => hostIP = value; }
         public int Port { get => port; set => port = value; }
         public string ID { get => iD; set => iD = value; }
@@ -64,5 +63,18 @@ namespace NetworkScanner
                 Console.WriteLine("Upload: {0}", resp.StatusDescription);
             }
         }
+
+        public void DownloadFileList(string path, string filename, string outputfilename)
+        {
+            string ftpPath = String.Format("ftp://{0}/FTP/{1}", HostIP, filename);
+
+            using (WebClient cli = new WebClient())
+            {
+                cli.Credentials = new NetworkCredential(ID, PW);
+                cli.DownloadFile(ftpPath, outputfilename);
+            }
+        }
+
+
     }
 }

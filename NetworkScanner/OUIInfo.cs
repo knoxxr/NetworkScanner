@@ -49,7 +49,7 @@ namespace NetworkScanner
 
         public bool IsValidMac(string mac)
         {
-            if (mac.Length == 0)
+            if (mac == null || mac.Length == 0)
                 return false;
             else
                 return true;
