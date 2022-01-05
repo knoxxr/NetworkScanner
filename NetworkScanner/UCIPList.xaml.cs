@@ -137,7 +137,7 @@ namespace NetworkScanner
 
             List<string> lines = new List<string>();
 
-            string title = string.Format("IPAddress,Port,SystemName,Description,Commitdate,Alive");
+            string title = string.Format("IPAddress,Port,SystemName,Description,Commitdate,Alive,MacAddress,Vendor");
             lines.Add(title);
 
             foreach (IPInfo info in _IPInfoList)
