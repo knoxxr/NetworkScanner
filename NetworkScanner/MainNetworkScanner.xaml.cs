@@ -35,6 +35,7 @@ namespace NetworkScanner
 
         UCIPList ucIPList = new UCIPList();
         UCSetting ucSetting = new UCSetting();
+        UCRefPortList ucPortInfo = new UCRefPortList();
 
         DispatcherTimer _Timer = new DispatcherTimer();
 
@@ -83,6 +84,8 @@ namespace NetworkScanner
             ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
             ucSetting.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucSetting.VerticalAlignment = VerticalAlignment.Stretch;
+            ucPortInfo.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ucPortInfo.VerticalAlignment = VerticalAlignment.Stretch;
 
 
             BdContent.Child = ucIPList;
@@ -155,6 +158,11 @@ namespace NetworkScanner
         public bool? GetUseFTP()
         {
             return ucSetting.ChkUseFTP.IsChecked;
+        }
+
+        public string GetPortList()
+        {
+            return ucSetting.tbPortsList.Text;
         }
 
         public IPAddress GetFTPIP()
@@ -268,6 +276,11 @@ namespace NetworkScanner
         private void BtnSetting_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucSetting;
+        }
+
+        private void BtnPortInfo_Click(object sender, RoutedEventArgs e)
+        {
+            BdContent.Child = ucPortInfo;
         }
 
         private void BtnIPList_Click(object sender, RoutedEventArgs e)

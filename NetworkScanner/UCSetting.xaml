@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
             <RowDefinition Height="200"></RowDefinition>
+            <RowDefinition  Height="60"></RowDefinition>
             <RowDefinition Height="100"></RowDefinition>
             <RowDefinition Height="100"></RowDefinition>
             <RowDefinition  Height="60"></RowDefinition>
@@ -98,6 +99,14 @@
             </Grid>
         </GroupBox>
         <Border Grid.Row="2" Background="White">
+            <GroupBox Header="검색할 Port" Margin="3">
+                <StackPanel Orientation="Horizontal" Margin="3">
+                    <Label Width="100">Port 번호</Label>
+                    <TextBox Name="tbPortsList" HorizontalAlignment="Stretch" MinWidth="500"></TextBox>
+                </StackPanel>
+            </GroupBox>
+        </Border>
+        <Border Grid.Row="3" Background="White">
             <GroupBox Header="스케줄링" Margin="3">
                 <Grid  Margin="5">
                     <Grid.RowDefinitions>
@@ -139,7 +148,7 @@
             </GroupBox>
           
         </Border>
-        <Border Grid.Row="3" Background="White">
+        <Border Grid.Row="4" Background="White">
             <GroupBox Header="파일저장위치" Margin="3">
                 <GroupBox Header="FTP 저장" Margin="3">
                     <StackPanel Margin="3">
@@ -163,7 +172,7 @@
                 </GroupBox>
             </GroupBox>
         </Border>
-        <Border Grid.Row="4" Background="White">
+        <Border Grid.Row="5" Background="White">
             <GroupBox Header="시스템 이름" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
@@ -171,7 +180,7 @@
                 </StackPanel>
             </GroupBox>
         </Border>
-        <Border Grid.Row="5" Background="White">
+        <Border Grid.Row="6" Background="White">
             <GroupBox Header="Update" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="120">Cur version</Label>
@@ -183,7 +192,7 @@
                 </StackPanel>
             </GroupBox>
         </Border>
-        <Border Grid.Row="6" Background="White">
+        <Border Grid.Row="7" Background="White">
             <TextBlock  Background="White" Name="tbMsg" Margin="3"></TextBlock>
         </Border>
     </Grid>

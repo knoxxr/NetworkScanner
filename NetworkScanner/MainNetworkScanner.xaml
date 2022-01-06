@@ -17,7 +17,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="120"></RowDefinition>
                         <RowDefinition></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="160"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Image MouseDown="Image_MouseDown" Source="/img/unnamed (1).png"/>
                     <Label Grid.Row="0"  Height="40" FontSize="18" Margin="30,0" FontWeight="Bold" FontStyle="Normal" FontFamily="Consolas" Foreground="#FFFFFEFE">Network Scanner</Label>
@@ -48,6 +48,14 @@
                         </Button-->
                     </StackPanel>
                     <StackPanel Grid.Row="2" >
+                        <Button Name="BtnInfo" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="{StaticResource SideBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnPortInfo_Click">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <Image Width="40" Height="40" Source="/img/info.png" />
+                                    <Label  Foreground="#FFFFFEFE" VerticalAlignment="Center">참고. 포트정보</Label>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
                         <TextBlock Name="tbVersion" Grid.Row="2" Foreground="White" TextAlignment="Center" VerticalAlignment="Bottom">version</TextBlock>
                         <TextBlock  Foreground="White" TextAlignment="Center" VerticalAlignment="Bottom">SMIC</TextBlock>
                     </StackPanel>

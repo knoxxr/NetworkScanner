@@ -154,7 +154,7 @@ namespace NetworkScanner
     public class IPInfo 
     {
         private string ip;
-        private int port;
+        private string ports;
         private string systemName;
         private string roundTime;
         private bool alive;
@@ -171,7 +171,7 @@ namespace NetworkScanner
                 ip = value; 
             }
         }
-        public int Port { get => port; set => port = value; }
+        public string Ports { get => ports; set => ports = value; }
         public string SystemName { get => systemName; set => systemName = value; }
         public string RountTime { get => roundTime; set => roundTime = value; }
         public bool Alive { get => alive; set => alive = value; }
@@ -179,6 +179,17 @@ namespace NetworkScanner
         public string Description { get => description; set => description = value; }
         public string Macaddr { get => macaddr; set => macaddr = value; }
         public string Vendor { get => vendor; set => vendor = value; }
-        public object RoundTime { get; internal set; }
+        public string RoundTime { get; internal set; }
+
+        public string PortListToString()
+        {
+            string result = "";
+
+            foreach (var item in ports)
+            {
+                result += item + ",";
+            }
+            return result;
+        }
     }
 }
