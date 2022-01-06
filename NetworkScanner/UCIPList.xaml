@@ -1,0 +1,154 @@
+﻿<UserControl x:Class="NetworkScanner.UCIPList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NetworkScanner"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" FontFamily="Consolas" Loaded="UserControl_Loaded">
+
+    <UserControl.Resources>
+        <local:IPInfoList x:Key="IPInfoList" />
+        <local:AliveColorConverter x:Key="aliveColorConverter"/>
+        <SolidColorBrush x:Key="IPInfoBackgroundBrush" Color="#FF326678"></SolidColorBrush>
+    </UserControl.Resources>
+
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0"  Background="{StaticResource IPInfoBackgroundBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="370"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="270"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Image Margin="10" Source="/img/unnamed.png"/>
+                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White">IP List</Label>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Name="BtnNewFile" Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnNewFile_Click">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="0">
+                                <Image Width="30" Height="30" Source="/img/document-48.png"/>
+                                <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">새로 만들기</Label>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Name="BtnLoadFile"  Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnLoadFile_Click">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
+                                <Image Width="30" Height="30" Source="/img/open-in-browser-48.png"></Image>
+                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 열기</Label>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Name="BtnSaveFile" Width="120" Background="{StaticResource IPInfoBackgroundBrush}" BorderBrush="{StaticResource IPInfoBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnSaveFile_Click">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
+                                <Image Width="30" Height="30" Source="/img/save-as-48.png"/>
+                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 저장</Label>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <Grid Grid.Column="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="140"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button  Grid.Column="1"  Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnRefresh" Click="BtnRefresh_Click" >
+                    <Button.Content>
+                        <Grid >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0" Margin="10" Source="/img/Search-PNG-Image-File.png"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">Refresh</TextBlock>
+                        </Grid>
+                    </Button.Content>
+                </Button>
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 IP만 갱신</RadioButton>
+                        <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 다시 갱신</RadioButton>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+        <ProgressBar Grid.Row="1" Value="0" Name="pbProgress"></ProgressBar>
+        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
+                    <Separator />
+                    <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
+                </ContextMenu>
+            </ListView.ContextMenu>
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Alive" Width="50" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Ellipse Margin="3" Width="20" Height="20" Fill="{Binding Path=Alive, Converter={StaticResource aliveColorConverter},Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" StrokeThickness="0" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="IP" Width="160">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label  Content="{Binding Path=Ip, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                </Label>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="이름" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox  Width="145" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Mac Address" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox  Width="145" Text="{Binding Path=Macaddr, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Round Time(ms)" Width="120">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=RountTime, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Center" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="비고" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=Description, Mode=TwoWay}" Width="295"  BorderBrush="White"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                </TextBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="생성일" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label  Width="200" Content="{Binding Path=CommitDate, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBlock Grid.Row="3" Name="TbMsg"></TextBlock>
+    </Grid>
+</UserControl>
