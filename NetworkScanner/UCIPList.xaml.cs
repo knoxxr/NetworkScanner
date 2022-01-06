@@ -244,9 +244,9 @@ namespace NetworkScanner
                     if (item.Macaddr == "" || item.Macaddr != mac)
                     {
                         item.Macaddr = mac;
-                        item.Vendor = OUI.GetVender(mac);
                     }
 
+                    item.Vendor = OUI.GetVender(mac);
 
                     DisplayMsg(reply.Address.ToString());
                     SetProgress(idx++);

@@ -61,7 +61,7 @@
                 </StackPanel>
                 <Grid Grid.Column="4">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"></ColumnDefinition>
+                        <ColumnDefinition Width="140"></ColumnDefinition>
                         <ColumnDefinition Width="140"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Button  Grid.Column="1"  Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnRefresh" Click="BtnRefresh_Click" >
@@ -71,14 +71,14 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" Margin="10" Source="/img/Search-PNG-Image-File.png"/>
+                            <Image Grid.Column="0" Margin="0,10,0,10" Source="/img/Search-PNG-Image-File.png"/>
                             <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">Refresh</TextBlock>
                         </Grid>
                     </Button.Content>
                 </Button>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 IP만 갱신</RadioButton>
-                        <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 다시 갱신</RadioButton>
+                        <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
+                        <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
                     </StackPanel>
                 </Grid>
             </Grid>

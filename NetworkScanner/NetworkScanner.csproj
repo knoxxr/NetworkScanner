@@ -95,7 +95,7 @@
       <PackagePath>\</PackagePath>
     </None>
     <None Update="ouiinfo.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
