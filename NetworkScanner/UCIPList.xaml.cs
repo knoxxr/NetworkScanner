@@ -30,13 +30,16 @@ namespace NetworkScanner
     {
         private IPInfoList _IPInfoList;
         private int _SleepTime = 1;
-        FTPService FTP = new FTPService();
+        private FTPService FTP = new FTPService();
+        private OUIInfo OUI = new OUIInfo();
+
 
         public Task Scanning;
 
         public UCIPList()
         {
             InitializeComponent();
+            OUI.LoadInfo();
         }
         public void LoadIPInfo(string filename)
         {
@@ -76,6 +79,8 @@ namespace NetworkScanner
                         ip.Alive = bool.Parse(token[5]);
                     if(token.Length>=7)
                         ip.Macaddr = token[6];
+                    if (token.Length >= 8)
+                        ip.Vendor = token[7];
                     _IPInfoList.Add(ip);
                 }
             }
@@ -131,12 +136,12 @@ namespace NetworkScanner
 
             List<string> lines = new List<string>();
 
-            string title = string.Format("IPAddress,Port,SystemName,Description,Commitdate,Alive");
+            string title = string.Format("IPAddress,Port,SystemName,Description,Commitdate,Alive,MacAddress,Vendor");
             lines.Add(title);
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4},{5},{6}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr);
+                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor);
                 lines.Add(line);
             }
 
@@ -239,7 +244,9 @@ namespace NetworkScanner
                     if (item.Macaddr == "" || item.Macaddr != mac)
                     {
                         item.Macaddr = mac;
+                        item.Vendor = OUI.GetVender(mac);
                     }
+
 
                     DisplayMsg(reply.Address.ToString());
                     SetProgress(idx++);
@@ -297,6 +304,8 @@ namespace NetworkScanner
                 info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
                 info.Alive = reply.Status == IPStatus.Success ? true : false;
                 info.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                info.Vendor = OUI.GetVender(info.Macaddr); 
+
                 if (info.SystemName == "")
                     info.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                 RefreshItems();
@@ -313,6 +322,7 @@ namespace NetworkScanner
                     newIpInfo.RountTime = reply.RoundtripTime.ToString();
                     newIpInfo.Alive = true;
                     newIpInfo.Macaddr = _IPInfoList.GetMACAddress(targetip);
+                    newIpInfo.Vendor = OUI.GetVender(newIpInfo.Macaddr);
                     newIpInfo.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(targetip));
                     AddNewItem(newIpInfo);
                     RefreshItems();

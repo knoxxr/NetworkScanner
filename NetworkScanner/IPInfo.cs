@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -28,6 +29,11 @@ namespace NetworkScanner
 
     public class IPInfoList : ObservableCollection<IPInfo>
     {
+        public IPInfoList()
+        {
+
+        }
+
         public void AddItem(IPInfo newitem)
         {
             if(!IsExist(newitem.Ip))
@@ -103,7 +109,18 @@ namespace NetworkScanner
             byte[] destinationIPAddressByteArray = new byte[6];
             uint destinationIPAddressByteArrayLength = (uint)destinationIPAddressByteArray.Length;
             int destinationIPValue = BitConverter.ToInt32(destinationIPAddress.GetAddressBytes(), 0);
-            int returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
+            int returnCode;
+
+            try
+            {
+                returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
+            }
+            catch (Exception ex)
+            {
+                EventLogger.WriteEventLogEntry(ex.Message,System.Diagnostics.EventLogEntryType.Error);
+                return null;
+            }
+
             if (returnCode != 0)
             {
                 return null;
@@ -113,8 +130,23 @@ namespace NetworkScanner
             {
                 destinationIPAddressStringArray[i] = destinationIPAddressByteArray[i].ToString("X2");
             }
-            string maxAddress = string.Join(":", destinationIPAddressStringArray); 
+            string maxAddress = string.Join("-", destinationIPAddressStringArray); 
             return maxAddress;
+        }
+
+       /* public async Task<string> LookupMac(string MacAddress)
+        {
+            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
+            using (var wc = new HttpClient())
+                return await wc.GetStringAsync(uri);
+        }*/
+
+        public async Task<string> LookupMac(string MacAddress)
+        {
+            return "";
+            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
+            using (var wc = new HttpClient())
+                return await wc.GetStringAsync(uri);
         }
 
     }
@@ -129,6 +161,7 @@ namespace NetworkScanner
         private string commitDate;
         private string description;
         private string macaddr;
+        private string vendor;
 
         public string Ip
         {
@@ -145,5 +178,6 @@ namespace NetworkScanner
         public string CommitDate { get => commitDate; set => commitDate = value; }
         public string Description { get => description; set => description = value; }
         public string Macaddr { get => macaddr; set => macaddr = value; }
+        public string Vendor { get => vendor; set => vendor = value; }
     }
 }
