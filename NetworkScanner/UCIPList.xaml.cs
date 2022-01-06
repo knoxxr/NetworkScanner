@@ -33,7 +33,6 @@ namespace NetworkScanner
         private FTPService FTP = new FTPService();
         private OUIInfo OUI = new OUIInfo();
 
-
         public Task Scanning;
 
         public UCIPList()
@@ -71,7 +70,7 @@ namespace NetworkScanner
                 {
                     IPInfo ip = new IPInfo();
                     ip.Ip = token[0];
-                    ip.Port = Int32.Parse(token[1]);
+                    ip.Ports = token[1];
                     ip.SystemName = token[2];
                     ip.Description = token[3];
                     ip.CommitDate = token[4];
@@ -93,8 +92,25 @@ namespace NetworkScanner
 
         private void InitializeControl()
         {
-            _IPInfoList  = Resources["IPInfoList"] as IPInfoList;
+            _IPInfoList = Resources["IPInfoList"] as IPInfoList;
             InitFTP();
+            InitPortList();
+        }
+
+        private void InitPortList()
+        {
+            PingTester._PortList.Clear();
+            var ports = ((MainNetworkScanner)Application.Current.MainWindow).GetPortList().Split('/');
+
+            foreach (string port in ports)
+            {
+                int castingport=0;
+                Int32.TryParse(port, out castingport);
+                if (castingport > 0)
+                {
+                    PingTester._PortList.Add(castingport);
+                }
+            }
         }
 
         private void InitFTP()
@@ -141,7 +157,7 @@ namespace NetworkScanner
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor, info.RoundTime);
+                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}", info.Ip, info.Ports, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor, info.RoundTime);
                 lines.Add(line);
             }
 
@@ -225,11 +241,20 @@ namespace NetworkScanner
             {
                 foreach (IPInfo item in _IPInfoList)
                 {
+                    item.Ports = PingTester.CheckPortsOpen(item.Ip);
                     var reply = PingTester.SendPing(IPAddress.Parse(item.Ip));
                     if (reply.Status == IPStatus.Success)
                     {
                         item.RountTime = reply.RoundtripTime.ToString();
                         item.Alive = true;
+                        item.Ports = PingTester.CheckPortsOpen(item.Ip);
+
+                        string mac = _IPInfoList.GetMACAddress(item.Ip);
+                        if (item.Macaddr == "" || item.Macaddr != mac)
+                        {
+                            item.Macaddr = mac;
+                        }
+                        item.Vendor = OUI.GetVender(mac);
                     }
                     else
                     {
@@ -239,14 +264,6 @@ namespace NetworkScanner
 
                     if(item.SystemName=="")
                         item.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(item.Ip));
-
-                    string mac = _IPInfoList.GetMACAddress(item.Ip);
-                    if (item.Macaddr == "" || item.Macaddr != mac)
-                    {
-                        item.Macaddr = mac;
-                    }
-
-                    item.Vendor = OUI.GetVender(mac);
 
                     DisplayMsg(reply.Address.ToString());
                     SetProgress(idx++);
@@ -278,8 +295,8 @@ namespace NetworkScanner
                         string strIP = string.Format("{0}.{1}.{2}.{3}", parseStartIP[0], parseStartIP[1], parseStartIP[2], parseStartIP[3]);
                         IPAddress newIp = IPAddress.Parse(strIP);
                         var reply = PingTester.SendPing(newIp);
-
-                        RefreshIPInfo(reply, strIP);
+                        var openports = PingTester.CheckPortsOpen(strIP);
+                        RefreshIPInfo(reply, strIP, openports);
                         DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
                         string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
                         parseStartIP[3] = ipbyte4;
@@ -295,12 +312,12 @@ namespace NetworkScanner
             if (scheduling) WriteIPInfo(true, systemname);
         }
 
-        private void RefreshIPInfo(PingReply reply, string targetip)
+        private void RefreshIPInfo(PingReply reply, string targetip, string openports)
         {
             IPInfo info = _IPInfoList.GetItem(targetip);
             if (info != null)
             {
-                info.Port = 0;
+                info.Ports = openports;
                 info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
                 info.Alive = reply.Status == IPStatus.Success ? true : false;
                 info.Macaddr = _IPInfoList.GetMACAddress(targetip);
@@ -316,7 +333,7 @@ namespace NetworkScanner
                 {
                     IPInfo newIpInfo = new();
                     newIpInfo.Ip = targetip;
-                    newIpInfo.Port = 0;
+                    newIpInfo.Ports = openports;
                     newIpInfo.Description = "";
                     newIpInfo.CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
                     newIpInfo.RountTime = reply.RoundtripTime.ToString();
@@ -436,7 +453,8 @@ namespace NetworkScanner
             if (selValue == null) return;
 
             var reply = PingTester.SendPing(selValue.Ip);
-            RefreshIPInfo(reply, selValue.Ip);
+            var openports = PingTester.CheckPortsOpen(selValue.Ip);
+            RefreshIPInfo(reply, selValue.Ip, openports);
             DisplayMsg(String.Format("수동으로 {0}으로 Ping을 보냈습니다. 결과 : {1}", selValue.Ip, reply.Status));
         }
 

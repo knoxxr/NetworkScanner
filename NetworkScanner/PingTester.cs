@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace NetworkScanner
 {
     public class PingTester
     {
+        public static List<int> _PortList = new List<int>();
+
         public static PingReply SendPing(IPAddress targetIP)
         {
             Ping pingSender = new Ping();
@@ -51,5 +54,44 @@ namespace NetworkScanner
 
             return reply;
         }
+
+        public static string CheckPortsOpen(string ip)
+        {
+            string result="";
+            foreach(int port in _PortList)
+            {
+                if(CheckPort(ip, port))
+                {
+                    result += port + "/";
+                }
+            }
+
+            return result;
+        }
+        public static bool CheckPort(string ip, int port) 
+        { 
+            bool result = false; 
+            Socket socket = null; 
+            try 
+            { 
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, false); 
+                IAsyncResult ret = socket.BeginConnect(ip, port, null, null); 
+                result = ret.AsyncWaitHandle.WaitOne(100, true); 
+            } 
+            catch 
+            {
+
+            } 
+            finally 
+            { 
+                if (socket != null) 
+                { 
+                    socket.Close(); 
+                } 
+            } 
+            return result; 
+        }
+
     }
 }
