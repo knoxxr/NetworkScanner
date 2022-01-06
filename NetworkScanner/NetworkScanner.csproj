@@ -13,6 +13,7 @@
 <Description>Scan all network system on ip range .</Description>
 <PackageIcon>networkscanner.png</PackageIcon>
 <PackageTags>network scan;ping;mac address;arp</PackageTags>
+<ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

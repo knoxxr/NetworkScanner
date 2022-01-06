@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -37,8 +38,16 @@ namespace NetworkScanner
             byte[] buffer = Encoding.ASCII.GetBytes(data);
 
             int timeout = 500;
-
-            PingReply reply = pingSender.Send(ip, timeout, buffer, options);
+            PingReply reply;
+            try
+            {
+                reply = pingSender.Send(ip, timeout, buffer, options);
+            }
+            catch (Exception e)
+            {
+                EventLogger.WriteEventLogEntry(e.Message, EventLogEntryType.Error);
+                return null;
+            }
 
             return reply;
         }

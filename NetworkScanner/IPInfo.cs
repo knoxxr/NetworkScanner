@@ -109,7 +109,18 @@ namespace NetworkScanner
             byte[] destinationIPAddressByteArray = new byte[6];
             uint destinationIPAddressByteArrayLength = (uint)destinationIPAddressByteArray.Length;
             int destinationIPValue = BitConverter.ToInt32(destinationIPAddress.GetAddressBytes(), 0);
-            int returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
+            int returnCode;
+
+            try
+            {
+                returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
+            }
+            catch (Exception ex)
+            {
+                EventLogger.WriteEventLogEntry(ex.Message,System.Diagnostics.EventLogEntryType.Error);
+                return null;
+            }
+
             if (returnCode != 0)
             {
                 return null;

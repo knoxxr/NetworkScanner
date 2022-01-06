@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Reflection;
+using System.Security.Principal;
 
 namespace NetworkScanner
 {
@@ -44,7 +47,28 @@ namespace NetworkScanner
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+ /*           if (!IsRunningAsAdministrator())
+            {
+                ProcessStartInfo processStartInfo = new ProcessStartInfo(Assembly.GetEntryAssembly().CodeBase);
+                {
+                    var withBlock = processStartInfo;
+                    withBlock.UseShellExecute = true;
+                    withBlock.Verb = "runas";
+                    Process.Start(processStartInfo);
+                    Application.Exit();
+                }
+            }
+            else
+                this.Text += " " + "(Administrator)";*/
+
+            EventLogger.WriteEventLogEntry("프로그램 시작", EventLogEntryType.Information);
             InitializeApp();
+        }
+        public bool IsRunningAsAdministrator()
+        {
+            WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal windowsPrincipal = new WindowsPrincipal(windowsIdentity);
+            return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         private void InitializeApp()
@@ -255,6 +279,11 @@ namespace NetworkScanner
 #if DEBUG
             //ucIPList.SchedulingScan();
 #endif
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            EventLogger.WriteEventLogEntry("프로그램 종료", EventLogEntryType.Information);
         }
     }
 }

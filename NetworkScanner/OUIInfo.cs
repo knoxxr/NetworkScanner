@@ -32,16 +32,23 @@ namespace NetworkScanner
 
         public string GetVender(string mac)
         {
-            if (IsValidMac(mac))
+            try
             {
-                string oui = mac.Substring(0, 8);
-
-                if (_OUIInfo.ContainsKey(oui))
+                if (IsValidMac(mac))
                 {
-                    return _OUIInfo[oui];
+                    string oui = mac.Substring(0, 8);
+
+                    if (_OUIInfo.ContainsKey(oui))
+                    {
+                        return _OUIInfo[oui];
+                    }
+                    else
+                        return "";
                 }
-                else
-                    return "";
+            }
+            catch (Exception ex)
+            {
+                EventLogger.WriteEventLogEntry(ex.Message, System.Diagnostics.EventLogEntryType.Error); 
             }
 
             return "";

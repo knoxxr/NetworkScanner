@@ -43,25 +43,32 @@ namespace NetworkScanner
             string ftpPath = String.Format("ftp://{0}/FTP/{1}", HostIP, filename);
             string inputFile = filename;
 
-            FtpWebRequest req = (FtpWebRequest)WebRequest.Create(ftpPath);
-            req.Method = WebRequestMethods.Ftp.UploadFile;
-            req.Credentials = new NetworkCredential(ID, PW);
-
-            byte[] data;
-            using (StreamReader reader = new StreamReader(path+inputFile))
+            try
             {
-                data = Encoding.GetEncoding(euckrCodePage).GetBytes(reader.ReadToEnd());
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(ftpPath);
+                req.Method = WebRequestMethods.Ftp.UploadFile;
+                req.Credentials = new NetworkCredential(ID, PW);
+
+                byte[] data;
+                using (StreamReader reader = new StreamReader(path + inputFile))
+                {
+                    data = Encoding.GetEncoding(euckrCodePage).GetBytes(reader.ReadToEnd());
+                }
+
+                req.ContentLength = data.Length;
+                using (Stream reqStream = req.GetRequestStream())
+                {
+                    reqStream.Write(data, 0, data.Length);
+                }
+
+                using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
+                {
+                    Console.WriteLine("Upload: {0}", resp.StatusDescription);
+                }
             }
-
-            req.ContentLength = data.Length;
-            using (Stream reqStream = req.GetRequestStream())
+            catch (Exception ex)
             {
-                reqStream.Write(data, 0, data.Length);
-            }
-
-            using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
-            {
-                Console.WriteLine("Upload: {0}", resp.StatusDescription);
+                EventLogger.WriteEventLogEntry(ex.Message, System.Diagnostics.EventLogEntryType.Error);
             }
         }
     }
