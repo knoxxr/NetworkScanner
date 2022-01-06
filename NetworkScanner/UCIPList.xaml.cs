@@ -141,7 +141,7 @@ namespace NetworkScanner
 
             foreach (IPInfo info in _IPInfoList)
             {
-                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor);
+                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}", info.Ip, info.Port, info.SystemName, info.Description, info.CommitDate, info.Alive, info.Macaddr, info.Vendor, info.RoundTime);
                 lines.Add(line);
             }
 

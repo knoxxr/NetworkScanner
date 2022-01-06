@@ -28,6 +28,7 @@ namespace NetworkScanner
     /// 
     public partial class MainNetworkScanner : Window
     {
+        public static string ProgramName = "NetworkScanner";
         public const string IPRangeFileName = "iprange.ini";
         ScanRangeList _ScanRangeList = new ScanRangeList();
         IPInfoList _IPInfoList = new IPInfoList();
