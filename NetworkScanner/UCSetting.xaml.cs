@@ -144,6 +144,16 @@ namespace NetworkScanner
         {
         }
 
+        private void CheckVersion()
+        {
+            var filename = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var version = System.Diagnostics.FileVersionInfo.GetVersionInfo(filename).FileVersion;
+            
+            tbCurVersion.Text = version;
+
+            tbLastestVersion.Text = ProgramUpdate.CheckCurVersion();
+        }
+
         private void InitializeControl()
         {
             _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
@@ -493,7 +503,14 @@ namespace NetworkScanner
         {
             WriteScanRangeInfo();
             WriteSettingInfo();
+        }
 
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Update 하시겠습니까?", "확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                ProgramUpdate.CheckCurVersion();
+            }
         }
     }
 }

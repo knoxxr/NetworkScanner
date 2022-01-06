@@ -113,21 +113,21 @@
                     <GridViewColumn Header="이름" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="145" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBox  Width="195" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Mac Address" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  Width="145" Text="{Binding Path=Macaddr, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBox  Width="195" Text="{Binding Path=Macaddr, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 					<GridViewColumn Header="Vendor" Width="200">
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
-								<TextBox  Width="120" Text="{Binding Path=Vendor, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBox  Width="195" Text="{Binding Path=Vendor, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>

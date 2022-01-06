@@ -16,7 +16,8 @@
             <RowDefinition Height="200"></RowDefinition>
             <RowDefinition Height="100"></RowDefinition>
             <RowDefinition Height="100"></RowDefinition>
-            <RowDefinition  Height="50"></RowDefinition>
+            <RowDefinition  Height="60"></RowDefinition>
+            <RowDefinition  Height="60"></RowDefinition>
             <RowDefinition  Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Background ="{StaticResource RangeBackgroundBrush}">
@@ -139,7 +140,7 @@
           
         </Border>
         <Border Grid.Row="3" Background="White">
-            <GroupBox Header="파일저장위치">
+            <GroupBox Header="파일저장위치" Margin="3">
                 <GroupBox Header="FTP 저장" Margin="3">
                     <StackPanel Margin="3">
                         <CheckBox Name="ChkUseFTP" Height="20">FTP 저장 사용</CheckBox>
@@ -163,14 +164,26 @@
             </GroupBox>
         </Border>
         <Border Grid.Row="4" Background="White">
-            <GroupBox Header="시스템 이름">
-                <StackPanel Orientation="Horizontal">
+            <GroupBox Header="시스템 이름" Margin="3">
+                <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
                     <TextBox Name="tbCurSystemName" Width="200">MyComputer</TextBox>
                 </StackPanel>
             </GroupBox>
         </Border>
         <Border Grid.Row="5" Background="White">
+            <GroupBox Header="Update" Margin="3">
+                <StackPanel Orientation="Horizontal" Margin="3">
+                    <Label Width="120">Cur version</Label>
+                    <TextBox Name="tbCurVersion" Width="200"></TextBox>
+                    <Label Width="120">Lastest version</Label>
+                    <TextBox Name="tbLastestVersion" Width="200">unknown</TextBox>
+                    <Border Width="120"></Border>
+                    <Button Name="btnUpdate" Width="120" Click="btnUpdate_Click"> Update</Button>
+                </StackPanel>
+            </GroupBox>
+        </Border>
+        <Border Grid.Row="6" Background="White">
             <TextBlock  Background="White" Name="tbMsg" Margin="3"></TextBlock>
         </Border>
     </Grid>
