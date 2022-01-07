@@ -58,6 +58,7 @@ namespace NetworkScanner
         private const string StrFTPPORT = "ftpport";
         private const string StrSYSTEMNAME = "systemname";
         private const string StrPORTLIST= "portlist";
+        private const string StrUSEPORTCHECKING= "useportchecking";
 
         public bool? UseFTP
         {
@@ -335,6 +336,9 @@ namespace NetworkScanner
                         case StrPORTLIST:
                             tbPortsList.Text = token[1];
                             break;
+                        case StrUSEPORTCHECKING:
+                            ChkCheckPort.IsChecked = bool.Parse(token[1]);
+                            break;
                     }
                 }
             }
@@ -421,6 +425,7 @@ namespace NetworkScanner
             lines.Add(string.Format("{0}={1}", StrFTPPORT, TbFTPPort.Text));
             lines.Add(string.Format("{0}={1}", StrSYSTEMNAME, tbCurSystemName.Text));
             lines.Add(string.Format("{0}={1}", StrPORTLIST, tbPortsList.Text));
+            lines.Add(string.Format("{0}={1}", StrUSEPORTCHECKING, ChkCheckPort.IsChecked));
 
             await File.WriteAllLinesAsync(SettingFileName, lines, Encoding.UTF8);
 

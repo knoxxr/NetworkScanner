@@ -233,28 +233,127 @@ namespace NetworkScanner
                 return false;
         }
 
+        public async Task DoasyncCheckReservedPortList(string ip)
+        {
+            int idx = 0;
+            int maxcnt = ((MainNetworkScanner)Application.Current.MainWindow).GetReservedPortList().Count;
+            IPInfo ipinfo = _IPInfoList.GetItem(ip);
+            InitProgress(maxcnt);
+            DisplayMsg(String.Format(" {0}으로 예약된 포트 전부 검색을 시작합니다.", ipinfo.Ip));
+            var portlist = ((MainNetworkScanner)Application.Current.MainWindow).GetReservedPortList();
+            string reservedports = "";
+            await Task.Run(() =>
+            {
+                foreach (RefPortInfo port in portlist)
+                {
+                    if (PingTester.CheckReservedPortsOpen(ipinfo.Ip, port.PortNo))
+                    {
+                        reservedports += port.PortNo + "/";
+                    }
+                    SetProgress(idx++);
+                    DisplayMsg(string.Format("({0}/{1})IP: {2}, 검색 Port: {3}",idx, maxcnt, ip, port.PortNo));
+                    //Thread.Sleep(_SleepTime);
+                }
+
+                ipinfo.Ports = reservedports;
+                RefreshItems();
+            });
+
+            SetProgress(0);
+            DisplayMsg(String.Format(" {0}으로 예약된 포트 전부 검색 했습니다. 결과 : {1}", ipinfo.Ip, reservedports));
+        }
+
+        public async Task DoasyncCheckProhibitPortList(string ip)
+        {
+            int idx = 0;
+            int maxcnt = ((MainNetworkScanner)Application.Current.MainWindow).GetProhibitPortList().Count;
+            IPInfo ipinfo = _IPInfoList.GetItem(ip);
+            InitProgress(maxcnt);
+            DisplayMsg(String.Format(" {0}으로 금지된 포트 전부 검색을 시작합니다.", ipinfo.Ip));
+
+            var portlist = ((MainNetworkScanner)Application.Current.MainWindow).GetProhibitPortList();
+            string prohibitPorts = "";
+            await Task.Run(() =>
+            {
+                foreach (RefPortInfo port in portlist)
+                {
+                    if (PingTester.CheckReservedPortsOpen(ipinfo.Ip, port.PortNo))
+                    {
+                        prohibitPorts += port.PortNo + "/";
+                    }
+                    SetProgress(idx++);
+                    DisplayMsg(string.Format("({0}/{1})IP: {2}, 검색 Port: {3}", idx, maxcnt, ipinfo.Ip, port.PortNo));
+                    //Thread.Sleep(_SleepTime);
+                }
+
+                ipinfo.Ports = prohibitPorts;
+                RefreshItems();
+            });
+
+            SetProgress(0);
+            DisplayMsg(String.Format(" {0}으로 금지된 포트 전부 검색 했습니다. 결과 : {1}", ipinfo.Ip, prohibitPorts));
+        }
+
+        public async Task DoasyncCheckUserPortList(string ip)
+        {
+            int idx = 0;
+            IPInfo ipinfo = _IPInfoList.GetItem(ip);
+            DisplayMsg(String.Format(" {0}으로 사용자 포트 전부 검색을 시작합니다.", ipinfo.Ip));
+
+            var portlist = ((MainNetworkScanner)Application.Current.MainWindow).GetPortList().Split('/');
+            int maxcnt = portlist.Length;
+            InitProgress(maxcnt);
+
+            string userports = "";
+            await Task.Run(() =>
+            {
+                foreach (string port in portlist)
+                {
+                    if (PingTester.CheckReservedPortsOpen(ipinfo.Ip, Int32.Parse(port)))
+                    {
+                        userports += port + "/";
+                    }
+                    SetProgress(idx++);
+                    DisplayMsg(string.Format("({0}/{1})IP: {2}, 검색 Port: {3}", idx,maxcnt, ipinfo.Ip, port));
+                    //Thread.Sleep(_SleepTime);
+                }
+
+                ipinfo.Ports = userports;
+                RefreshItems();
+            });
+
+            SetProgress(0);
+            DisplayMsg(String.Format(" {0}으로 사용자 포트 전부 검색 했습니다. 결과 : {1}", ipinfo.Ip, userports));
+        }
+
+
         public async Task DoasyncRefreshIPList()
         {
-            InitProgress(_IPInfoList.Count);
+            int maxcnt = _IPInfoList.Count;
+            InitProgress(maxcnt);
             int idx = 0;
+            DisplayMsg(string.Format("스캔을 시작합니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+
+            bool? useportchecking = ((MainNetworkScanner)Application.Current.MainWindow).GetUsePortChecking();
             await Task.Run(() =>
             {
                 foreach (IPInfo item in _IPInfoList)
                 {
-                    item.Ports = PingTester.CheckPortsOpen(item.Ip);
                     var reply = PingTester.SendPing(IPAddress.Parse(item.Ip));
                     if (reply.Status == IPStatus.Success)
                     {
                         item.RountTime = reply.RoundtripTime.ToString();
                         item.Alive = true;
-                        item.Ports = PingTester.CheckPortsOpen(item.Ip);
 
-                        string mac = _IPInfoList.GetMACAddress(item.Ip);
-                        if (item.Macaddr == "" || item.Macaddr != mac)
+                        if (useportchecking == true)
+                            item.Ports = PingTester.CheckPortsOpen(item.Ip);
+
+                        if (item.Macaddr == "")
                         {
+                            string mac = _IPInfoList.GetMACAddress(item.Ip);
                             item.Macaddr = mac;
+                            item.Vendor = OUI.GetVender(mac);
                         }
-                        item.Vendor = OUI.GetVender(mac);
                     }
                     else
                     {
@@ -262,24 +361,25 @@ namespace NetworkScanner
                         item.Alive = false;
                     }
 
-                    if(item.SystemName=="")
+                    if (item.SystemName == "")
                         item.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(item.Ip));
 
-                    DisplayMsg(reply.Address.ToString());
+                    DisplayMsg(string.Format("({0}/{1}) IP : {2}", idx, maxcnt,  reply.Address.ToString()));
                     SetProgress(idx++);
-                    Thread.Sleep(_SleepTime);
                     RefreshItems();
                 }
-                DisplayMsg("스캐닝을 완료했습니다.");
+                DisplayMsg("스캔을 완료했습니다.");
             });
-            InitProgress(0);
+            SetProgress(0);
         }
 
         public async Task DoasyncScanAllRange(bool scheduling, string systemname)
         {
-            InitProgress(UCSetting.IPCount);
+            int maxcnt = UCSetting.IPCount;
+            InitProgress(maxcnt);
             int idx = 0;
-            DisplayMsg(string.Format("스캐줄링 스캔을 시작합니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+            DisplayMsg(string.Format("전체 대역 스캔을 시작합니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+            bool? useportchecking = ((MainNetworkScanner)Application.Current.MainWindow).GetUsePortChecking();
 
             await Task.Run(() =>
             {
@@ -295,21 +395,32 @@ namespace NetworkScanner
                         string strIP = string.Format("{0}.{1}.{2}.{3}", parseStartIP[0], parseStartIP[1], parseStartIP[2], parseStartIP[3]);
                         IPAddress newIp = IPAddress.Parse(strIP);
                         var reply = PingTester.SendPing(newIp);
-                        var openports = PingTester.CheckPortsOpen(strIP);
+
+                        string openports="";
+                        if (useportchecking == true)
+                            openports = PingTester.CheckPortsOpen(strIP);
+
                         RefreshIPInfo(reply, strIP, openports);
-                        DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
+                        DisplayMsg(string.Format("({0}/{1}) Send Ping to : {2} , ", idx, maxcnt, reply.Address.ToString()));
                         string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
                         parseStartIP[3] = ipbyte4;
                         SetProgress(idx++);
 
-                        Thread.Sleep(_SleepTime);
+                        //Thread.Sleep(_SleepTime);
                     }
                 }
             });
-            InitProgress(0);
-            DisplayMsg(string.Format("스캐줄링 스캔을 완료했습니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+            SetProgress(0);
+            DisplayMsg(string.Format("전체 대역 스캔을 완료했습니다. {0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
 
             if (scheduling) WriteIPInfo(true, systemname);
+        }
+
+        private void RefreshPortInfo(string targetip, string openports)
+        {
+            IPInfo info = _IPInfoList.GetItem(targetip);
+            info.Ports = openports;
+            RefreshItems();
         }
 
         private void RefreshIPInfo(PingReply reply, string targetip, string openports)
@@ -347,22 +458,6 @@ namespace NetworkScanner
             }
         }
 
-       /* private string GetHostName(IPAddress hostip)
-        {
-            string result = "";
-            try
-            {
-                IPHostEntry host = Dns.GetHostByAddress(hostip);
-                result = host.HostName;
-            }
-            catch(System.Net.Sockets.SocketException ex)
-            {
-                return result;
-            }
-
-            return result;
-        }*/
-               
         private void DisplayMsg(string msg)
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
@@ -453,9 +548,39 @@ namespace NetworkScanner
             if (selValue == null) return;
 
             var reply = PingTester.SendPing(selValue.Ip);
-            var openports = PingTester.CheckPortsOpen(selValue.Ip);
+            bool? useportchecking = ((MainNetworkScanner)Application.Current.MainWindow).GetUsePortChecking();
+
+            string openports = "";
+            if (useportchecking == true)
+            {
+                openports = PingTester.CheckPortsOpen(selValue.Ip);
+            }
             RefreshIPInfo(reply, selValue.Ip, openports);
+
             DisplayMsg(String.Format("수동으로 {0}으로 Ping을 보냈습니다. 결과 : {1}", selValue.Ip, reply.Status));
+        }
+
+        private void MenuItemCheckPort_Click(object sender, RoutedEventArgs e)
+        {
+            var selValue = (IPInfo)LvIPList.SelectedValue;
+            if (selValue == null) return;
+
+            Scanning = DoasyncCheckUserPortList(selValue.Ip);
+        }
+        private void MenuItemCheckReservedPort_Click(object sender, RoutedEventArgs e)
+        {
+            var selValue = (IPInfo)LvIPList.SelectedValue;
+            if (selValue == null) return;
+
+            Scanning = DoasyncCheckReservedPortList(selValue.Ip);
+        }
+
+        private void MenuItemCheckProhibitPort_Click(object sender, RoutedEventArgs e)
+        {
+            var selValue = (IPInfo)LvIPList.SelectedValue;
+            if (selValue == null) return;
+
+            Scanning = DoasyncCheckProhibitPortList(selValue.Ip);
         }
 
         private void MenuItemRemove_Click(object sender, RoutedEventArgs e)

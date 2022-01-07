@@ -35,7 +35,7 @@ namespace NetworkScanner
 
         UCIPList ucIPList = new UCIPList();
         UCSetting ucSetting = new UCSetting();
-        UCRefPortList ucPortInfo = new UCRefPortList();
+        UCRefPortList ucReservedPortInfo = new UCRefPortList();
 
         DispatcherTimer _Timer = new DispatcherTimer();
 
@@ -84,8 +84,8 @@ namespace NetworkScanner
             ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
             ucSetting.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucSetting.VerticalAlignment = VerticalAlignment.Stretch;
-            ucPortInfo.HorizontalAlignment = HorizontalAlignment.Stretch;
-            ucPortInfo.VerticalAlignment = VerticalAlignment.Stretch;
+            ucReservedPortInfo.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ucReservedPortInfo.VerticalAlignment = VerticalAlignment.Stretch;
 
 
             BdContent.Child = ucIPList;
@@ -213,6 +213,37 @@ namespace NetworkScanner
             return ucSetting.GetSystemName();
         }
 
+        public bool? GetUsePortChecking()
+        {
+            return ucSetting.ChkCheckPort.IsChecked;
+        }
+
+        public List<RefPortInfo> GetReservedPortList()
+        {
+            List<RefPortInfo> result = new List<RefPortInfo>();
+
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                result = ucReservedPortInfo.ReservedPortList;
+            }
+            ));
+
+            return result;
+        }
+
+        public List<RefPortInfo> GetProhibitPortList()
+        {
+            List<RefPortInfo> result = new List<RefPortInfo>();
+
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                result = ucReservedPortInfo.ProhibitPortList;
+            }
+            ));
+
+            return result;
+        }
+
         private void ParsingIPRange(string[] raw)
         {
             _ScanRangeList.Clear();
@@ -280,7 +311,7 @@ namespace NetworkScanner
 
         private void BtnPortInfo_Click(object sender, RoutedEventArgs e)
         {
-            BdContent.Child = ucPortInfo;
+            BdContent.Child = ucReservedPortInfo;
         }
 
         private void BtnIPList_Click(object sender, RoutedEventArgs e)

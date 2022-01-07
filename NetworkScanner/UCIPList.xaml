@@ -16,8 +16,8 @@
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
-            <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Border Grid.Row="0"  Background="{StaticResource IPInfoBackgroundBrush}">
@@ -83,11 +83,13 @@
                 </Grid>
             </Grid>
         </Border>
-        <ProgressBar Grid.Row="1" Value="0" Name="pbProgress"></ProgressBar>
-        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
+        <ListView Grid.Row="1" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
+                    <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
+                    <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
+                    <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
                     <Separator />
                     <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
                 </ContextMenu>
@@ -163,6 +165,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <ProgressBar Grid.Row="2" Value="0" Name="pbProgress"></ProgressBar>
         <TextBlock Grid.Row="3" Name="TbMsg"></TextBlock>
     </Grid>
 </UserControl>

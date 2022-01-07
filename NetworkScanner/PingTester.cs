@@ -68,6 +68,18 @@ namespace NetworkScanner
 
             return result;
         }
+
+        public static bool CheckReservedPortsOpen(string ip, int port)
+        {
+            return CheckPort(ip, port);
+        }
+
+        public static bool CheckProhibitPortsOpen(string ip, int port)
+        {
+            return CheckPort(ip, port);
+        }
+
+
         public static bool CheckPort(string ip, int port) 
         { 
             bool result = false; 

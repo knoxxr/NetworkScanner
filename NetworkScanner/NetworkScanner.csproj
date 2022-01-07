@@ -7,8 +7,8 @@
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
     <ApplicationIcon>img\Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
-    <AssemblyVersion>1.4.3.*</AssemblyVersion>
-    <FileVersion>1.4.3.*</FileVersion>
+    <AssemblyVersion>1.5.1.*</AssemblyVersion>
+    <FileVersion>1.5.1.*</FileVersion>
 <Deterministic>false</Deterministic>
 <Description>Scan all network system on ip range .</Description>
 <PackageIcon>networkscanner.png</PackageIcon>
@@ -100,6 +100,12 @@
     </None>
     <None Update="ouiinfo.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="prohibitports.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="reservedports.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

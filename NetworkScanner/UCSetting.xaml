@@ -101,6 +101,7 @@
         <Border Grid.Row="2" Background="White">
             <GroupBox Header="검색할 Port" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
+                    <CheckBox Name="ChkCheckPort" Width="180" Content="Port 검색 사용" HorizontalAlignment="Center" VerticalAlignment="Center" ></CheckBox>
                     <Label Width="100">Port 번호</Label>
                     <TextBox Name="tbPortsList" HorizontalAlignment="Stretch" MinWidth="500">22/80/8080</TextBox>
                 </StackPanel>
@@ -172,7 +173,7 @@
                 </GroupBox>
             </GroupBox>
         </Border>
-        <Border Grid.Row="5" Background="White">
+        <Border Grid.Row="5" Background="White" Visibility="Hidden">
             <GroupBox Header="시스템 이름" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
