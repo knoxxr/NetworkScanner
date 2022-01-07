@@ -173,7 +173,7 @@
                 </GroupBox>
             </GroupBox>
         </Border>
-        <Border Grid.Row="5" Background="White" Visibility="Hidden">
+        <Border Grid.Row="5" Background="White">
             <GroupBox Header="시스템 이름" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
@@ -181,7 +181,7 @@
                 </StackPanel>
             </GroupBox>
         </Border>
-        <Border Grid.Row="6" Background="White">
+        <Border Grid.Row="6" Background="White" Visibility="Hidden">
             <GroupBox Header="Update" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="120">Cur version</Label>
