@@ -88,6 +88,9 @@
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
+                    <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
+                    <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
+                    <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
                     <Separator />
                     <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
                 </ContextMenu>
