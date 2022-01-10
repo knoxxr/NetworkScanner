@@ -398,7 +398,9 @@ namespace NetworkScanner
 
                         string openports="";
                         if (useportchecking == true)
+                        {
                             openports = PingTester.CheckPortsOpen(strIP);
+                        }
 
                         RefreshIPInfo(reply, strIP, openports);
                         DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
