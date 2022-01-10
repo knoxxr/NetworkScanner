@@ -401,7 +401,7 @@ namespace NetworkScanner
                             openports = PingTester.CheckPortsOpen(strIP);
 
                         RefreshIPInfo(reply, strIP, openports);
-                        DisplayMsg(string.Format("({0}/{1}) Send Ping to : {2} , ", idx, maxcnt, reply.Address.ToString()));
+                        DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
                         string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
                         parseStartIP[3] = ipbyte4;
                         SetProgress(idx++);
@@ -548,13 +548,7 @@ namespace NetworkScanner
             if (selValue == null) return;
 
             var reply = PingTester.SendPing(selValue.Ip);
-            bool? useportchecking = ((MainNetworkScanner)Application.Current.MainWindow).GetUsePortChecking();
-
-            string openports = "";
-            if (useportchecking == true)
-            {
-                openports = PingTester.CheckPortsOpen(selValue.Ip);
-            }
+            var openports = PingTester.CheckPortsOpen(selValue.Ip);
             RefreshIPInfo(reply, selValue.Ip, openports);
 
             DisplayMsg(String.Format("수동으로 {0}으로 Ping을 보냈습니다. 결과 : {1}", selValue.Ip, reply.Status));
