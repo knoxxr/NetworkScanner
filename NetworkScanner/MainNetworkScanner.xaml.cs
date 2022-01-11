@@ -33,8 +33,8 @@ namespace NetworkScanner
         ScanRangeList _ScanRangeList = new ScanRangeList();
         IPInfoList _IPInfoList = new IPInfoList();
 
-        UCIPList ucIPList = new UCIPList();
         UCSetting ucSetting = new UCSetting();
+        UCIPList ucIPList = new UCIPList();
         UCRefPortList ucReservedPortInfo = new UCRefPortList();
 
         DispatcherTimer _Timer = new DispatcherTimer();
@@ -75,10 +75,8 @@ namespace NetworkScanner
 
         private void InitializeApp()
         {
-            /*LvIPList.ItemsSource = ipInfoList;*/
             _IPInfoList = Resources["IPInfoList"] as IPInfoList;
             _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
-            /**//*LoadIPRange();*/
 
             ucIPList.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
@@ -87,6 +85,10 @@ namespace NetworkScanner
             ucReservedPortInfo.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucReservedPortInfo.VerticalAlignment = VerticalAlignment.Stretch;
 
+            ucSetting.Initialized += UcSetting_Initialized;
+            ucSetting.Loaded += UcSetting_Loaded;
+            ucIPList.Initialized += UcIPList_Initialized;
+            ucIPList.Loaded += UcIPList_Loaded;
 
             BdContent.Child = ucIPList;
 
@@ -97,6 +99,25 @@ namespace NetworkScanner
             _Timer.Interval = TimeSpan.FromMilliseconds(1000*60);
             _Timer.Tick += _Timer_Tick;
             _Timer.Start();
+        }
+
+        private void UcIPList_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (GetLoadLastestFile() == true)
+                ucIPList.GetLastestFilePath(GetSystemName());
+        }
+
+        private void UcSetting_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void UcSetting_Initialized(object? sender, EventArgs e)
+        {
+            
+        }
+
+        private void UcIPList_Initialized(object? sender, EventArgs e)
+        {
         }
 
         private void _Timer_Tick(object? sender, EventArgs e)
@@ -216,6 +237,11 @@ namespace NetworkScanner
         public bool? GetUsePortChecking()
         {
             return ucSetting.ChkCheckPort.IsChecked;
+        }
+
+        public bool? GetLoadLastestFile()
+        {
+            return ucSetting.chkLoadLastestFileWhenStartup.IsChecked;
         }
 
         public List<RefPortInfo> GetReservedPortList()

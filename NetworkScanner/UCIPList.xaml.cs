@@ -39,7 +39,10 @@ namespace NetworkScanner
         {
             InitializeComponent();
             OUI.LoadInfo();
+
         }
+               
+
         public void LoadIPInfo(string filename)
         {
             try
@@ -49,6 +52,7 @@ namespace NetworkScanner
                 ParsingIP(lines);
 
                 LvIPList.Items.Refresh();
+                DisplayResult();
             }
             catch(System.IO.IOException ex)
             {
@@ -315,7 +319,6 @@ namespace NetworkScanner
                     }
                     SetProgress(idx++);
                     DisplayMsg(string.Format("({0}/{1})IP: {2}, 검색 Port: {3}", idx,maxcnt, ipinfo.Ip, port));
-                    //Thread.Sleep(_SleepTime);
                 }
 
                 ipinfo.Ports = userports;
@@ -365,6 +368,7 @@ namespace NetworkScanner
                         item.SystemName = _IPInfoList.GetHostName(IPAddress.Parse(item.Ip));
 
                     DisplayMsg(string.Format("({0}/{1}) IP : {2}", idx, maxcnt,  reply.Address.ToString()));
+                    DisplayResult();
                     SetProgress(idx++);
                     RefreshItems();
                 }
@@ -404,6 +408,7 @@ namespace NetworkScanner
 
                         RefreshIPInfo(reply, strIP, openports);
                         DisplayMsg(string.Format("Send Ping to : {0}",reply.Address.ToString()));
+                        DisplayResult();
                         string ipbyte4 = (Int32.Parse(parseStartIP[3]) + 1).ToString();
                         parseStartIP[3] = ipbyte4;
                         SetProgress(idx++);
@@ -465,6 +470,25 @@ namespace NetworkScanner
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
                 TbMsg.Text = msg;
+            }));
+        }
+
+        private void DisplayResult()
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                int total=0, alive=0, dead = 0;
+                total = _IPInfoList.Count;
+                foreach(var info in _IPInfoList)
+                {
+                    if (info.Alive == true)
+                    { alive++; }
+                    else
+                    { dead++; }
+                }
+
+                tbResult.Text = string.Format("정상:{0},끊김{1}/전체{2}", alive, dead, total);
+
             }));
         }
 
@@ -585,6 +609,24 @@ namespace NetworkScanner
             if (selValue == null) return;
 
             this.DeleteItem(selValue.Ip);
+        }
+
+        private void UserControl_Initialized(object sender, EventArgs e)
+        {
+           
+        }
+
+        public void GetLastestFilePath(string prefixname)
+        {
+            string path = Directory.GetCurrentDirectory() + @"\env\"; 
+            if (!string.IsNullOrEmpty(prefixname))
+            {
+                FileInfo file = new DirectoryInfo(path).GetFiles(prefixname + "*.csv").OrderByDescending(fi => fi.LastWriteTime).Take(1).First<FileInfo>();
+                if (file.Exists)
+                {
+                    LoadIPInfo(file.FullName);
+                }
+            }
         }
     }
     public class AliveColorConverter : IValueConverter

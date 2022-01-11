@@ -59,6 +59,7 @@ namespace NetworkScanner
         private const string StrSYSTEMNAME = "systemname";
         private const string StrPORTLIST= "portlist";
         private const string StrUSEPORTCHECKING= "useportchecking";
+        private const string StrLOADLASTESTFILE = "loadlastestfile";
 
         public bool? UseFTP
         {
@@ -121,6 +122,14 @@ namespace NetworkScanner
             get
             {
                 return ChkScheduling.IsChecked;
+            }
+        }
+
+        public bool? LoadLastestFile
+        {
+            get
+            {
+                return chkLoadLastestFileWhenStartup.IsChecked;
             }
         }
 
@@ -339,6 +348,10 @@ namespace NetworkScanner
                         case StrUSEPORTCHECKING:
                             ChkCheckPort.IsChecked = bool.Parse(token[1]);
                             break;
+
+                        case StrLOADLASTESTFILE:
+                            chkLoadLastestFileWhenStartup.IsChecked = bool.Parse(token[1]);
+                            break;
                     }
                 }
             }
@@ -426,6 +439,7 @@ namespace NetworkScanner
             lines.Add(string.Format("{0}={1}", StrSYSTEMNAME, tbCurSystemName.Text));
             lines.Add(string.Format("{0}={1}", StrPORTLIST, tbPortsList.Text));
             lines.Add(string.Format("{0}={1}", StrUSEPORTCHECKING, ChkCheckPort.IsChecked));
+            lines.Add(string.Format("{0}={1}", StrLOADLASTESTFILE, chkLoadLastestFileWhenStartup.IsChecked));
 
             await File.WriteAllLinesAsync(SettingFileName, lines, Encoding.UTF8);
 
@@ -529,6 +543,11 @@ namespace NetworkScanner
             {
                 ProgramUpdate.CheckCurVersion();
             }
+        }
+
+        private void UserControl_Initialized(object sender, EventArgs e)
+        {
+
         }
     }
 }
