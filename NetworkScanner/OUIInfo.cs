@@ -23,8 +23,8 @@ namespace NetworkScanner
             {
                 if(s.Contains("(hex)"))
                 {
-                    string filter= s.Replace("(hex)", ",");
-                    string[] token = filter.Split(',');
+                    string filter= s.Replace("(hex)", ":");
+                    string[] token = filter.Split(':');
                     _OUIInfo.Add(token[0].Trim(), token[1].Trim());   
                 }
             }

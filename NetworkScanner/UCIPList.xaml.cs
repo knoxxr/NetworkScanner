@@ -621,10 +621,18 @@ namespace NetworkScanner
             string path = Directory.GetCurrentDirectory() + @"\env\"; 
             if (!string.IsNullOrEmpty(prefixname))
             {
-                FileInfo file = new DirectoryInfo(path).GetFiles(prefixname + "*.csv").OrderByDescending(fi => fi.LastWriteTime).Take(1).First<FileInfo>();
-                if (file.Exists)
+                if (Directory.Exists(path))
                 {
-                    LoadIPInfo(file.FullName);
+                    FileInfo[] files = new DirectoryInfo(path).GetFiles(prefixname + "*.csv");
+
+                    if (files.Count() > 0)
+                    {
+                        FileInfo file = new DirectoryInfo(path).GetFiles(prefixname + "*.csv").OrderByDescending(fi => fi.LastWriteTime).Take(1).First<FileInfo>();
+                        if (files.OrderByDescending(fi => fi.LastWriteTime).Take(1).First<FileInfo>().Exists)
+                        {
+                            LoadIPInfo(file.FullName);
+                        }
+                    }
                 }
             }
         }
