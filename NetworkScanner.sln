@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkScanner", "NetworkSc
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupNetworkScanner", "SetupNetworkScanner\SetupNetworkScanner.vdproj", "{4099213D-4478-4EA0-9AC3-4C0260AE1F33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OUIConvertor", "OUIConvertor\OUIConvertor.csproj", "{43BE2CCE-3D50-4606-97F5-92732793EC6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4099213D-4478-4EA0-9AC3-4C0260AE1F33}.Debug|Any CPU.Build.0 = Release
 		{4099213D-4478-4EA0-9AC3-4C0260AE1F33}.Release|Any CPU.ActiveCfg = Release
 		{4099213D-4478-4EA0-9AC3-4C0260AE1F33}.Release|Any CPU.Build.0 = Release
+		{43BE2CCE-3D50-4606-97F5-92732793EC6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BE2CCE-3D50-4606-97F5-92732793EC6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BE2CCE-3D50-4606-97F5-92732793EC6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BE2CCE-3D50-4606-97F5-92732793EC6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
