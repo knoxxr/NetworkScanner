@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkScanner"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" Loaded="UserControl_Loaded" FontFamily="Consolas" >
+             d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" Loaded="UserControl_Loaded" FontFamily="Consolas" Initialized="UserControl_Initialized" >
     <UserControl.Resources>
         <local:ScanRangeList x:Key="ScanRangeList" />
         <SolidColorBrush x:Key="RangeBackgroundBrush" Color="#FF403D54"></SolidColorBrush>
@@ -174,10 +174,12 @@
             </GroupBox>
         </Border>
         <Border Grid.Row="5" Background="White">
-            <GroupBox Header="시스템 이름" Margin="3">
+            <GroupBox Header="일반" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
-                    <TextBox Name="tbCurSystemName" Width="200">MyComputer</TextBox>
+                    <TextBox Name="tbCurSystemName" Width="200" Margin="3">MyComputer</TextBox>
+                    <Border Width="100"></Border>
+                    <CheckBox Name="chkLoadLastestFileWhenStartup" Margin="3" Width="200" IsChecked="True">시작시 최근 기록 부르기</CheckBox>
                 </StackPanel>
             </GroupBox>
         </Border>

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkScanner"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" FontFamily="Consolas" Loaded="UserControl_Loaded">
+             d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" FontFamily="Consolas" Loaded="UserControl_Loaded" Initialized="UserControl_Initialized">
 
     <UserControl.Resources>
         <local:IPInfoList x:Key="IPInfoList" />
@@ -79,6 +79,8 @@
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
                         <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
+                        <Border  Height="10"></Border>
+                        <TextBlock Name="tbResult" Foreground="White" Height="25"></TextBlock>
                     </StackPanel>
                 </Grid>
             </Grid>
