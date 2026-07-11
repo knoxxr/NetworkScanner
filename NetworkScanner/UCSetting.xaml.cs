@@ -125,7 +125,15 @@ namespace NetworkScanner
             newinfo.EndIP = tbEndIP.Text;
             newinfo.Description = tbDescription.Text;
 
-            ScanRanges.AddItem(newinfo);
+            if (!ScanRanges.AddItem(newinfo))
+            {
+                MessageBox.Show("이미 등록된 대역입니다.");
+                return;
+            }
+
+            tbStartIP.Text = "";
+            tbEndIP.Text = "";
+            tbDescription.Text = "";
 
             await WriteScanRangeInfo();
             LvIPRange.Items.Refresh();

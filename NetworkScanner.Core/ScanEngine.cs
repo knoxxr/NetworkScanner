@@ -383,6 +383,13 @@ namespace NetworkScanner
             ScanRangeList ranges = Config.GetScanRanges();
             int maxCnt = ComputeIPCount(ranges);
             ProgressMaxChanged?.Invoke(maxCnt);
+
+            if (maxCnt == 0)
+            {
+                Message?.Invoke("설정된 IP 검색 대역이 없습니다. 설정 화면에서 대역을 추가해주세요.");
+                return;
+            }
+
             int idx = 0;
             Message?.Invoke($"전체 대역 스캔을 시작합니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
             bool? usePortChecking = Config.GetUsePortChecking();

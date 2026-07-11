@@ -65,6 +65,7 @@ namespace NetworkScanner
         {
             BtnRefresh.IsEnabled = !scanning;
             BtnStop.IsEnabled = scanning;
+            TbScanLabel.Text = scanning ? "스캔 중..." : "스캔";
         }
 
         private bool FilterItem(object obj)

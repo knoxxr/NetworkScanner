@@ -43,7 +43,7 @@
                         <Button Name="BtnRefresh" Click="BtnRefresh_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <Image Source="avares://NetworkScanner.Avalonia/Assets/refresh.png" Width="20" Height="20" />
-                                <TextBlock VerticalAlignment="Center">스캔</TextBlock>
+                                <TextBlock Name="TbScanLabel" VerticalAlignment="Center">스캔</TextBlock>
                             </StackPanel>
                         </Button>
                         <Button Name="BtnStop" Click="BtnStop_Click" IsEnabled="False">취소</Button>
@@ -103,7 +103,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <ProgressBar Grid.Row="3" Name="PbProgress" Height="16" />
+        <ProgressBar Grid.Row="3" Name="PbProgress" Height="20" Margin="12,2" Foreground="#FF46C2B8" />
         <TextBlock Grid.Row="4" Name="TbMsg" Margin="4" />
     </Grid>
 </UserControl>

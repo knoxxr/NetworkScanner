@@ -21,12 +21,16 @@ namespace NetworkScanner
         {
         }
 
-        public void AddItem(ScanRangeInfo item)
+        // 실제로 추가되었으면 true, 이미 등록된(시작/종료 IP가 모두 같은) 대역이라 건너뛰었으면 false.
+        public bool AddItem(ScanRangeInfo item)
         {
-            if (!IsExist(item.StartIP, item.EndIP))
+            if (IsExist(item.StartIP, item.EndIP))
             {
-                this.Add(item);
+                return false;
             }
+
+            this.Add(item);
+            return true;
         }
 
         public void DelItem(string startIp, string endIp)
@@ -45,12 +49,10 @@ namespace NetworkScanner
                 return true;
         }
 
+        // 시작/종료 IP가 둘 다 같은 대역이 이미 있는지 확인한다(둘 중 하나만 같은 건 다른 대역이다).
         public bool IsExist(string startIp, string endIp)
         {
-            if (this.Where(x => x.StartIP == startIp).FirstOrDefault() == null && this.Where(x => x.EndIP == endIp).FirstOrDefault() == null)
-                return false;
-            else
-                return true;
+            return this.Any(x => x.StartIP == startIp && x.EndIP == endIp);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

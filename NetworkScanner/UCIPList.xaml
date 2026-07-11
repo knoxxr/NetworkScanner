@@ -22,7 +22,7 @@
             <RowDefinition Height="80"></RowDefinition>
             <RowDefinition Height="34"></RowDefinition>
             <RowDefinition></RowDefinition>
-            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="22"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Border Grid.Row="0"  Background="{StaticResource IPInfoBackgroundBrush}">
@@ -78,7 +78,7 @@
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Margin="0,10,0,10" Source="/img/Search-PNG-Image-File.png"/>
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">스캔</TextBlock>
+                            <TextBlock Grid.Column="1" Name="TbScanLabel" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">스캔</TextBlock>
                         </Grid>
                     </Button.Content>
                 </Button>
@@ -200,7 +200,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ProgressBar Grid.Row="3" Value="0" Name="pbProgress"></ProgressBar>
+        <ProgressBar Grid.Row="3" Value="0" Height="20" Margin="2,1" Foreground="#FF46C2B8" Name="pbProgress"></ProgressBar>
         <TextBlock Grid.Row="4" Name="TbMsg"></TextBlock>
     </Grid>
 </UserControl>

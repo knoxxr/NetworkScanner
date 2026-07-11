@@ -124,13 +124,23 @@ namespace NetworkScanner.Avalonia.Views
                 return;
             }
 
-            ScanRanges.AddItem(new ScanRangeInfo
+            bool added = ScanRanges.AddItem(new ScanRangeInfo
             {
                 Index = 0,
                 StartIP = TbStartIP.Text ?? "",
                 EndIP = TbEndIP.Text ?? "",
                 Description = TbDescription.Text ?? "",
             });
+
+            if (!added)
+            {
+                await SimpleDialogs.ShowMessageAsync(owner, "이미 등록된 대역입니다.");
+                return;
+            }
+
+            TbStartIP.Text = "";
+            TbEndIP.Text = "";
+            TbDescription.Text = "";
 
             SaveScanRanges();
             RefreshGrid();
