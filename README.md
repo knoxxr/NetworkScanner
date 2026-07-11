@@ -12,7 +12,9 @@ Windows 전용 **WPF** 버전과, Windows/macOS/Linux에서 모두 동작하는 
 |---|---|
 | Windows | `NetworkScanner-win-Setup.exe` (설치형) 또는 `NetworkScanner-win-Portable.zip` (압축 해제 후 바로 실행) |
 | macOS | `NetworkScanner-osx-Setup.pkg` (설치형) 또는 `NetworkScanner-osx-Portable.zip`(압축 해제 후 `.app` 실행) |
-| Linux | `NetworkScanner-linux-Setup.AppImage`(실행 권한 부여 후 바로 실행) 또는 `NetworkScanner-linux-Portable.zip` |
+| Linux | `NetworkScanner.AppImage` — 실행 권한 부여(`chmod +x NetworkScanner.AppImage`) 후 바로 실행 |
+
+Release Assets에 함께 보이는 `*.nupkg`, `RELEASES*`, `assets.*.json`, `releases.*.json`은 Velopack의 자동 업데이트 피드용 내부 파일이라 직접 받을 필요는 없습니다.
 
 새 버전은 `v*.*.*` 형태의 git 태그를 push하면 `.github/workflows/release.yml`이 3개 OS에서 각각 패키징해 자동으로 Release에 올립니다.
 
