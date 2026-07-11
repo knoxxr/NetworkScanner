@@ -141,3 +141,6 @@ WPF 버전의 레거시 `.vdproj`(`SetupNetworkScanner/`)는 그대로 유지되
 - **ICMP Ping 권한**: Linux/macOS 환경에 따라 일반 사용자 권한으로 ICMP ping이 제한될 수 있습니다. 권한 문제가 감지되면 해당 호스트는 응답 없음(Timeout)으로 처리되고, 스캔이 중단되지 않도록 안내 메시지가 한 번만 기록됩니다. 필요 시:
   - Linux: `sudo setcap cap_net_raw+ep <실행파일 경로>` 로 ping 전용 권한만 부여하거나, `sudo`로 실행
   - macOS: 별도 권한 부여 없이도 대부분 동작하지만, 제한되는 경우 `sudo`로 실행
+- **미서명 설치 파일 경고 (macOS/Windows)**: Release의 설치 파일은 아직 Apple/Microsoft 코드서명·공증을 받지 않았습니다(각각 유료 개발자 인증서 필요). 따라서 처음 실행 시 다음과 같은 OS 경고가 뜨는 것이 정상이며, 악성코드가 아닙니다.
+  - **macOS**: `"NetworkScanner-osx-Setup.pkg"을(를) 열지 않음` 경고가 뜨면 — Finder에서 파일을 **우클릭(Control+클릭) → 열기** → 경고창에서 다시 **열기**를 누르면 설치됩니다. 또는 터미널에서 `xattr -d com.apple.quarantine NetworkScanner-osx-Setup.pkg` 실행 후 다시 열면 됩니다.
+  - **Windows**: "Windows에서 PC를 보호했습니다"(SmartScreen) 화면이 뜨면 — **추가 정보** 클릭 → **실행** 버튼을 누르면 설치가 진행됩니다.
