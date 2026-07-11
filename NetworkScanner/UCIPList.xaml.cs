@@ -81,14 +81,7 @@ namespace NetworkScanner
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            if (rbRefreshAllRange.IsChecked == true)
-            {
-                _engine.StartRefreshAllRange(Config.GetSystemName());
-            }
-            else if (rbRefreshOnlyOnList.IsChecked == true)
-            {
-                _engine.StartRefreshCurrentList();
-            }
+            _engine.StartRefreshAllRange(Config.GetSystemName());
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)

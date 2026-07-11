@@ -233,13 +233,6 @@ namespace NetworkScanner
             return true;
         }
 
-        public bool StartRefreshCurrentList()
-        {
-            if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoRefreshIPList(token);
-            return true;
-        }
-
         public bool StartCheckUserPortList(string ip)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
@@ -366,56 +359,6 @@ namespace NetworkScanner
 
             ProgressChanged?.Invoke(0);
             Message?.Invoke($" {ipInfo.Ip}으로 사용자 포트 전부 검색 했습니다. 결과 : {userPorts}");
-        }
-
-        public async Task DoRefreshIPList(CancellationToken token)
-        {
-            int maxCnt = _items.Count;
-            ProgressMaxChanged?.Invoke(maxCnt);
-            int idx = 0;
-            Message?.Invoke($"스캔을 시작합니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
-
-            bool? usePortChecking = Config.GetUsePortChecking();
-
-            await Task.Run(() =>
-            {
-                foreach (IPInfo item in _items)
-                {
-                    if (token.IsCancellationRequested) break;
-
-                    var reply = PingTester.SendPing(IPAddress.Parse(item.Ip));
-                    if (reply != null && reply.Status == IPStatus.Success)
-                    {
-                        item.RountTime = reply.RoundtripTime.ToString();
-                        item.Alive = true;
-
-                        if (usePortChecking == true)
-                            item.Ports = PingTester.CheckPortsOpen(item.Ip);
-
-                        if (item.Macaddr == "")
-                        {
-                            string? mac = _items.GetMACAddress(item.Ip);
-                            item.Macaddr = mac;
-                            item.Vendor = _oui.GetVender(mac);
-                        }
-                    }
-                    else
-                    {
-                        item.RountTime = "Timeout";
-                        item.Alive = false;
-                    }
-
-                    if (item.SystemName == "")
-                        item.SystemName = _items.GetHostName(IPAddress.Parse(item.Ip));
-
-                    Message?.Invoke($"({idx}/{maxCnt}) IP : {item.Ip}");
-                    RaiseResultsSummary();
-                    ProgressChanged?.Invoke(idx++);
-                    ItemsRefreshNeeded?.Invoke();
-                }
-                Message?.Invoke(token.IsCancellationRequested ? "스캔이 취소되었습니다." : "스캔을 완료했습니다.");
-            });
-            ProgressChanged?.Invoke(0);
         }
 
         public async Task DoScanAllRange(bool scheduling, string systemName, CancellationToken token)

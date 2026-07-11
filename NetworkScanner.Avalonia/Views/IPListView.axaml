@@ -37,12 +37,10 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" Spacing="4">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <RadioButton Name="RbRefreshOnlyOnList" IsChecked="True" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
-                        <RadioButton Name="RbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
                         <Button Name="BtnRefresh" Click="BtnRefresh_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <Image Source="avares://NetworkScanner.Avalonia/Assets/refresh.png" Width="20" Height="20" />
-                                <TextBlock VerticalAlignment="Center">Refresh</TextBlock>
+                                <TextBlock VerticalAlignment="Center">스캔</TextBlock>
                             </StackPanel>
                         </Button>
                         <Button Name="BtnStop" Click="BtnStop_Click">취소</Button>

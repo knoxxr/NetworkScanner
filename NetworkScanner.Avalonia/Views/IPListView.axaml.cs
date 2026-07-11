@@ -73,16 +73,7 @@ namespace NetworkScanner.Avalonia.Views
 
         private void BtnRefresh_Click(object? sender, RoutedEventArgs e)
         {
-            if (_engine == null) return;
-
-            if (RbRefreshAllRange.IsChecked == true)
-            {
-                _engine.StartRefreshAllRange(Config?.GetSystemName() ?? "");
-            }
-            else if (RbRefreshOnlyOnList.IsChecked == true)
-            {
-                _engine.StartRefreshCurrentList();
-            }
+            _engine?.StartRefreshAllRange(Config?.GetSystemName() ?? "");
         }
 
         private void BtnStop_Click(object? sender, RoutedEventArgs e)

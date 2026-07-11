@@ -74,7 +74,7 @@
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Margin="0,10,0,10" Source="/img/Search-PNG-Image-File.png"/>
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">Refresh</TextBlock>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">스캔</TextBlock>
                         </Grid>
                     </Button.Content>
                 </Button>
@@ -84,9 +84,6 @@
                         </Button.Content>
                     </Button>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
-                        <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
-                        <Border  Height="10"></Border>
                         <TextBlock Name="tbResult" Foreground="White" Height="25"></TextBlock>
                     </StackPanel>
                 </Grid>
