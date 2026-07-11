@@ -25,6 +25,7 @@ namespace NetworkScanner
             PingTester.OnError = message => EventLogger.WriteEventLogEntry(message, EventLogEntryType.Error);
             FTPService.OnError = message => EventLogger.WriteEventLogEntry(message, EventLogEntryType.Error);
             PortReferenceLoader.OnError = message => EventLogger.WriteEventLogEntry(message, EventLogEntryType.Error);
+            CredentialProtector.OnError = message => EventLogger.WriteEventLogEntry(message, EventLogEntryType.Error);
         }
     }
 }

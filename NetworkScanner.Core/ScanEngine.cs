@@ -267,7 +267,8 @@ namespace NetworkScanner
             var openPorts = PingTester.CheckPortsOpen(ip);
             RefreshIPInfo(reply, ip, openPorts);
 
-            Message?.Invoke($"수동으로 {ip}으로 Ping을 보냈습니다. 결과 : {reply.Status}");
+            string status = reply != null ? reply.Status.ToString() : "실패(권한 등 오류, 로그 확인)";
+            Message?.Invoke($"수동으로 {ip}으로 Ping을 보냈습니다. 결과 : {status}");
         }
 
         public async Task DoCheckReservedPortList(string ip, CancellationToken token)
@@ -383,7 +384,7 @@ namespace NetworkScanner
                     if (token.IsCancellationRequested) break;
 
                     var reply = PingTester.SendPing(IPAddress.Parse(item.Ip));
-                    if (reply.Status == IPStatus.Success)
+                    if (reply != null && reply.Status == IPStatus.Success)
                     {
                         item.RountTime = reply.RoundtripTime.ToString();
                         item.Alive = true;
@@ -407,7 +408,7 @@ namespace NetworkScanner
                     if (item.SystemName == "")
                         item.SystemName = _items.GetHostName(IPAddress.Parse(item.Ip));
 
-                    Message?.Invoke($"({idx}/{maxCnt}) IP : {reply.Address}");
+                    Message?.Invoke($"({idx}/{maxCnt}) IP : {item.Ip}");
                     RaiseResultsSummary();
                     ProgressChanged?.Invoke(idx++);
                     ItemsRefreshNeeded?.Invoke();
@@ -461,7 +462,7 @@ namespace NetworkScanner
                         }
 
                         RefreshIPInfo(reply, strIp, openPorts);
-                        Message?.Invoke($"Send Ping to : {reply.Address}");
+                        Message?.Invoke($"Send Ping to : {strIp}");
                         RaiseResultsSummary();
                         ProgressChanged?.Invoke(idx++);
                     }
@@ -495,14 +496,16 @@ namespace NetworkScanner
             return cnt;
         }
 
-        private void RefreshIPInfo(PingReply reply, string targetIp, string openPorts)
+        private void RefreshIPInfo(PingReply? reply, string targetIp, string openPorts)
         {
+            bool success = reply != null && reply.Status == IPStatus.Success;
+
             IPInfo info = _items.GetItem(targetIp);
             if (info != null)
             {
                 info.Ports = openPorts;
-                info.RountTime = reply.Status == IPStatus.Success ? reply.RoundtripTime.ToString() : "Timeout";
-                info.Alive = reply.Status == IPStatus.Success;
+                info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
+                info.Alive = success;
                 info.Macaddr = _items.GetMACAddress(targetIp);
                 info.Vendor = _oui.GetVender(info.Macaddr);
 
@@ -510,7 +513,7 @@ namespace NetworkScanner
                     info.SystemName = _items.GetHostName(IPAddress.Parse(targetIp));
                 ItemsRefreshNeeded?.Invoke();
             }
-            else if (reply.Status == IPStatus.Success)
+            else if (success)
             {
                 IPInfo newIpInfo = new()
                 {
@@ -518,7 +521,7 @@ namespace NetworkScanner
                     Ports = openPorts,
                     Description = "",
                     CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
-                    RountTime = reply.RoundtripTime.ToString(),
+                    RountTime = reply!.RoundtripTime.ToString(),
                     Alive = true,
                 };
                 newIpInfo.Macaddr = _items.GetMACAddress(targetIp);

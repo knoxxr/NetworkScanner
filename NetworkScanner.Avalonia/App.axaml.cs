@@ -22,6 +22,7 @@ public partial class App : Application
         FTPService.OnError = message => AppLogger.LogError(LogSource, message);
         PortReferenceLoader.OnError = message => AppLogger.LogError(LogSource, message);
         AppSettingsStore.OnError = message => AppLogger.LogError(LogSource, message);
+        CredentialProtector.OnError = message => AppLogger.LogError(LogSource, message);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

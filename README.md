@@ -87,5 +87,7 @@ dotnet test NetworkScanner.Tests/NetworkScanner.Tests.csproj
 ## 알려진 제한 사항 (크로스플랫폼)
 
 - **ARP(MAC 주소) 조회**: Windows는 `SendARP` API를 사용하고, macOS/Linux는 시스템 `arp` 명령 출력을 파싱합니다. 유닉스 계열에서는 해당 IP로 먼저 ping을 보내 ARP 캐시가 채워진 뒤에만 조회가 정상 동작합니다(스캔 로직상 항상 ping 이후 조회하므로 일반적인 사용에는 문제 없음).
-- **FTP 비밀번호 보호**: Windows는 DPAPI로 실제 암호화되지만, macOS/Linux는 아직 OS 키체인(Keychain/libsecret) 연동 전이라 단순 Base64 난독화만 적용됩니다. 향후 개선 예정입니다.
-- **ICMP 권한**: Linux/macOS 환경에 따라 일반 사용자 권한으로 ICMP ping이 제한될 수 있습니다(배포 시 문서화 필요).
+- **FTP 비밀번호 보호**: Windows는 DPAPI, macOS는 Keychain(`security` 명령), Linux는 libsecret(`secret-tool`)을 이용해 OS 자격 증명 저장소에 보관합니다. 해당 도구가 없는 환경(Linux에서 `secret-tool` 미설치 등)에서는 단순 Base64 난독화로 자동 폴백하며, 이 경우 실행 시 경고가 기록됩니다.
+- **ICMP Ping 권한**: Linux/macOS 환경에 따라 일반 사용자 권한으로 ICMP ping이 제한될 수 있습니다. 권한 문제가 감지되면 해당 호스트는 응답 없음(Timeout)으로 처리되고, 스캔이 중단되지 않도록 안내 메시지가 한 번만 기록됩니다. 필요 시:
+  - Linux: `sudo setcap cap_net_raw+ep <실행파일 경로>` 로 ping 전용 권한만 부여하거나, `sudo`로 실행
+  - macOS: 별도 권한 부여 없이도 대부분 동작하지만, 제한되는 경우 `sudo`로 실행
