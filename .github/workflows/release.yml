@@ -1,0 +1,101 @@
+name: Release
+
+# 버전 태그(v1.0.0 등)를 push하면 Windows/macOS/Linux용 Velopack 설치 패키지를 각각
+# 해당 OS 러너에서 만들고, 하나의 GitHub Release에 첨부한다.
+# 수동 실행(workflow_dispatch)도 지원하며, 이 경우 버전을 직접 입력해야 한다.
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '릴리즈 버전 (예: 1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            mainExe: NetworkScanner.Avalonia.exe
+            icon: NetworkScanner/img/Kyo-Tux-Delikate-Network.ico
+          - os: macos-latest
+            rid: osx-arm64
+            mainExe: NetworkScanner.Avalonia
+            icon: ""
+          - os: ubuntu-latest
+            rid: linux-x64
+            mainExe: NetworkScanner.Avalonia
+            icon: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish self-contained (${{ matrix.rid }})
+        run: >
+          dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -o publish/${{ matrix.rid }}
+
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk
+
+      - name: Add dotnet tools to PATH
+        shell: bash
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      # vpk는 실행 중인 OS에 맞는 패키지만 만들 수 있어(크로스 패키징 불가), 매트릭스의
+      # 각 OS에서 자신의 패키지를 직접 만든다. Windows는 .exe 설치본, macOS는 .app/.pkg/.zip,
+      # Linux는 AppImage 계열 패키지가 만들어진다.
+      - name: Package with Velopack (${{ matrix.rid }})
+        shell: bash
+        run: >
+          vpk pack --packId NetworkScanner --packVersion "${{ steps.version.outputs.value }}"
+          --packDir "publish/${{ matrix.rid }}" --mainExe "${{ matrix.mainExe }}"
+          --packTitle "Network Scanner" --packAuthors SMIC
+          --runtime ${{ matrix.rid }} --outputDir "release-packages/${{ matrix.rid }}"
+          ${{ matrix.icon != '' && format('--icon {0}', matrix.icon) || '' }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetworkScanner-${{ matrix.rid }}
+          path: release-packages/${{ matrix.rid }}
+
+  release:
+    name: Create GitHub Release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform packages
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

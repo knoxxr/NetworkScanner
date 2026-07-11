@@ -4,6 +4,18 @@
 
 Windows 전용 **WPF** 버전과, Windows/macOS/Linux에서 모두 동작하는 **Avalonia** 버전 두 가지 UI를 제공하며, 둘 다 동일한 `NetworkScanner.Core` 스캔 엔진을 공유합니다.
 
+## 다운로드
+
+빌드 없이 바로 실행해보려면 **[Releases 페이지](../../releases/latest)** 에서 OS에 맞는 파일을 받으세요.
+
+| OS | 파일 |
+|---|---|
+| Windows | `NetworkScanner-win-Setup.exe` (설치형) 또는 `NetworkScanner-win-Portable.zip` (압축 해제 후 바로 실행) |
+| macOS | `NetworkScanner-osx-Setup.pkg` (설치형) 또는 `NetworkScanner-osx-Portable.zip`(압축 해제 후 `.app` 실행) |
+| Linux | `NetworkScanner-linux-Setup.AppImage`(실행 권한 부여 후 바로 실행) 또는 `NetworkScanner-linux-Portable.zip` |
+
+새 버전은 `v*.*.*` 형태의 git 태그를 push하면 `.github/workflows/release.yml`이 3개 OS에서 각각 패키징해 자동으로 Release에 올립니다.
+
 ## 목차
 
 - [주요 기능](#주요-기능)
@@ -101,7 +113,12 @@ vpk pack --packId NetworkScanner --packVersion 1.0.0 \
 
 Windows에서는 `--mainExe NetworkScanner.Avalonia.exe`와 `--icon NetworkScanner/img/Kyo-Tux-Delikate-Network.ico`를 추가로 지정하면 아이콘이 적용된 설치 파일이 만들어집니다.
 
-`.github/workflows/build-and-test.yml`이 Windows/macOS/Linux 각 러너에서 publish + `vpk pack`을 자동으로 수행하고, 결과 설치 패키지를 아티팩트로 업로드합니다. WPF 버전의 레거시 `.vdproj`(`SetupNetworkScanner/`)는 그대로 유지되지만, 신규 배포는 Avalonia 버전 + Velopack 패키지 사용을 권장합니다.
+CI에는 목적이 다른 두 워크플로우가 있습니다:
+
+- `.github/workflows/build-and-test.yml` — 모든 push/PR에서 테스트·빌드·패키징이 여전히 되는지 확인하고, 결과물을 워크플로우 아티팩트로 남깁니다(90일 후 만료, GitHub 로그인 필요).
+- `.github/workflows/release.yml` — `v*.*.*` 형태의 태그를 push하면 Windows/macOS/Linux 각 러너에서 publish + `vpk pack`을 수행하고, 결과 설치 패키지를 [Releases 페이지](../../releases)에 첨부해 누구나 바로 다운로드할 수 있게 합니다.
+
+WPF 버전의 레거시 `.vdproj`(`SetupNetworkScanner/`)는 그대로 유지되지만, 신규 배포는 Avalonia 버전 + Velopack 패키지 사용을 권장합니다.
 
 ## 실행 시 필요한 설정/데이터 파일
 
