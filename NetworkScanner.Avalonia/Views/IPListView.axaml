@@ -16,15 +16,35 @@
                 <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" Foreground="White"
                            VerticalAlignment="Center" Margin="0,0,24,0">IP List</TextBlock>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Name="BtnNewFile" Click="BtnNewFile_Click">새로 만들기</Button>
-                    <Button Name="BtnLoadFile" Click="BtnLoadFile_Click">파일 열기</Button>
-                    <Button Name="BtnSaveFile" Click="BtnSaveFile_Click">파일 저장</Button>
+                    <Button Name="BtnNewFile" Click="BtnNewFile_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Image Source="avares://NetworkScanner.Avalonia/Assets/new-file.png" Width="20" Height="20" />
+                            <TextBlock VerticalAlignment="Center">새로 만들기</TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button Name="BtnLoadFile" Click="BtnLoadFile_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Image Source="avares://NetworkScanner.Avalonia/Assets/open-file.png" Width="20" Height="20" />
+                            <TextBlock VerticalAlignment="Center">파일 열기</TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button Name="BtnSaveFile" Click="BtnSaveFile_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Image Source="avares://NetworkScanner.Avalonia/Assets/save-file.png" Width="20" Height="20" />
+                            <TextBlock VerticalAlignment="Center">파일 저장</TextBlock>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" Spacing="4">
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <RadioButton Name="RbRefreshOnlyOnList" IsChecked="True" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
                         <RadioButton Name="RbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
-                        <Button Name="BtnRefresh" Click="BtnRefresh_Click">Refresh</Button>
+                        <Button Name="BtnRefresh" Click="BtnRefresh_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Image Source="avares://NetworkScanner.Avalonia/Assets/refresh.png" Width="20" Height="20" />
+                                <TextBlock VerticalAlignment="Center">Refresh</TextBlock>
+                            </StackPanel>
+                        </Button>
                         <Button Name="BtnStop" Click="BtnStop_Click">취소</Button>
                     </StackPanel>
                     <TextBlock Name="TbResult" Foreground="White" HorizontalAlignment="Right" />

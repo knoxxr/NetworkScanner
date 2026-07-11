@@ -37,4 +37,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- WPF 앱의 아이콘 이미지를 그대로 재사용한다(중복 보관하지 않고 링크로 임베드). -->
+    <AvaloniaResource Include="..\NetworkScanner\img\Kyo-Tux-Delikate-Network.ico" Link="Assets/app.ico" />
+    <AvaloniaResource Include="..\NetworkScanner\img\iplist.png" Link="Assets/iplist.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\settings-2-48.png" Link="Assets/settings.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\info.png" Link="Assets/info.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\document-48.png" Link="Assets/new-file.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\open-in-browser-48.png" Link="Assets/open-file.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\save-as-48.png" Link="Assets/save-file.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\Search-PNG-Image-File.png" Link="Assets/refresh.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\keyring-icon.png" Link="Assets/keyring.png" />
+    <AvaloniaResource Include="..\NetworkScanner\img\Setup.png" Link="Assets/setup.png" />
+  </ItemGroup>
 </Project>

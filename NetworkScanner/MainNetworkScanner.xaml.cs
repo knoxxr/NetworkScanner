@@ -29,9 +29,6 @@ namespace NetworkScanner
     public partial class MainNetworkScanner : Window, IScanConfigProvider
     {
         public static string ProgramName = "NetworkScanner";
-        public const string IPRangeFileName = "iprange.ini";
-        ScanRangeList _ScanRangeList = new ScanRangeList();
-        IPInfoList _IPInfoList = new IPInfoList();
 
         UCSetting ucSetting = new UCSetting();
         UCIPList ucIPList = new UCIPList();
@@ -72,9 +69,6 @@ namespace NetworkScanner
 
         private void InitializeApp()
         {
-            _IPInfoList = Resources["IPInfoList"] as IPInfoList;
-            _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
-
             ucIPList.HorizontalAlignment = HorizontalAlignment.Stretch;
             ucIPList.VerticalAlignment = VerticalAlignment.Stretch;
             ucSetting.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -203,27 +197,6 @@ namespace NetworkScanner
             return Int32.Parse(ucSetting.TbFTPPort.Text);
         }
 
-        /*private void LoadIPRange()
-        {
-            string filename = Directory.GetCurrentDirectory() + @"\" + IPRangeFileName;
-
-            FileInfo fi = new FileInfo(filename);
-
-            if (fi.Exists)
-            {
-                string[] lines = System.IO.File.ReadAllLines(filename);
-                ParsingIPRange(lines);
-            }
-            else
-            {
-                using (File.Create(filename))
-                {
-                    DisplayMsg("iprange.ini 파일 생성");
-                }
-            }
-
-        }*/
-
         public string GetSystemName()
         {
             return ucSetting.GetSystemName();
@@ -267,26 +240,7 @@ namespace NetworkScanner
 
         public ScanRangeList GetScanRanges()
         {
-            return UCSetting._ScanRangeList;
-        }
-
-        private void ParsingIPRange(string[] raw)
-        {
-            _ScanRangeList.Clear();
-            foreach (string line in raw)
-            {
-                string[] token = line.Split(",");
-
-                if (token.Length > 0)
-                {
-                    ScanRangeInfo info = new ScanRangeInfo();
-                    info.Index = int.Parse(token[0]);
-                    info.StartIP = token[1];
-                    info.EndIP = token[2];
-                    info.Description = token[3];
-                    _ScanRangeList.AddItem(info);
-                }
-            }
+            return ucSetting.ScanRanges;
         }
 
         private void RefreshIPList()

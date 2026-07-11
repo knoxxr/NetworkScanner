@@ -16,7 +16,7 @@ namespace NetworkScanner
     /// 이 클래스는 WPF 컨트롤과 AppSettingsData를 서로 매핑하는 얇은 어댑터 역할만 한다.
     public partial class UCSetting : UserControl
     {
-        public static ScanRangeList _ScanRangeList = new ScanRangeList();
+        public ScanRangeList ScanRanges { get; private set; } = new ScanRangeList();
 
         // 시간대 체크박스(Chk01~Chk24)를 라벨(1~24, ini 키 "hr01".."hr24")에 매핑한다.
         // Chk24는 자정(clock hour 0)을 의미하는 기존 표기 방식을 그대로 따른다.
@@ -40,11 +40,11 @@ namespace NetworkScanner
 
         private void InitializeControl()
         {
-            _ScanRangeList = Resources["ScanRangeList"] as ScanRangeList;
+            ScanRanges = Resources["ScanRangeList"] as ScanRangeList;
 
             foreach (var range in AppSettingsStore.LoadScanRanges())
             {
-                _ScanRangeList.AddItem(range);
+                ScanRanges.AddItem(range);
             }
 
             ApplySettingsToControls(AppSettingsStore.LoadSettings());
@@ -96,7 +96,7 @@ namespace NetworkScanner
 
         public async Task WriteScanRangeInfo()
         {
-            await Task.Run(() => AppSettingsStore.SaveScanRanges(_ScanRangeList));
+            await Task.Run(() => AppSettingsStore.SaveScanRanges(ScanRanges));
             DisplayMsg("IP 검색 대역 파일을 저장하였습니다.");
         }
 
@@ -141,7 +141,7 @@ namespace NetworkScanner
             newinfo.EndIP = tbEndIP.Text;
             newinfo.Description = tbDescription.Text;
 
-            _ScanRangeList.AddItem(newinfo);
+            ScanRanges.AddItem(newinfo);
 
             await WriteScanRangeInfo();
             LvIPRange.Items.Refresh();
@@ -154,7 +154,7 @@ namespace NetworkScanner
 
             if (MessageBox.Show(String.Format("{0} ~ {1} 대역을 삭제하시겠습니까?", item.StartIP, item.EndIP), "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                _ScanRangeList.DelItem(item.StartIP, item.EndIP);
+                ScanRanges.DelItem(item.StartIP, item.EndIP);
             }
 
             await WriteScanRangeInfo();

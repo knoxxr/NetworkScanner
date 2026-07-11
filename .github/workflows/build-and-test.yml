@@ -30,17 +30,23 @@ jobs:
         run: dotnet build NetworkScanner.sln --configuration Release
 
   build-avalonia:
-    name: Build & publish Avalonia app
+    name: Build, package (Velopack) & publish Avalonia app
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: windows-latest
             rid: win-x64
+            mainExe: NetworkScanner.Avalonia.exe
+            icon: NetworkScanner/img/Kyo-Tux-Delikate-Network.ico
           - os: macos-latest
             rid: osx-arm64
+            mainExe: NetworkScanner.Avalonia
+            icon: ""
           - os: ubuntu-latest
             rid: linux-x64
+            mainExe: NetworkScanner.Avalonia
+            icon: ""
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -52,8 +58,24 @@ jobs:
           dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj
           -c Release -r ${{ matrix.rid }} --self-contained true
           -o publish/${{ matrix.rid }}
-      - name: Upload artifact
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk
+      - name: Add dotnet tools to PATH
+        shell: bash
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+      # vpk는 OS별 설치 패키지(.exe 설치본/.pkg·.app/.AppImage 등)를 실행 중인 OS에 맞춰 만든다.
+      # 다른 OS를 대상으로 한 크로스 패키징은 지원하지 않으므로, 매트릭스의 각 OS에서 자신의
+      # 패키지를 직접 만든다.
+      - name: Package with Velopack (${{ matrix.rid }})
+        shell: bash
+        run: >
+          vpk pack --packId NetworkScanner --packVersion "1.0.${{ github.run_number }}"
+          --packDir "publish/${{ matrix.rid }}" --mainExe "${{ matrix.mainExe }}"
+          --packTitle "Network Scanner" --packAuthors SMIC
+          --runtime ${{ matrix.rid }} --outputDir "release-packages/${{ matrix.rid }}"
+          ${{ matrix.icon != '' && format('--icon {0}', matrix.icon) || '' }}
+      - name: Upload packaged installer
         uses: actions/upload-artifact@v4
         with:
-          name: NetworkScanner-${{ matrix.rid }}
-          path: publish/${{ matrix.rid }}
+          name: NetworkScanner-${{ matrix.rid }}-installer
+          path: release-packages/${{ matrix.rid }}

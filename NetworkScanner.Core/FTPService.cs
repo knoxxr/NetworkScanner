@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+using FluentFTP;
 
 namespace NetworkScanner
 {
@@ -22,51 +20,32 @@ namespace NetworkScanner
         public string ID { get => iD; set => iD = value; }
         public string PW { get => pW; set => pW = value; }
 
-        int euckrCodePage = 51949; // euc-kr 코드 번호
+        const int EuckrCodePage = 51949; // euc-kr 코드 번호
+
         public FTPService()
         {
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        }
-        public FtpWebResponse Connect(String url, string method, Action<FtpWebRequest> action = null)
-        {
-            var request = WebRequest.Create(url) as FtpWebRequest;
-            request.UseBinary = true;
-            request.Method = method;
-            request.Credentials = new NetworkCredential(ID, PW);
-            if (action != null)
-            {
-                action(request);
-            }
-            return request.GetResponse() as FtpWebResponse;
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public void UploadFileList( string path, string filename)
+        private FtpClient CreateClient()
         {
-            string ftpPath = String.Format("ftp://{0}/FTP/{1}", HostIP, filename);
-            string inputFile = filename;
+            // Port가 지정되지 않은 경우(0) FluentFTP가 FTP 기본 포트(21)를 사용한다.
+            return new FtpClient(HostIP?.ToString(), ID, PW, Port);
+        }
 
+        public void UploadFileList(string path, string filename)
+        {
             try
             {
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(ftpPath);
-                req.Method = WebRequestMethods.Ftp.UploadFile;
-                req.Credentials = new NetworkCredential(ID, PW);
-
                 byte[] data;
-                using (StreamReader reader = new StreamReader(path + inputFile))
+                using (StreamReader reader = new StreamReader(path + filename))
                 {
-                    data = Encoding.GetEncoding(euckrCodePage).GetBytes(reader.ReadToEnd());
+                    data = Encoding.GetEncoding(EuckrCodePage).GetBytes(reader.ReadToEnd());
                 }
 
-                req.ContentLength = data.Length;
-                using (Stream reqStream = req.GetRequestStream())
-                {
-                    reqStream.Write(data, 0, data.Length);
-                }
-
-                using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
-                {
-                    Console.WriteLine("Upload: {0}", resp.StatusDescription);
-                }
+                using FtpClient client = CreateClient();
+                client.Connect();
+                client.UploadBytes(data, $"/FTP/{filename}", FtpRemoteExists.Overwrite, createRemoteDir: true);
             }
             catch (Exception ex)
             {
@@ -76,15 +55,17 @@ namespace NetworkScanner
 
         public void DownloadFileList(string path, string filename, string outputfilename)
         {
-            string ftpPath = String.Format("ftp://{0}/FTP/{1}", HostIP, filename);
-
-            using (WebClient cli = new WebClient())
+            try
             {
-                cli.Credentials = new NetworkCredential(ID, PW);
-                cli.DownloadFile(ftpPath, outputfilename);
+                using FtpClient client = CreateClient();
+                client.Connect();
+                client.DownloadBytes(out byte[] data, $"/FTP/{filename}");
+                File.WriteAllBytes(outputfilename, data);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(ex.Message);
             }
         }
-
-
     }
 }

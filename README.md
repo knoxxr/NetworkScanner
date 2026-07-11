@@ -52,7 +52,25 @@ dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj -c Release
 dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj -c Release -r linux-x64 --self-contained true
 ```
 
-`.github/workflows/build-and-test.yml`이 위 세 플랫폼에 대한 빌드를 GitHub Actions에서 자동으로 수행하고 아티팩트로 업로드합니다.
+### 설치 패키지 만들기 (Velopack)
+
+[Velopack](https://velopack.io)의 `vpk` CLI로 위 publish 결과물을 OS별 설치 패키지로 감쌀 수 있습니다(Windows는 설치용 `.exe`, macOS는 `.app`/`.pkg`/`.zip`, Linux는 AppImage 계열 패키지). `vpk`는 **실행 중인 OS에 맞는 패키지만** 만들 수 있으므로(크로스 패키징 불가), 각 OS에서 직접 실행해야 합니다 — 예: macOS에서 아래 명령으로 실제 `.app`/`.pkg`를 만들어 검증했습니다.
+
+```bash
+dotnet tool install -g vpk   # 최초 1회
+export PATH="$PATH:$HOME/.dotnet/tools"
+
+dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj -c Release -r osx-arm64 --self-contained true -o publish/osx-arm64
+
+vpk pack --packId NetworkScanner --packVersion 1.0.0 \
+  --packDir publish/osx-arm64 --mainExe NetworkScanner.Avalonia \
+  --packTitle "Network Scanner" --packAuthors SMIC \
+  --runtime osx-arm64 --outputDir release-packages/osx-arm64
+```
+
+Windows에서는 `--mainExe NetworkScanner.Avalonia.exe`와 `--icon NetworkScanner/img/Kyo-Tux-Delikate-Network.ico`를 추가로 지정하면 아이콘이 적용된 설치 파일이 만들어집니다.
+
+`.github/workflows/build-and-test.yml`이 Windows/macOS/Linux 각 러너에서 publish + `vpk pack`을 자동으로 수행하고, 결과 설치 패키지를 아티팩트로 업로드합니다. WPF 버전의 레거시 `.vdproj`(`SetupNetworkScanner/`)는 그대로 유지되지만, 신규 배포는 Avalonia 버전 + Velopack 패키지 사용을 권장합니다.
 
 ## 테스트
 

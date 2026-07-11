@@ -8,8 +8,16 @@
         <StackPanel Margin="12" Spacing="12">
 
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" VerticalAlignment="Center">설정 화면</TextBlock>
-                <Button Grid.Column="1" Name="BtnSaveFile" Click="BtnSaveFile_Click">설정 저장</Button>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                    <Image Source="avares://NetworkScanner.Avalonia/Assets/setup.png" Width="28" Height="28" />
+                    <TextBlock FontSize="22" FontWeight="Bold" VerticalAlignment="Center">설정 화면</TextBlock>
+                </StackPanel>
+                <Button Grid.Column="1" Name="BtnSaveFile" Click="BtnSaveFile_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Image Source="avares://NetworkScanner.Avalonia/Assets/save-file.png" Width="20" Height="20" />
+                        <TextBlock VerticalAlignment="Center">설정 저장</TextBlock>
+                    </StackPanel>
+                </Button>
             </Grid>
 
             <Border BorderBrush="Gray" BorderThickness="1" Padding="8">

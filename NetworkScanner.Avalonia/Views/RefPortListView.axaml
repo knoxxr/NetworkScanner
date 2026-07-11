@@ -13,8 +13,10 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Margin="16" FontSize="22" FontWeight="Bold" Foreground="White"
-                   VerticalAlignment="Center">(참조) 주요 포트 번호</TextBlock>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="16" Spacing="10">
+            <Image Source="avares://NetworkScanner.Avalonia/Assets/keyring.png" Width="28" Height="28" />
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">(참조) 주요 포트 번호</TextBlock>
+        </StackPanel>
 
         <TextBlock Grid.Row="1" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">◎ 예약 Port</TextBlock>
         <ListBox Grid.Row="2" Margin="16,0" Name="LbOpenPortList" />
