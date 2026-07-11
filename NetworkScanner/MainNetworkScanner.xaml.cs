@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,8 +16,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Reflection;
-using System.Security.Principal;
 
 namespace NetworkScanner
 {
@@ -43,28 +40,8 @@ namespace NetworkScanner
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
- /*           if (!IsRunningAsAdministrator())
-            {
-                ProcessStartInfo processStartInfo = new ProcessStartInfo(Assembly.GetEntryAssembly().CodeBase);
-                {
-                    var withBlock = processStartInfo;
-                    withBlock.UseShellExecute = true;
-                    withBlock.Verb = "runas";
-                    Process.Start(processStartInfo);
-                    Application.Exit();
-                }
-            }
-            else
-                this.Text += " " + "(Administrator)";*/
-
             EventLogger.WriteEventLogEntry("프로그램 시작", EventLogEntryType.Information);
             InitializeApp();
-        }
-        public bool IsRunningAsAdministrator()
-        {
-            WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal windowsPrincipal = new WindowsPrincipal(windowsIdentity);
-            return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         private void InitializeApp()
@@ -130,34 +107,6 @@ namespace NetworkScanner
             }));
 
             if (ucIPList.IsScanning() == true) return;
-
-            if (onTime == true)
-            {
-                ucIPList.SchedulingScan();
-            }
-        }
-
-        private void _Timer_Elapsed(object? sender, ElapsedEventArgs e)
-        {
-            bool? useSchd = false;
-            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
-            {
-                useSchd = ucSetting.ChkScheduling.IsChecked;
-            }));
-
-            if (useSchd != true) return;
-
-            int curHour = int.Parse(DateTime.Now.ToString("HH"));
-            int curmin = DateTime.Now.Minute;
-            if (curmin != 0) return;
-
-            bool? onTime = false;
-            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
-            {
-                onTime = ucSetting.IsInScheduleHour(curHour);
-            }));
-
-            if(ucIPList.IsScanning() == true) return;
 
             if (onTime == true)
             {
@@ -241,16 +190,6 @@ namespace NetworkScanner
         public ScanRangeList GetScanRanges()
         {
             return ucSetting.ScanRanges;
-        }
-
-        private void RefreshIPList()
-        {
-            ucIPList.RefreshItems();
-        }
-
-        private void ClearIPList()
-        {
-            ucIPList.ClearItems();
         }
 
         private void BtnLoadFile_Click(object sender, RoutedEventArgs e)

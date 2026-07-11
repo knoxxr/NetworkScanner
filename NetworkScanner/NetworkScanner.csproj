@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -25,47 +25,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="447-4474862_search-button-png-transparent.png" />
-    <None Remove="782-7824434_contact-icon-tick-list-png-icon-white.png" />
-    <None Remove="icons8-file-48.png" />
-    <None Remove="icons8-save-48.png" />
-    <None Remove="icons8-search-48.png" />
-    <None Remove="icons8-tune-48.png" />
-    <None Remove="images %281%29.png" />
-    <None Remove="images %282%29.png" />
-    <None Remove="images %283%29.png" />
-    <None Remove="images.png" />
-    <None Remove="img\447-4474862_search-button-png-transparent.png" />
     <None Remove="img\document-48.png" />
-    <None Remove="img\icons8-file-48.png" />
-    <None Remove="img\icons8-save-48.png" />
-    <None Remove="img\icons8-search-48.png" />
-    <None Remove="img\icons8-tune-48.png" />
-    <None Remove="img\icons8-upload-file-48.png" />
-    <None Remove="img\images %281%29.png" />
-    <None Remove="img\images %282%29.png" />
-    <None Remove="img\images %283%29.png" />
-    <None Remove="img\images.png" />
+    <None Remove="img\info.png" />
     <None Remove="img\iplist.png" />
-    <None Remove="img\LoadFile.png" />
     <None Remove="img\open-in-browser-48.png" />
-    <None Remove="img\pngtree-lens-icon-image_1338506.jpg" />
-    <None Remove="img\Refresh.png" />
     <None Remove="img\save-as-48.png" />
-    <None Remove="img\SaveFile.png" />
     <None Remove="img\Search-PNG-Image-File.png" />
     <None Remove="img\settings-2-48.png" />
     <None Remove="img\Setup.png" />
     <None Remove="img\unnamed %281%29.png" />
     <None Remove="img\unnamed.png" />
-    <None Remove="info.png" />
     <None Remove="keyring-icon.png" />
-    <None Remove="LoadFile.png" />
-    <None Remove="networkscanner.png" />
-    <None Remove="pngtree-lens-icon-image_1338506.jpg" />
-    <None Remove="Refresh.png" />
-    <None Remove="SaveFile.png" />
-    <None Remove="unnamed %281%29.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,31 +43,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="img\447-4474862_search-button-png-transparent.png" />
     <Resource Include="img\document-48.png" />
-    <Resource Include="img\icons8-file-48.png" />
-    <Resource Include="img\icons8-save-48.png" />
-    <Resource Include="img\icons8-search-48.png" />
-    <Resource Include="img\icons8-tune-48.png" />
-    <Resource Include="img\icons8-upload-file-48.png" />
-    <Resource Include="img\images (1).png" />
-    <Resource Include="img\images (2).png" />
-    <Resource Include="img\images (3).png" />
-    <Resource Include="img\images.png" />
+    <Resource Include="img\info.png" />
     <Resource Include="img\iplist.png" />
-    <Resource Include="img\LoadFile.png" />
     <Resource Include="img\networkscanner.png" />
     <Resource Include="img\open-in-browser-48.png" />
-    <Resource Include="img\pngtree-lens-icon-image_1338506.jpg" />
-    <Resource Include="img\Refresh.png" />
     <Resource Include="img\save-as-48.png" />
-    <Resource Include="img\SaveFile.png" />
     <Resource Include="img\Search-PNG-Image-File.png" />
     <Resource Include="img\settings-2-48.png" />
     <Resource Include="img\Setup.png" />
     <Resource Include="img\unnamed (1).png" />
     <Resource Include="img\unnamed.png" />
-    <Resource Include="info.png" />
     <Resource Include="keyring-icon.png" />
   </ItemGroup>
 

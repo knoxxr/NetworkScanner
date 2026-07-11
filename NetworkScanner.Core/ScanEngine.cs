@@ -136,14 +136,14 @@ namespace NetworkScanner
             {
                 List<string> lines = new List<string>
                 {
-                    "IPAddress,Port,SystemName,Description,Commitdate,Alive,MacAddress,Vendor"
+                    "IPAddress,Port,SystemName,Description,Commitdate,Alive,MacAddress,Vendor,RoundTime"
                 };
 
                 foreach (IPInfo info in _items)
                 {
                     lines.Add(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}",
                         info.Ip, info.Ports, info.SystemName, info.Description, info.CommitDate,
-                        info.Alive, info.Macaddr, info.Vendor, info.RoundTime));
+                        info.Alive, info.Macaddr, info.Vendor, info.RountTime));
                 }
 
                 string path = GetEnvDirectory();

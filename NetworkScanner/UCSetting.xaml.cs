@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace NetworkScanner
@@ -106,21 +105,6 @@ namespace NetworkScanner
             DisplayMsg("설정 파일을 저장하였습니다.");
         }
 
-        private async void StartIP_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            await WriteScanRangeInfo();
-        }
-
-        private async void EndIP_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            await WriteScanRangeInfo();
-        }
-
-        private async void Desc_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            await WriteScanRangeInfo();
-        }
-
         private async void BtnAddRange_Click(object sender, RoutedEventArgs e)
         {
             if (!IsValidIP(tbStartIP.Text))
@@ -160,11 +144,6 @@ namespace NetworkScanner
             await WriteScanRangeInfo();
             LvIPRange.Items.Refresh();
         }
-        private void BtnClose_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private bool IsValidIP(string val)
         {
             return IPAddress.TryParse(val, out IPAddress parsed)

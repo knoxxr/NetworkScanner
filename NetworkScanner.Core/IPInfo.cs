@@ -8,21 +8,6 @@ using System.Runtime.InteropServices;
 
 namespace NetworkScanner
 {
-    public class IPInformationListViewModel
-    {
-        private readonly IPInfoList items;
-
-        public IPInformationListViewModel()
-        {
-            this.items = new IPInfoList();
-        }
-
-        public IPInfoList Items
-        {
-            get { return this.items; }
-        }
-    }
-
     public class IPInfoList : ObservableCollection<IPInfo>
     {
         public IPInfoList()
@@ -67,21 +52,6 @@ namespace NetworkScanner
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
-        }
-
-        public string GetHostName(string hostip)
-        {
-            string result = "";
-            try
-            {
-                IPHostEntry host = Dns.GetHostByAddress(IPAddress.Parse(hostip));
-                result = host.HostName;
-            }
-            catch (System.Net.Sockets.SocketException)
-            {
-                return result;
-            }
-            return result;
         }
 
         public string GetHostName(IPAddress hostip)
@@ -133,17 +103,5 @@ namespace NetworkScanner
         public string Description { get => description; set => description = value; }
         public string Macaddr { get => macaddr; set => macaddr = value; }
         public string Vendor { get => vendor; set => vendor = value; }
-        public string RoundTime { get; internal set; }
-
-        public string PortListToString()
-        {
-            string result = "";
-
-            foreach (var item in ports)
-            {
-                result += item + ",";
-            }
-            return result;
-        }
     }
 }
