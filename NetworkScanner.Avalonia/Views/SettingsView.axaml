@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
+             x:Class="NetworkScanner.Avalonia.Views.SettingsView">
+    <ScrollViewer>
+        <StackPanel Margin="12" Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" VerticalAlignment="Center">설정 화면</TextBlock>
+                <Button Grid.Column="1" Name="BtnSaveFile" Click="BtnSaveFile_Click">설정 저장</Button>
+            </Grid>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
+                <StackPanel Spacing="8">
+                    <TextBlock FontWeight="Bold">IP 검색 범위</TextBlock>
+                    <DataGrid Name="DgIPRange" Height="200" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="시작 IP" Binding="{Binding StartIP}" Width="150" />
+                            <DataGridTextColumn Header="종료 IP" Binding="{Binding EndIP}" Width="150" />
+                            <DataGridTextColumn Header="비고" Binding="{Binding Description}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Width="70" VerticalAlignment="Center">시작 IP</TextBlock>
+                        <TextBox Name="TbStartIP" Width="150" />
+                        <TextBlock Width="70" VerticalAlignment="Center">종료 IP</TextBlock>
+                        <TextBox Name="TbEndIP" Width="150" />
+                        <TextBlock Width="50" VerticalAlignment="Center">설명</TextBlock>
+                        <TextBox Name="TbDescription" Width="150" />
+                        <Button Name="BtnAddRange" Click="BtnAddRange_Click">대역 추가</Button>
+                        <Button Name="BtnRemoveRange" Click="BtnRemoveRange_Click">대역 삭제</Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="Bold" VerticalAlignment="Center">검색할 Port</TextBlock>
+                    <CheckBox Name="ChkCheckPort" Content="Port 검색 사용" />
+                    <TextBlock VerticalAlignment="Center">Port 번호</TextBlock>
+                    <TextBox Name="TbPortsList" Width="400" Watermark="22/80/8080" />
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
+                <StackPanel Spacing="8">
+                    <CheckBox Name="ChkScheduling" Content="스케줄링 사용" FontWeight="Bold" />
+                    <WrapPanel Name="HourCheckboxPanel" />
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
+                <StackPanel Spacing="8">
+                    <CheckBox Name="ChkUseFTP" Content="FTP 저장 사용" FontWeight="Bold" />
+                    <WrapPanel>
+                        <TextBlock Width="60" VerticalAlignment="Center">Host</TextBlock>
+                        <TextBox Name="TbFTPIP" Width="180" Margin="0,0,12,0" />
+                        <TextBlock Width="40" VerticalAlignment="Center">ID</TextBlock>
+                        <TextBox Name="TbFTPID" Width="140" Margin="0,0,12,0" />
+                        <TextBlock Width="40" VerticalAlignment="Center">PW</TextBlock>
+                        <TextBox Name="TbFTPPW" Width="140" PasswordChar="●" Margin="0,0,12,0" />
+                        <TextBlock Width="50" VerticalAlignment="Center">Port</TextBlock>
+                        <TextBox Name="TbFTPPort" Width="100" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="Bold" VerticalAlignment="Center">일반</TextBlock>
+                    <TextBlock Width="90" VerticalAlignment="Center">시스템 이름</TextBlock>
+                    <TextBox Name="TbCurSystemName" Width="200" />
+                    <CheckBox Name="ChkLoadLatestFileWhenStartup" Content="시작시 최근 기록 부르기" Margin="24,0,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Name="TbMsg" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

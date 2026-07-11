@@ -1,0 +1,59 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Run cross-platform tests (NetworkScanner.Core)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test
+        run: dotnet test NetworkScanner.Tests/NetworkScanner.Tests.csproj --configuration Release
+
+  build-wpf:
+    name: Build WPF app (Windows-only)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build
+        run: dotnet build NetworkScanner.sln --configuration Release
+
+  build-avalonia:
+    name: Build & publish Avalonia app
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+          - os: ubuntu-latest
+            rid: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish self-contained (${{ matrix.rid }})
+        run: >
+          dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -o publish/${{ matrix.rid }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetworkScanner-${{ matrix.rid }}
+          path: publish/${{ matrix.rid }}

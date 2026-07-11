@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="700"
+        x:Class="NetworkScanner.Avalonia.MainWindow"
+        Title="Network Scanner" Width="1280" Height="700" Loaded="Window_Loaded">
+    <Grid ColumnDefinitions="140,*">
+        <Border Grid.Column="0" Background="#FF252469">
+            <Grid RowDefinitions="80,*,Auto">
+                <TextBlock Grid.Row="0" FontSize="16" FontWeight="Bold" Foreground="White"
+                           Margin="12" TextWrapping="Wrap" VerticalAlignment="Center">Network Scanner</TextBlock>
+                <StackPanel Grid.Row="1" Spacing="4">
+                    <Button Name="BtnIPList" Click="BtnIPList_Click" HorizontalAlignment="Stretch">IP 리스트</Button>
+                    <Button Name="BtnSetting" Click="BtnSetting_Click" HorizontalAlignment="Stretch">설    정</Button>
+                    <Button Name="BtnPortInfo" Click="BtnPortInfo_Click" HorizontalAlignment="Stretch">참고. 포트정보</Button>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                    <TextBlock Name="TbVersion" Foreground="White" TextAlignment="Center">version</TextBlock>
+                    <TextBlock Foreground="White" TextAlignment="Center">SMIC</TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <ContentControl Grid.Column="1" Name="ContentArea" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    </Grid>
+</Window>

@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkScanner
 {
-    public class IPInformationListViewModel 
+    public class IPInformationListViewModel
     {
         private readonly IPInfoList items;
 
@@ -60,7 +56,7 @@ namespace NetworkScanner
         {
             if( this.Where(x=>x.Ip==ip).FirstOrDefault() == null)
                 return false;
-            else 
+            else
                 return true;
         }
 
@@ -81,7 +77,7 @@ namespace NetworkScanner
                 IPHostEntry host = Dns.GetHostByAddress(IPAddress.Parse(hostip));
                 result = host.HostName;
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (System.Net.Sockets.SocketException)
             {
                 return result;
             }
@@ -96,62 +92,20 @@ namespace NetworkScanner
                 IPHostEntry host = Dns.GetHostByAddress(hostip);
                 result = host.HostName;
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (System.Net.Sockets.SocketException)
             {
                 return result;
             }
             return result;
         }
-        [DllImport("iphlpapi.dll", ExactSpelling = true)] private static extern int SendARP(int destinationIPValue, int sourceIPValue, byte[] physicalAddressArray, ref uint physicalAddresArrayLength);
-        public string GetMACAddress(string ip)
+        public string? GetMACAddress(string ip)
         {
-            IPAddress destinationIPAddress = IPAddress.Parse(ip);
-            byte[] destinationIPAddressByteArray = new byte[6];
-            uint destinationIPAddressByteArrayLength = (uint)destinationIPAddressByteArray.Length;
-            int destinationIPValue = BitConverter.ToInt32(destinationIPAddress.GetAddressBytes(), 0);
-            int returnCode;
-
-            try
-            {
-                returnCode = SendARP(destinationIPValue, 0, destinationIPAddressByteArray, ref destinationIPAddressByteArrayLength);
-            }
-            catch (Exception ex)
-            {
-                EventLogger.WriteEventLogEntry(ex.Message,System.Diagnostics.EventLogEntryType.Error);
-                return null;
-            }
-
-            if (returnCode != 0)
-            {
-                return null;
-            }
-            string[] destinationIPAddressStringArray = new string[(int)destinationIPAddressByteArrayLength];
-            for (int i = 0; i < destinationIPAddressByteArrayLength; i++)
-            {
-                destinationIPAddressStringArray[i] = destinationIPAddressByteArray[i].ToString("X2");
-            }
-            string maxAddress = string.Join("-", destinationIPAddressStringArray); 
-            return maxAddress;
-        }
-
-       /* public async Task<string> LookupMac(string MacAddress)
-        {
-            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
-            using (var wc = new HttpClient())
-                return await wc.GetStringAsync(uri);
-        }*/
-
-        public async Task<string> LookupMac(string MacAddress)
-        {
-            return "";
-            var uri = new Uri("http://api.macvendors.com/" + WebUtility.UrlEncode(MacAddress));
-            using (var wc = new HttpClient())
-                return await wc.GetStringAsync(uri);
+            return ArpResolver.GetMacAddress(ip);
         }
 
     }
 
-    public class IPInfo 
+    public class IPInfo
     {
         private string ip;
         private string ports;
@@ -165,10 +119,10 @@ namespace NetworkScanner
 
         public string Ip
         {
-            get => ip; 
+            get => ip;
             set
             {
-                ip = value; 
+                ip = value;
             }
         }
         public string Ports { get => ports; set => ports = value; }

@@ -4,11 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkScanner"
+             xmlns:core="clr-namespace:NetworkScanner;assembly=NetworkScanner.Core"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1000"  Margin="5" FontFamily="Consolas" Loaded="UserControl_Loaded" Initialized="UserControl_Initialized">
 
     <UserControl.Resources>
-        <local:IPInfoList x:Key="IPInfoList" />
+        <core:IPInfoList x:Key="IPInfoList" />
         <local:AliveColorConverter x:Key="aliveColorConverter"/>
         <SolidColorBrush x:Key="IPInfoBackgroundBrush" Color="#FF326678"></SolidColorBrush>
     </UserControl.Resources>
@@ -63,6 +64,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="140"></ColumnDefinition>
                         <ColumnDefinition Width="140"></ColumnDefinition>
+                        <ColumnDefinition Width="90"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Button  Grid.Column="1"  Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnRefresh" Click="BtnRefresh_Click" >
                     <Button.Content>
@@ -76,6 +78,11 @@
                         </Grid>
                     </Button.Content>
                 </Button>
+                    <Button Grid.Column="2" Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnStop" Click="BtnStop_Click">
+                        <Button.Content>
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">취소</TextBlock>
+                        </Button.Content>
+                    </Button>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <RadioButton IsChecked="True" Name="rbRefreshOnlyOnList" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
                         <RadioButton Name="rbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>

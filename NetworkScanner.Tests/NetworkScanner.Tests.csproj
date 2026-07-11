@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- 개발 머신에 .NET 8 런타임이 없어도(.NET 9만 설치된 경우 등) 테스트를 실행할 수 있도록 허용 -->
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkScanner.Core\NetworkScanner.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- OUIInfo.LoadInfo()는 프로세스 현재 디렉터리의 "ouiinfo.ini"를 읽으므로
+         테스트 출력 폴더 루트에 같은 이름으로 복사되도록 Link를 지정한다. -->
+    <None Include="Fixtures\ouiinfo.ini" Link="ouiinfo.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

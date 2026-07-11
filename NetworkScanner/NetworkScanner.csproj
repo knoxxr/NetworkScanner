@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.20348.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.20348.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
@@ -15,6 +15,14 @@
 <PackageTags>network scan;ping;mac address;arp</PackageTags>
 <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkScanner.Core\NetworkScanner.Core.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="447-4474862_search-button-png-transparent.png" />

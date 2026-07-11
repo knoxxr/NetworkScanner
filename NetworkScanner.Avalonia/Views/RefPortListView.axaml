@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NetworkScanner.Avalonia.Views.RefPortListView">
+    <Grid Background="#303030">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="30" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Margin="16" FontSize="22" FontWeight="Bold" Foreground="White"
+                   VerticalAlignment="Center">(참조) 주요 포트 번호</TextBlock>
+
+        <TextBlock Grid.Row="1" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">◎ 예약 Port</TextBlock>
+        <ListBox Grid.Row="2" Margin="16,0" Name="LbOpenPortList" />
+
+        <TextBlock Grid.Row="3" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">◎ 백도어와 트로이 목마가 자주 사용하는 포트</TextBlock>
+        <ListBox Grid.Row="4" Margin="16,0,16,16" Name="LbProhibitPortList" />
+    </Grid>
+</UserControl>

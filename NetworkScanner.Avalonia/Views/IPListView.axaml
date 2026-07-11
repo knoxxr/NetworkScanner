@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:helpers="clr-namespace:NetworkScanner.Avalonia.Helpers"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             x:Class="NetworkScanner.Avalonia.Views.IPListView">
+
+    <UserControl.Resources>
+        <helpers:AliveColorConverter x:Key="AliveColorConverter" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <Border Grid.Row="0" Background="#FF326678" Padding="12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,24,0">IP List</TextBlock>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Name="BtnNewFile" Click="BtnNewFile_Click">새로 만들기</Button>
+                    <Button Name="BtnLoadFile" Click="BtnLoadFile_Click">파일 열기</Button>
+                    <Button Name="BtnSaveFile" Click="BtnSaveFile_Click">파일 저장</Button>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <RadioButton Name="RbRefreshOnlyOnList" IsChecked="True" GroupName="Range" Foreground="White">현재 리스트 갱신</RadioButton>
+                        <RadioButton Name="RbRefreshAllRange" GroupName="Range" Foreground="White">전체 대역 다시 갱신</RadioButton>
+                        <Button Name="BtnRefresh" Click="BtnRefresh_Click">Refresh</Button>
+                        <Button Name="BtnStop" Click="BtnStop_Click">취소</Button>
+                    </StackPanel>
+                    <TextBlock Name="TbResult" Foreground="White" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="1" Name="DgIPList" AutoGenerateColumns="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
+                    <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
+                    <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
+                    <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
+                    <Separator />
+                    <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Alive" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Ellipse Width="16" Height="16" Fill="{Binding Alive, Converter={StaticResource AliveColorConverter}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="IP" Binding="{Binding Ip}" IsReadOnly="True" Width="140" />
+                <DataGridTextColumn Header="이름" Binding="{Binding SystemName}" Width="160" />
+                <DataGridTextColumn Header="열린 Port" Binding="{Binding Ports}" Width="160" />
+                <DataGridTextColumn Header="Mac Address" Binding="{Binding Macaddr}" Width="160" />
+                <DataGridTextColumn Header="Vendor" Binding="{Binding Vendor}" Width="160" />
+                <DataGridTextColumn Header="Round Time(ms)" Binding="{Binding RountTime}" IsReadOnly="True" Width="120" />
+                <DataGridTextColumn Header="비고" Binding="{Binding Description}" Width="240" />
+                <DataGridTextColumn Header="생성일" Binding="{Binding CommitDate}" IsReadOnly="True" Width="160" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <ProgressBar Grid.Row="2" Name="PbProgress" Height="16" />
+        <TextBlock Grid.Row="3" Name="TbMsg" Margin="4" />
+    </Grid>
+</UserControl>

@@ -10,6 +10,9 @@ namespace NetworkScanner
 {
     public class FTPService
     {
+        // 플랫폼 종속적인 로깅에 직접 의존하지 않기 위한 선택적 오류 콜백.
+        public static Action<string>? OnError { get; set; }
+
         private IPAddress hostIP;
         private int port;
         private string iD;
@@ -67,7 +70,7 @@ namespace NetworkScanner
             }
             catch (Exception ex)
             {
-                EventLogger.WriteEventLogEntry(ex.Message, System.Diagnostics.EventLogEntryType.Error);
+                OnError?.Invoke(ex.Message);
             }
         }
 

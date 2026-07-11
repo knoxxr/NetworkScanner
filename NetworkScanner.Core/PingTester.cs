@@ -12,6 +12,9 @@ namespace NetworkScanner
 {
     public class PingTester
     {
+        // 플랫폼 종속적인 로깅에 직접 의존하지 않기 위한 선택적 오류 콜백.
+        public static Action<string>? OnError { get; set; }
+
         public static List<int> _PortList = new List<int>();
 
         public static PingReply SendPing(IPAddress targetIP)
@@ -48,7 +51,7 @@ namespace NetworkScanner
             }
             catch (Exception e)
             {
-                EventLogger.WriteEventLogEntry(e.Message, EventLogEntryType.Error);
+                OnError?.Invoke(e.Message);
                 return null;
             }
 

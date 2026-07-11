@@ -36,15 +36,5 @@ namespace NetworkScanner
 
             return lastestver;
         }
-
-
-
-        private static void Update()
-        {
-            Process.Start("powershell.exe",
-        @"-COMMAND DEL SELF_UPDATE_TUTORIAL.EXE
-Invoke-WebRequest -Uri ""http://honsal.dyndns.info:8008/SELF_UPDATE_TUTORIAL.exe"" -OutFile ""SELF_UPDATE_TUTORIAL.EXE""");
-            Environment.Exit(0);
-        }
     }
 }

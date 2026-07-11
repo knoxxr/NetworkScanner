@@ -26,7 +26,7 @@ namespace NetworkScanner
     /// MainNetworkScanner.xaml에 대한 상호 작용 논리
     /// </summary>
     /// 
-    public partial class MainNetworkScanner : Window
+    public partial class MainNetworkScanner : Window, IScanConfigProvider
     {
         public static string ProgramName = "NetworkScanner";
         public const string IPRangeFileName = "iprange.ini";
@@ -39,9 +39,6 @@ namespace NetworkScanner
 
         DispatcherTimer _Timer = new DispatcherTimer();
 
-        bool _Scanning = false;
-
-        public static bool? UseFTP;
         public MainNetworkScanner()
         {
             InitializeComponent();
@@ -93,8 +90,6 @@ namespace NetworkScanner
             BdContent.Child = ucIPList;
 
             tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-            UseFTP = ucSetting.UseFTP;
 
             _Timer.Interval = TimeSpan.FromMilliseconds(1000*60);
             _Timer.Tick += _Timer_Tick;
@@ -268,6 +263,11 @@ namespace NetworkScanner
             ));
 
             return result;
+        }
+
+        public ScanRangeList GetScanRanges()
+        {
+            return UCSetting._ScanRangeList;
         }
 
         private void ParsingIPRange(string[] raw)
