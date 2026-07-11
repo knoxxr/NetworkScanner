@@ -4,6 +4,7 @@ using System.Net;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using NetworkScanner.Avalonia.Views;
 
@@ -27,6 +28,7 @@ public partial class MainWindow : Window, IScanConfigProvider
 
         _ipListView.Initialize(this);
         ContentArea.Content = _ipListView;
+        SetActiveNav(BtnIPList);
 
         TbVersion.Text = "ver. " + (Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown");
 
@@ -51,9 +53,38 @@ public partial class MainWindow : Window, IScanConfigProvider
         _ipListView.SchedulingScan();
     }
 
-    private void BtnIPList_Click(object? sender, RoutedEventArgs e) => ContentArea.Content = _ipListView;
-    private void BtnSetting_Click(object? sender, RoutedEventArgs e) => ContentArea.Content = _settingsView;
-    private void BtnPortInfo_Click(object? sender, RoutedEventArgs e) => ContentArea.Content = _refPortListView;
+    private void BtnIPList_Click(object? sender, RoutedEventArgs e)
+    {
+        ContentArea.Content = _ipListView;
+        SetActiveNav(BtnIPList);
+    }
+
+    private void BtnSetting_Click(object? sender, RoutedEventArgs e)
+    {
+        ContentArea.Content = _settingsView;
+        SetActiveNav(BtnSetting);
+    }
+
+    private void BtnPortInfo_Click(object? sender, RoutedEventArgs e)
+    {
+        ContentArea.Content = _refPortListView;
+        SetActiveNav(BtnPortInfo);
+    }
+
+    // 사이드바에서 지금 어느 화면을 보고 있는지 좌측 강조선 + 배경 틴트로 표시한다.
+    private void SetActiveNav(Button active)
+    {
+        var accent = (IBrush)Resources["AccentBrush"]!;
+        var activeBg = (IBrush)Resources["SideActiveBackgroundBrush"]!;
+        var inactiveBg = (IBrush)Resources["SideBackgroundBrush"]!;
+
+        foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnPortInfo })
+        {
+            bool isActive = ReferenceEquals(nav, active);
+            nav.Background = isActive ? activeBg : inactiveBg;
+            nav.BorderBrush = isActive ? accent : Brushes.Transparent;
+        }
+    }
 
     // IScanConfigProvider 구현 - SettingsView/RefPortListView에 위임한다.
     public string GetPortList() => _settingsView.GetCurrentSettings().PortList;

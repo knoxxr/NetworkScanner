@@ -30,6 +30,8 @@ namespace NetworkScanner
         public event Action<int>? ProgressChanged;
         public event Action<int, int, int>? ResultsSummaryChanged; // alive, dead, total
         public event Action? ItemsRefreshNeeded;
+        public event Action? ScanStarted;
+        public event Action? ScanFinished;
 
         public ScanEngine(IPInfoList items, OUIInfo oui, IScanConfigProvider config)
         {
@@ -222,36 +224,51 @@ namespace NetworkScanner
         public bool StartSchedulingScan(string systemName)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoScanAllRange(true, systemName, token);
+            Scanning = RunTracked(DoScanAllRange(true, systemName, token));
             return true;
         }
 
         public bool StartRefreshAllRange(string systemName)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoScanAllRange(false, systemName, token);
+            Scanning = RunTracked(DoScanAllRange(false, systemName, token));
             return true;
         }
 
         public bool StartCheckUserPortList(string ip)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoCheckUserPortList(ip, token);
+            Scanning = RunTracked(DoCheckUserPortList(ip, token));
             return true;
         }
 
         public bool StartCheckReservedPortList(string ip)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoCheckReservedPortList(ip, token);
+            Scanning = RunTracked(DoCheckReservedPortList(ip, token));
             return true;
         }
 
         public bool StartCheckProhibitPortList(string ip)
         {
             if (!TryBeginScan(out CancellationToken token)) return false;
-            Scanning = DoCheckProhibitPortList(ip, token);
+            Scanning = RunTracked(DoCheckProhibitPortList(ip, token));
             return true;
+        }
+
+        // Start* 메서드가 공통으로 거치는 래퍼: UI가 버튼 상태(예: "스캔 중…" 비활성화)를
+        // 이벤트로만 구독해도 알 수 있도록 스캔 시작/종료를 알린다.
+        private async Task RunTracked(Task task)
+        {
+            ScanStarted?.Invoke();
+            try
+            {
+                await task;
+            }
+            finally
+            {
+                ScanFinished?.Invoke();
+            }
         }
 
         public void PingOnce(string ip)
@@ -449,6 +466,7 @@ namespace NetworkScanner
                 info.Ports = openPorts;
                 info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
                 info.Alive = success;
+                info.HasProhibitedPort = ContainsProhibitedPort(openPorts);
                 info.Macaddr = _items.GetMACAddress(targetIp);
                 info.Vendor = _oui.GetVender(info.Macaddr);
 
@@ -466,6 +484,7 @@ namespace NetworkScanner
                     CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
                     RountTime = reply!.RoundtripTime.ToString(),
                     Alive = true,
+                    HasProhibitedPort = ContainsProhibitedPort(openPorts),
                 };
                 newIpInfo.Macaddr = _items.GetMACAddress(targetIp);
                 newIpInfo.Vendor = _oui.GetVender(newIpInfo.Macaddr);
@@ -473,6 +492,25 @@ namespace NetworkScanner
                 _items.Add(newIpInfo);
                 ItemsRefreshNeeded?.Invoke();
             }
+        }
+
+        // 스캔에서 발견된 열린 포트 중 위험(백도어) 포트 목록과 일치하는 것이 있는지 확인한다.
+        private bool ContainsProhibitedPort(string portsField)
+        {
+            if (string.IsNullOrEmpty(portsField)) return false;
+
+            List<RefPortInfo> prohibitList = Config.GetProhibitPortList();
+            if (prohibitList == null || prohibitList.Count == 0) return false;
+
+            var prohibitedNumbers = new HashSet<int>(prohibitList.Select(p => p.PortNo));
+            foreach (string token in portsField.Split('/', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (int.TryParse(token, out int port) && prohibitedNumbers.Contains(port))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void RaiseResultsSummary()

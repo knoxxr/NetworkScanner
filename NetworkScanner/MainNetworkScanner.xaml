@@ -9,6 +9,8 @@
 
     <Window.Resources>
         <SolidColorBrush x:Key="SideBackgroundBrush" Color="#FF252469"></SolidColorBrush>
+        <SolidColorBrush x:Key="SideActiveBackgroundBrush" Color="#FF32407A"></SolidColorBrush>
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF46C2B8"></SolidColorBrush>
     </Window.Resources>
     <Grid>
         <DockPanel LastChildFill="True">
@@ -22,7 +24,7 @@
                     <Image MouseDown="Image_MouseDown" Source="/img/unnamed (1).png"/>
                     <Label Grid.Row="0"  Height="40" FontSize="18" Margin="30,0" FontWeight="Bold" FontStyle="Normal" FontFamily="Consolas" Foreground="#FFFFFEFE">Network Scanner</Label>
                     <StackPanel Grid.Row="1"  >
-                        <Button Name="BtnIPList" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="{StaticResource SideBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnIPList_Click">
+                        <Button Name="BtnIPList" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0" HorizontalAlignment="Stretch" Click="BtnIPList_Click">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="0">
                                     <Image Width="40" Height="40" Source="/img/iplist.png"/>
@@ -30,25 +32,17 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button Name="BtnSetting" Grid.Row="3" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="{StaticResource SideBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnSetting_Click">
+                        <Button Name="BtnSetting" Grid.Row="3" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0" HorizontalAlignment="Stretch" Click="BtnSetting_Click">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <Image Width="40" Height="40" Source="/img/settings-2-48.png" />
-                                    <Label  Foreground="#FFFFFEFE" VerticalAlignment="Center">설    정</Label>
+                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center">설정</Label>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <!--Button Height="50" Background="#FF252469"  HorizontalAlignment="Stretch">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="30,0">
-                                    <Image Width="35" Height="35" Source="/icons8-search-48.png"></Image>
-                                    <Label  Foreground="#FFFFFEFE">스    캔</Label>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button-->
                     </StackPanel>
                     <StackPanel Grid.Row="2" >
-                        <Button Name="BtnInfo" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="{StaticResource SideBackgroundBrush}" HorizontalAlignment="Stretch" Click="BtnPortInfo_Click">
+                        <Button Name="BtnInfo" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0" HorizontalAlignment="Stretch" Click="BtnPortInfo_Click">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <Image Width="40" Height="40" Source="/img/info.png" />

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Controls;
@@ -41,15 +43,43 @@ namespace NetworkScanner.Avalonia.Views
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.UIThread.Post(() =>
                 TbResult.Text = $"정상:{alive},끊김{dead}/전체{total}");
             _engine.ItemsRefreshNeeded += () => Dispatcher.UIThread.Post(RefreshGrid);
+            _engine.ScanStarted += () => Dispatcher.UIThread.Post(() => SetScanningState(true));
+            _engine.ScanFinished += () => Dispatcher.UIThread.Post(() => SetScanningState(false));
 
             _engine.InitFromConfig();
+        }
+
+        // 스캔 진행 중에는 "스캔" 버튼을 비활성화하고 "취소" 버튼만 눌리도록 해 중복 스캔 시작을 막는다.
+        private void SetScanningState(bool scanning)
+        {
+            BtnRefresh.IsEnabled = !scanning;
+            BtnStop.IsEnabled = scanning;
         }
 
         private void RefreshGrid()
         {
             DgIPList.ItemsSource = null;
-            DgIPList.ItemsSource = _items;
+            DgIPList.ItemsSource = FilterItems();
         }
+
+        private IEnumerable<IPInfo> FilterItems()
+        {
+            string keyword = TbSearch.Text?.Trim() ?? "";
+            if (string.IsNullOrEmpty(keyword)) return _items;
+            return _items.Where(i => Matches(i, keyword)).ToList();
+        }
+
+        private static bool Matches(IPInfo info, string keyword)
+        {
+            return (info.Ip?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.SystemName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Macaddr?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Vendor?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Ports?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Description?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
+        }
+
+        private void TbSearch_TextChanged(object? sender, TextChangedEventArgs e) => RefreshGrid();
 
         public void ClearItems()
         {

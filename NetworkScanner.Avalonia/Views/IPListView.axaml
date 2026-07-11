@@ -7,10 +7,13 @@
              x:Class="NetworkScanner.Avalonia.Views.IPListView">
 
     <UserControl.Resources>
-        <helpers:AliveColorConverter x:Key="AliveColorConverter" />
+        <helpers:StatusColorConverter x:Key="StatusColorConverter" />
+        <SolidColorBrush x:Key="StatusGoodBrush" Color="#FF34C777" />
+        <SolidColorBrush x:Key="StatusWarnBrush" Color="#FFF3A53E" />
+        <SolidColorBrush x:Key="StatusBadBrush" Color="#FFEF5875" />
     </UserControl.Resources>
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
         <Border Grid.Row="0" Background="#FF326678" Padding="12">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" Foreground="White"
@@ -43,14 +46,30 @@
                                 <TextBlock VerticalAlignment="Center">스캔</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Button Name="BtnStop" Click="BtnStop_Click">취소</Button>
+                        <Button Name="BtnStop" Click="BtnStop_Click" IsEnabled="False">취소</Button>
                     </StackPanel>
                     <TextBlock Name="TbResult" Foreground="White" HorizontalAlignment="Right" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="1" Name="DgIPList" AutoGenerateColumns="False">
+        <Grid Grid.Row="1" ColumnDefinitions="260,*" Margin="12,6">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <TextBox Name="TbSearch" Width="200" VerticalAlignment="Center"
+                         Watermark="IP/이름/포트/Mac/Vendor/비고" TextChanged="TbSearch_TextChanged" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="4">
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" />
+                <TextBlock Text="정상" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusWarnBrush}" />
+                <TextBlock Text="주의(위험포트)" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusBadBrush}" />
+                <TextBlock Text="없음" VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" FontFamily="Cascadia Code,Consolas,monospace">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
@@ -62,10 +81,14 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Alive" Width="60">
+                <DataGridTemplateColumn Header="상태" Width="90">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Ellipse Width="16" Height="16" Fill="{Binding Alive, Converter={StaticResource AliveColorConverter}}" />
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                                <Ellipse Width="10" Height="10" Margin="0,0,5,0" VerticalAlignment="Center"
+                                         Fill="{Binding StatusKey, Converter={StaticResource StatusColorConverter}}" />
+                                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" FontFamily="Segoe UI,Inter,sans-serif" FontSize="12" />
+                            </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -80,7 +103,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <ProgressBar Grid.Row="2" Name="PbProgress" Height="16" />
-        <TextBlock Grid.Row="3" Name="TbMsg" Margin="4" />
+        <ProgressBar Grid.Row="3" Name="PbProgress" Height="16" />
+        <TextBlock Grid.Row="4" Name="TbMsg" Margin="4" />
     </Grid>
 </UserControl>

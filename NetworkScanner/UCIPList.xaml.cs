@@ -52,8 +52,38 @@ namespace NetworkScanner
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
                 tbResult.Text = string.Format("정상:{0},끊김{1}/전체{2}", alive, dead, total)));
             _engine.ItemsRefreshNeeded += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => LvIPList.Items.Refresh()));
+            _engine.ScanStarted += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => SetScanningState(true)));
+            _engine.ScanFinished += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => SetScanningState(false)));
+
+            CollectionViewSource.GetDefaultView(_IPInfoList).Filter = FilterItem;
 
             _engine.InitFromConfig();
+        }
+
+        // 스캔 진행 중에는 "스캔" 버튼을 비활성화하고 "취소" 버튼만 눌리도록 해 중복 스캔 시작을 막는다.
+        private void SetScanningState(bool scanning)
+        {
+            BtnRefresh.IsEnabled = !scanning;
+            BtnStop.IsEnabled = scanning;
+        }
+
+        private bool FilterItem(object obj)
+        {
+            if (string.IsNullOrWhiteSpace(TbSearch.Text)) return true;
+            if (obj is not IPInfo info) return true;
+
+            string keyword = TbSearch.Text.Trim();
+            return (info.Ip?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.SystemName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Macaddr?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Vendor?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Ports?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (info.Description?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false);
+        }
+
+        private void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CollectionViewSource.GetDefaultView(_IPInfoList).Refresh();
         }
 
         public void ClearItems()
@@ -167,19 +197,21 @@ namespace NetworkScanner
 
         }
     }
-    public class AliveColorConverter : IValueConverter
+    // IPInfo.StatusKey("good"/"warn"/"bad")를 상태 배지 색상으로 변환한다.
+    public class StatusColorConverter : IValueConverter
     {
+        private static readonly SolidColorBrush Good = new((Color)ColorConverter.ConvertFromString("#FF34C777"));
+        private static readonly SolidColorBrush Warn = new((Color)ColorConverter.ConvertFromString("#FFF3A53E"));
+        private static readonly SolidColorBrush Bad = new((Color)ColorConverter.ConvertFromString("#FFEF5875"));
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool alive = (bool)value;
-            if (alive)
+            return (value as string) switch
             {
-                return new SolidColorBrush(Colors.Blue); ;
-            }
-            else
-            {
-                return new SolidColorBrush(Colors.Red);
-            }
+                "good" => Good,
+                "warn" => Warn,
+                _ => Bad,
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

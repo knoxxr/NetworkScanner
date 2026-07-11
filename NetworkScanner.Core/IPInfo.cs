@@ -86,6 +86,7 @@ namespace NetworkScanner
         private string description;
         private string macaddr;
         private string vendor;
+        private bool hasProhibitedPort;
 
         public string Ip
         {
@@ -103,5 +104,13 @@ namespace NetworkScanner
         public string Description { get => description; set => description = value; }
         public string Macaddr { get => macaddr; set => macaddr = value; }
         public string Vendor { get => vendor; set => vendor = value; }
+
+        // 스캔 시 열린 포트 중 위험(백도어) 포트 목록과 일치하는 것이 있으면 true.
+        public bool HasProhibitedPort { get => hasProhibitedPort; set => hasProhibitedPort = value; }
+
+        // UI가 상태를 색상/배지로 표시할 때 쓰는 3단계 상태 키. Alive/HasProhibitedPort 조합으로 계산되므로
+        // 별도 저장·동기화가 필요 없다.
+        public string StatusKey => !Alive ? "bad" : (HasProhibitedPort ? "warn" : "good");
+        public string StatusText => !Alive ? "없음" : (HasProhibitedPort ? "주의" : "정상");
     }
 }

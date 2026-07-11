@@ -59,6 +59,7 @@ namespace NetworkScanner
             ucIPList.Loaded += UcIPList_Loaded;
 
             BdContent.Child = ucIPList;
+            SetActiveNav(BtnIPList);
 
             tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
@@ -226,16 +227,34 @@ namespace NetworkScanner
         private void BtnSetting_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucSetting;
+            SetActiveNav(BtnSetting);
         }
 
         private void BtnPortInfo_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucReservedPortInfo;
+            SetActiveNav(BtnInfo);
         }
 
         private void BtnIPList_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucIPList;
+            SetActiveNav(BtnIPList);
+        }
+
+        // 사이드바에서 지금 어느 화면을 보고 있는지 좌측 강조선 + 배경 틴트로 표시한다.
+        private void SetActiveNav(Button active)
+        {
+            var accent = (Brush)Resources["AccentBrush"];
+            var activeBg = (Brush)Resources["SideActiveBackgroundBrush"];
+            var inactiveBg = (Brush)Resources["SideBackgroundBrush"];
+
+            foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnInfo })
+            {
+                bool isActive = ReferenceEquals(nav, active);
+                nav.Background = isActive ? activeBg : inactiveBg;
+                nav.BorderBrush = isActive ? accent : Brushes.Transparent;
+            }
         }
 
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)

@@ -10,13 +10,17 @@
 
     <UserControl.Resources>
         <core:IPInfoList x:Key="IPInfoList" />
-        <local:AliveColorConverter x:Key="aliveColorConverter"/>
+        <local:StatusColorConverter x:Key="statusColorConverter"/>
         <SolidColorBrush x:Key="IPInfoBackgroundBrush" Color="#FF326678"></SolidColorBrush>
+        <SolidColorBrush x:Key="StatusGoodBrush" Color="#FF34C777"></SolidColorBrush>
+        <SolidColorBrush x:Key="StatusWarnBrush" Color="#FFF3A53E"></SolidColorBrush>
+        <SolidColorBrush x:Key="StatusBadBrush" Color="#FFEF5875"></SolidColorBrush>
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="34"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
@@ -78,7 +82,7 @@
                         </Grid>
                     </Button.Content>
                 </Button>
-                    <Button Grid.Column="2" Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnStop" Click="BtnStop_Click">
+                    <Button Grid.Column="2" Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnStop" IsEnabled="False" Click="BtnStop_Click">
                         <Button.Content>
                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">취소</TextBlock>
                         </Button.Content>
@@ -89,7 +93,29 @@
                 </Grid>
             </Grid>
         </Border>
-        <ListView Grid.Row="1" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
+        <Grid Grid.Row="1" Margin="5,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" FontFamily="Segoe UI"/>
+                <TextBox Grid.Column="1" Name="TbSearch" VerticalAlignment="Center" FontFamily="Segoe UI" TextChanged="TbSearch_TextChanged" ToolTip="IP/이름/포트/Mac/Vendor/비고 검색"/>
+            </Grid>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" Margin="0,0,4,0"/>
+                <TextBlock Text="정상" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusWarnBrush}" Margin="0,0,4,0"/>
+                <TextBlock Text="주의(위험포트)" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                <Ellipse Width="10" Height="10" Fill="{StaticResource StatusBadBrush}" Margin="0,0,4,0"/>
+                <TextBlock Text="없음" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+            </StackPanel>
+        </Grid>
+        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
@@ -103,17 +129,20 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Alive" Width="50" >
+                    <GridViewColumn Header="상태" Width="80" >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Ellipse Margin="3" Width="20" Height="20" Fill="{Binding Path=Alive, Converter={StaticResource aliveColorConverter},Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" StrokeThickness="0" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse Margin="0,0,5,0" Width="10" Height="10" Fill="{Binding Path=StatusKey, Converter={StaticResource statusColorConverter}, Mode=OneWay}" VerticalAlignment="Center" StrokeThickness="0" />
+                                    <TextBlock Text="{Binding Path=StatusText, Mode=OneWay}" VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="12" />
+                                </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="IP" Width="160">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label  Content="{Binding Path=Ip, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Label Content="{Binding Path=Ip, Mode=OneWay}" FontFamily="Consolas" HorizontalContentAlignment="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 </Label>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -135,7 +164,7 @@
                     <GridViewColumn Header="Mac Address" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  MinWidth="195" Text="{Binding Path=Macaddr, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBox  MinWidth="195" Text="{Binding Path=Macaddr, Mode=TwoWay}" FontFamily="Consolas" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -149,7 +178,7 @@
                     <GridViewColumn Header="Round Time(ms)" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=RountTime, Mode=OneWay}" MinWidth="115" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Center" />
+                                <TextBlock Text="{Binding Path=RountTime, Mode=OneWay}" FontFamily="Consolas" MinWidth="115" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Right" Margin="0,0,10,0" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -171,7 +200,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ProgressBar Grid.Row="2" Value="0" Name="pbProgress"></ProgressBar>
-        <TextBlock Grid.Row="3" Name="TbMsg"></TextBlock>
+        <ProgressBar Grid.Row="3" Value="0" Name="pbProgress"></ProgressBar>
+        <TextBlock Grid.Row="4" Name="TbMsg"></TextBlock>
     </Grid>
 </UserControl>
