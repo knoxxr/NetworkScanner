@@ -4,6 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- exe 자체에 아이콘을 임베드해 바로가기/작업표시줄에서 기본 아이콘 대신 앱 아이콘이 보이게 한다.
+         (MainWindow의 Icon은 실행 중 창 아이콘일 뿐 exe 아이콘과 별개) -->
+    <ApplicationIcon>..\NetworkScanner\img\Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
     <!-- 개발 머신에 .NET 8 런타임이 없어도(.NET 9만 설치된 경우 등) 로컬 실행이 가능하도록 허용.
          self-contained 배포판에는 영향 없음(자체 런타임 포함). -->
     <RollForward>LatestMajor</RollForward>
