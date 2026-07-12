@@ -61,5 +61,28 @@ namespace NetworkScanner.Tests
 
             Assert.Contains("대역", lastMessage);
         }
+
+        [Fact]
+        public async Task DoScanAllRange_TokenAlreadyCancelled_StopsPromptlyWithoutThrowing()
+        {
+            // 사용자가 스캔을 취소하면, 대역이 커도 실제 Ping을 거의 보내지 않고 즉시 멈춰야 한다.
+            var config = new FakeScanConfigProvider();
+            config.ScanRanges.AddItem(new ScanRangeInfo { Index = 1, StartIP = "10.255.255.1", EndIP = "10.255.255.254", Description = "" });
+            var engine = new ScanEngine(new IPInfoList(), new OUIInfo(), config);
+
+            string? lastMessage = null;
+            engine.Message += msg => lastMessage = msg;
+
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // 취소된 토큰이면 예외 없이 곧바로 완료되어야 한다(스캔 전체 타임아웃을 넉넉히 잡아 실패 시 감지).
+            var scan = engine.DoScanAllRange(scheduling: false, systemName: "test", cts.Token);
+            var finished = await Task.WhenAny(scan, Task.Delay(5000));
+
+            Assert.Same(scan, finished); // 5초 안에 끝났는가
+            await scan; // 예외를 삼키지 않고 정상 완료되는지 확인
+            Assert.Contains("취소", lastMessage);
+        }
     }
 }

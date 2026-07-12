@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetworkScanner
 {
@@ -27,25 +29,68 @@ namespace NetworkScanner
             return SendPingInternal(IPAddress.Parse(targetIP));
         }
 
+        private const int PingTimeoutMs = 500;
+        private static readonly byte[] PingBuffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
         private static PingReply? SendPingInternal(IPAddress ip)
         {
-            Ping pingSender = new Ping();
-            PingOptions options = new PingOptions();
-            options.DontFragment = true;
-            string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-
-            byte[] buffer = Encoding.ASCII.GetBytes(data);
-
-            int timeout = 500;
+            using Ping pingSender = new Ping();
+            PingOptions options = new PingOptions { DontFragment = true };
 
             try
             {
-                return pingSender.Send(ip, timeout, buffer, options);
+                return pingSender.Send(ip, PingTimeoutMs, PingBuffer, options);
             }
             catch (Exception ex)
             {
                 ReportPingFailure(ex);
                 return null;
+            }
+        }
+
+        // 대역 스캔에서 여러 IP를 동시에 검사할 때 스레드를 500ms씩 붙잡지 않도록 하는 비동기 Ping.
+        public static async Task<PingReply?> SendPingAsync(IPAddress ip)
+        {
+            using Ping pingSender = new Ping();
+            PingOptions options = new PingOptions { DontFragment = true };
+
+            try
+            {
+                return await pingSender.SendPingAsync(ip, PingTimeoutMs, PingBuffer, options);
+            }
+            catch (Exception ex)
+            {
+                ReportPingFailure(ex);
+                return null;
+            }
+        }
+
+        public static async Task<string> CheckPortsOpenAsync(string ip)
+        {
+            var result = new StringBuilder();
+            foreach (int port in _PortList)
+            {
+                if (await CheckPortAsync(ip, port))
+                {
+                    result.Append(port).Append('/');
+                }
+            }
+            return result.ToString();
+        }
+
+        public static async Task<bool> CheckPortAsync(string ip, int port, int timeoutMs = 300)
+        {
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                using var cts = new CancellationTokenSource(timeoutMs);
+                await socket.ConnectAsync(ip, port, cts.Token);
+                return socket.Connected;
+            }
+            catch
+            {
+                // 연결 거부/타임아웃/취소 등은 모두 "닫힘"으로 간주한다.
+                return false;
             }
         }
 

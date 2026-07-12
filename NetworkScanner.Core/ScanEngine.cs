@@ -19,11 +19,20 @@ namespace NetworkScanner
         private readonly OUIInfo _oui;
         private readonly FTPService _ftp = new FTPService();
         private readonly object _scanLock = new object();
+        // 대역 스캔을 여러 IP 동시에 수행하므로, 결과 목록(_items)에 대한 읽기/추가/수정은 이 락으로 직렬화한다.
+        private readonly object _itemsLock = new object();
         private CancellationTokenSource? _scanCts;
+
+        // 대역 스캔 시 동시에 검사할 IP 개수. 대부분의 시간이 Ping 응답 대기(I/O)라 CPU 코어 수보다 크게 잡는다.
+        private const int ScanParallelism = 64;
 
         public IScanConfigProvider Config { get; set; }
         public Task? Scanning { get; private set; }
         public IPInfoList Items => _items;
+
+        // 병렬 스캔 중 결과 목록(_items)을 UI가 안전하게 열람할 수 있도록, 엔진이 쓰기에 사용하는 락 객체를 노출한다.
+        // WPF는 BindingOperations.EnableCollectionSynchronization에, Avalonia는 스냅샷 생성 시 lock에 사용한다.
+        public object ItemsSyncRoot => _itemsLock;
 
         public event Action<string>? Message;
         public event Action<int>? ProgressMaxChanged;
@@ -275,7 +284,7 @@ namespace NetworkScanner
         {
             var reply = PingTester.SendPing(ip);
             var openPorts = PingTester.CheckPortsOpen(ip);
-            RefreshIPInfo(reply, ip, openPorts);
+            RefreshIPInfo(reply, ip, openPorts, GetProhibitedPortSet());
 
             string status = reply != null ? reply.Status.ToString() : "실패(권한 등 오류, 로그 확인)";
             Message?.Invoke($"수동으로 {ip}으로 Ping을 보냈습니다. 결과 : {status}");
@@ -381,7 +390,8 @@ namespace NetworkScanner
         public async Task DoScanAllRange(bool scheduling, string systemName, CancellationToken token)
         {
             ScanRangeList ranges = Config.GetScanRanges();
-            int maxCnt = ComputeIPCount(ranges);
+            List<string> targets = BuildTargetIPList(ranges);
+            int maxCnt = targets.Count;
             ProgressMaxChanged?.Invoke(maxCnt);
 
             if (maxCnt == 0)
@@ -390,57 +400,79 @@ namespace NetworkScanner
                 return;
             }
 
-            int idx = 0;
-            Message?.Invoke($"전체 대역 스캔을 시작합니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
-            bool? usePortChecking = Config.GetUsePortChecking();
+            // 스캔 중에는 UI(설정)를 건드리지 않으므로 위험포트/포트검사 설정을 루프 밖에서 한 번만 읽는다.
+            // (매 IP마다 Config를 호출하면 WPF에서 스레드마다 UI 마샬링이 일어나 오히려 느려진다.)
+            bool usePortChecking = Config.GetUsePortChecking() == true;
+            HashSet<int> prohibitedPorts = GetProhibitedPortSet();
 
-            await Task.Run(() =>
+            Message?.Invoke($"전체 대역 스캔을 시작합니다. 대상 {maxCnt}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+            int done = 0;
+
+            var options = new ParallelOptions { MaxDegreeOfParallelism = ScanParallelism, CancellationToken = token };
+            try
             {
-                foreach (ScanRangeInfo item in ranges)
+                await Parallel.ForEachAsync(targets, options, async (strIp, ct) =>
                 {
-                    if (token.IsCancellationRequested) break;
+                    PingReply? reply = await PingTester.SendPingAsync(IPAddress.Parse(strIp));
+                    bool alive = reply != null && reply.Status == IPStatus.Success;
 
-                    uint startVal, endVal;
-                    try
-                    {
-                        startVal = IPRangeUtil.ToUInt32(IPAddress.Parse(item.StartIP));
-                        endVal = IPRangeUtil.ToUInt32(IPAddress.Parse(item.EndIP));
-                    }
-                    catch (FormatException)
-                    {
-                        Message?.Invoke($"잘못된 IP 대역을 건너뜁니다: {item.StartIP} ~ {item.EndIP}");
-                        continue;
-                    }
+                    // 응답이 있는(살아있는) 호스트에 대해서만 포트를 검사해 불필요한 대기를 없앤다.
+                    string openPorts = (usePortChecking && alive) ? await PingTester.CheckPortsOpenAsync(strIp) : "";
 
-                    if (endVal < startVal) continue;
+                    RefreshIPInfo(reply, strIp, openPorts, prohibitedPorts);
 
-                    for (uint ipVal = startVal; ipVal <= endVal; ipVal++)
-                    {
-                        if (token.IsCancellationRequested) break;
+                    int cur = Interlocked.Increment(ref done);
+                    ProgressChanged?.Invoke(cur);
+                    Message?.Invoke($"스캔 중: {strIp} ({cur}/{maxCnt})");
+                    RaiseResultsSummary();
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                // 사용자가 취소한 경우로, 아래 완료 메시지에서 취소 여부를 반영한다.
+            }
 
-                        IPAddress newIp = IPRangeUtil.FromUInt32(ipVal);
-                        string strIp = newIp.ToString();
-                        var reply = PingTester.SendPing(newIp);
-
-                        string openPorts = "";
-                        if (usePortChecking == true)
-                        {
-                            openPorts = PingTester.CheckPortsOpen(strIp);
-                        }
-
-                        RefreshIPInfo(reply, strIp, openPorts);
-                        Message?.Invoke($"Send Ping to : {strIp}");
-                        RaiseResultsSummary();
-                        ProgressChanged?.Invoke(idx++);
-                    }
-                }
-            });
             ProgressChanged?.Invoke(0);
             Message?.Invoke(token.IsCancellationRequested
                 ? $"전체 대역 스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
                 : $"전체 대역 스캔을 완료했습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
 
-            if (scheduling) await WriteIPInfo(true, systemName);
+            if (scheduling && !token.IsCancellationRequested) await WriteIPInfo(true, systemName);
+        }
+
+        // 스캔 대상 IP들을 미리 문자열 목록으로 펼친다. 잘못된 대역은 건너뛰며 안내 메시지를 남긴다.
+        private List<string> BuildTargetIPList(ScanRangeList ranges)
+        {
+            var targets = new List<string>();
+            foreach (ScanRangeInfo item in ranges)
+            {
+                uint startVal, endVal;
+                try
+                {
+                    startVal = IPRangeUtil.ToUInt32(IPAddress.Parse(item.StartIP));
+                    endVal = IPRangeUtil.ToUInt32(IPAddress.Parse(item.EndIP));
+                }
+                catch (FormatException)
+                {
+                    Message?.Invoke($"잘못된 IP 대역을 건너뜁니다: {item.StartIP} ~ {item.EndIP}");
+                    continue;
+                }
+
+                if (endVal < startVal) continue;
+
+                for (uint ipVal = startVal; ipVal <= endVal; ipVal++)
+                {
+                    targets.Add(IPRangeUtil.FromUInt32(ipVal).ToString());
+                }
+            }
+            return targets;
+        }
+
+        private HashSet<int> GetProhibitedPortSet()
+        {
+            List<RefPortInfo> prohibitList = Config.GetProhibitPortList();
+            if (prohibitList == null) return new HashSet<int>();
+            return new HashSet<int>(prohibitList.Select(p => p.PortNo));
         }
 
         public static int ComputeIPCount(ScanRangeList ranges)
@@ -463,56 +495,73 @@ namespace NetworkScanner
             return cnt;
         }
 
-        private void RefreshIPInfo(PingReply? reply, string targetIp, string openPorts)
+        private void RefreshIPInfo(PingReply? reply, string targetIp, string openPorts, HashSet<int> prohibitedPorts)
         {
             bool success = reply != null && reply.Status == IPStatus.Success;
 
-            IPInfo info = _items.GetItem(targetIp);
-            if (info != null)
+            // MAC/제조사/호스트명 조회는 ARP·DNS라 느릴 수 있으므로 결과 목록 락 밖에서 미리 계산한다.
+            // 살아있는 호스트에 대해서만 조회해(응답 없는 호스트는 어차피 목록에 추가되지 않음) 속도를 높인다.
+            string? mac = null, vendor = null, hostName = null;
+            if (success)
             {
-                info.Ports = openPorts;
-                info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
-                info.Alive = success;
-                info.HasProhibitedPort = ContainsProhibitedPort(openPorts);
-                info.Macaddr = _items.GetMACAddress(targetIp);
-                info.Vendor = _oui.GetVender(info.Macaddr);
+                mac = _items.GetMACAddress(targetIp);
+                vendor = _oui.GetVender(mac);
+                hostName = _items.GetHostName(IPAddress.Parse(targetIp));
+            }
+            bool hasProhibited = ContainsProhibitedPort(openPorts, prohibitedPorts);
+            bool changed = false;
 
-                if (info.SystemName == "")
-                    info.SystemName = _items.GetHostName(IPAddress.Parse(targetIp));
-                ItemsRefreshNeeded?.Invoke();
-            }
-            else if (success)
+            lock (_itemsLock)
             {
-                IPInfo newIpInfo = new()
+                IPInfo info = _items.GetItem(targetIp);
+                if (info != null)
                 {
-                    Ip = targetIp,
-                    Ports = openPorts,
-                    Description = "",
-                    CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
-                    RountTime = reply!.RoundtripTime.ToString(),
-                    Alive = true,
-                    HasProhibitedPort = ContainsProhibitedPort(openPorts),
-                };
-                newIpInfo.Macaddr = _items.GetMACAddress(targetIp);
-                newIpInfo.Vendor = _oui.GetVender(newIpInfo.Macaddr);
-                newIpInfo.SystemName = _items.GetHostName(IPAddress.Parse(targetIp));
-                _items.Add(newIpInfo);
-                ItemsRefreshNeeded?.Invoke();
+                    info.Ports = openPorts;
+                    info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
+                    info.Alive = success;
+                    info.HasProhibitedPort = hasProhibited;
+                    if (success)
+                    {
+                        info.Macaddr = mac;
+                        info.Vendor = vendor;
+                        if (string.IsNullOrEmpty(info.SystemName))
+                            info.SystemName = hostName;
+                    }
+                    changed = true;
+                }
+                else if (success)
+                {
+                    IPInfo newIpInfo = new()
+                    {
+                        Ip = targetIp,
+                        Ports = openPorts,
+                        Description = "",
+                        CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                        RountTime = reply!.RoundtripTime.ToString(),
+                        Alive = true,
+                        HasProhibitedPort = hasProhibited,
+                        Macaddr = mac,
+                        Vendor = vendor,
+                        SystemName = hostName,
+                    };
+                    _items.Add(newIpInfo);
+                    changed = true;
+                }
             }
+
+            // UI 갱신 알림은 반드시 락 밖에서 낸다. 락 안에서 동기 Dispatcher 호출을 하면
+            // UI 스레드가 같은 락(EnableCollectionSynchronization)을 기다리며 교착에 빠질 수 있다.
+            if (changed) ItemsRefreshNeeded?.Invoke();
         }
 
-        // 스캔에서 발견된 열린 포트 중 위험(백도어) 포트 목록과 일치하는 것이 있는지 확인한다.
-        private bool ContainsProhibitedPort(string portsField)
+        // 열린 포트 중 위험(백도어) 포트 목록과 일치하는 것이 있는지 확인한다.
+        private static bool ContainsProhibitedPort(string portsField, HashSet<int> prohibitedPorts)
         {
-            if (string.IsNullOrEmpty(portsField)) return false;
+            if (string.IsNullOrEmpty(portsField) || prohibitedPorts.Count == 0) return false;
 
-            List<RefPortInfo> prohibitList = Config.GetProhibitPortList();
-            if (prohibitList == null || prohibitList.Count == 0) return false;
-
-            var prohibitedNumbers = new HashSet<int>(prohibitList.Select(p => p.PortNo));
             foreach (string token in portsField.Split('/', StringSplitOptions.RemoveEmptyEntries))
             {
-                if (int.TryParse(token, out int port) && prohibitedNumbers.Contains(port))
+                if (int.TryParse(token, out int port) && prohibitedPorts.Contains(port))
                 {
                     return true;
                 }
@@ -522,12 +571,16 @@ namespace NetworkScanner
 
         private void RaiseResultsSummary()
         {
-            int alive = 0, dead = 0;
-            foreach (var info in _items)
+            int alive = 0, dead = 0, total;
+            lock (_itemsLock)
             {
-                if (info.Alive) alive++; else dead++;
+                foreach (var info in _items)
+                {
+                    if (info.Alive) alive++; else dead++;
+                }
+                total = _items.Count;
             }
-            ResultsSummaryChanged?.Invoke(alive, dead, _items.Count);
+            ResultsSummaryChanged?.Invoke(alive, dead, total);
         }
     }
 }

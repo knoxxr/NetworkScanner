@@ -47,15 +47,29 @@ namespace NetworkScanner.Avalonia.Views
             });
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.UIThread.Post(() =>
                 TbResult.Text = $"정상:{alive},끊김{dead}/전체{total}");
-            _engine.ItemsRefreshNeeded += () => Dispatcher.UIThread.Post(RefreshGrid);
+            _engine.ItemsRefreshNeeded += RequestGridRefresh;
             _engine.ScanStarted += () => Dispatcher.UIThread.Post(() => SetScanningState(true));
             _engine.ScanFinished += () => Dispatcher.UIThread.Post(() =>
             {
                 SetScanningState(false);
+                RefreshGrid();
                 TbProgressPercent.Text = "";
             });
 
             _engine.InitFromConfig();
+        }
+
+        // 병렬 스캔은 초당 수백 번 갱신을 요청할 수 있으므로, 이미 예약된 갱신이 있으면 무시해 병합한다.
+        private volatile bool _refreshPending;
+        private void RequestGridRefresh()
+        {
+            if (_refreshPending) return;
+            _refreshPending = true;
+            Dispatcher.UIThread.Post(() =>
+            {
+                _refreshPending = false;
+                RefreshGrid();
+            }, DispatcherPriority.Background);
         }
 
         // 스캔 진행 중에는 "스캔" 버튼을 비활성화하고 "취소" 버튼만 눌리도록 해 중복 스캔 시작을 막는다.
@@ -78,11 +92,17 @@ namespace NetworkScanner.Avalonia.Views
             DgIPList.ItemsSource = FilterItems();
         }
 
-        private IEnumerable<IPInfo> FilterItems()
+        // 병렬 스캔 중 워커 스레드가 _items를 수정할 수 있으므로, 엔진의 쓰기 락을 잡고 스냅샷(복사본)을
+        // 만들어 반환한다. DataGrid는 이 고정된 복사본만 열람하므로 열람 중 컬렉션 변경 예외가 나지 않는다.
+        private List<IPInfo> FilterItems()
         {
+            object sync = _engine?.ItemsSyncRoot ?? _items;
             string keyword = TbSearch.Text?.Trim() ?? "";
-            if (string.IsNullOrEmpty(keyword)) return _items;
-            return _items.Where(i => Matches(i, keyword)).ToList();
+            lock (sync)
+            {
+                if (string.IsNullOrEmpty(keyword)) return _items.ToList();
+                return _items.Where(i => Matches(i, keyword)).ToList();
+            }
         }
 
         private static bool Matches(IPInfo info, string keyword)

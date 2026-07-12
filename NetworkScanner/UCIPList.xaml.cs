@@ -42,31 +42,53 @@ namespace NetworkScanner
             Config ??= Application.Current.MainWindow as IScanConfigProvider;
 
             _engine = new ScanEngine(_IPInfoList, _oui, Config);
-            _engine.Message += msg => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => TbMsg.Text = msg));
-            _engine.ProgressMaxChanged += max => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+
+            // 병렬 스캔이 백그라운드 스레드에서 _IPInfoList를 수정해도 WPF가 안전하게 열람하도록,
+            // 엔진의 쓰기 락과 동일한 객체로 컬렉션 동기화를 등록한다.
+            BindingOperations.EnableCollectionSynchronization(_IPInfoList, _engine.ItemsSyncRoot);
+
+            // 아래 핸들러들은 64개 워커 스레드에서 매우 잦게 호출되므로, 동기 Invoke(=워커 정지) 대신
+            // 비차단 BeginInvoke를 쓴다. UI 갱신(Items.Refresh)은 별도로 병합(throttle)한다.
+            _engine.Message += msg => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => TbMsg.Text = msg));
+            _engine.ProgressMaxChanged += max => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 pbProgress.Maximum = max;
                 pbProgress.Value = 0;
                 UpdateProgressPercentText(0, max);
             }));
-            _engine.ProgressChanged += val => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            _engine.ProgressChanged += val => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 pbProgress.Value = val;
                 UpdateProgressPercentText(val, (int)pbProgress.Maximum);
             }));
-            _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
                 tbResult.Text = string.Format("정상:{0},끊김{1}/전체{2}", alive, dead, total)));
-            _engine.ItemsRefreshNeeded += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => LvIPList.Items.Refresh()));
-            _engine.ScanStarted += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => SetScanningState(true)));
-            _engine.ScanFinished += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            _engine.ItemsRefreshNeeded += RequestGridRefresh;
+            _engine.ScanStarted += () => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => SetScanningState(true)));
+            _engine.ScanFinished += () => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 SetScanningState(false);
+                LvIPList.Items.Refresh();
                 TbProgressPercent.Text = "";
             }));
 
             CollectionViewSource.GetDefaultView(_IPInfoList).Filter = FilterItem;
 
             _engine.InitFromConfig();
+        }
+
+        // 병렬 스캔은 초당 수백 번 갱신을 요청할 수 있으므로, 이미 예약된 갱신이 있으면 무시해
+        // UI 스레드가 Items.Refresh로 넘치지 않도록 병합한다.
+        private volatile bool _refreshPending;
+        private void RequestGridRefresh()
+        {
+            if (_refreshPending) return;
+            _refreshPending = true;
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                _refreshPending = false;
+                LvIPList.Items.Refresh();
+            }));
         }
 
         // 진행률 바 위에 겹쳐 보여줄 "N% (진행/전체)" 텍스트를 계산한다. 전체 개수가 0이면(스캔 시작 전) 비워둔다.
