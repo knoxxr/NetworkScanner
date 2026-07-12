@@ -117,9 +117,36 @@ namespace NetworkScanner
             var ranges = new ScanRangeList();
             string filename = Path.Combine(Directory.GetCurrentDirectory(), IPRangeFileName);
 
-            if (!File.Exists(filename))
+            if (File.Exists(filename))
             {
-                // 최초 실행이라 설정된 대역이 없으면, 이 PC가 속한 로컬 서브넷을 기본값으로 제안한다.
+                foreach (string line in File.ReadAllLines(filename))
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    try
+                    {
+                        string[] token = line.Split(',');
+                        if (token.Length < 4) continue;
+
+                        ranges.AddItem(new ScanRangeInfo
+                        {
+                            Index = int.Parse(token[0]),
+                            StartIP = token[1],
+                            EndIP = token[2],
+                            Description = token[3],
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        OnError?.Invoke("iprange.ini 파싱 실패(줄 건너뜀): " + ex.Message);
+                    }
+                }
+            }
+
+            // 설정된 대역이 하나도 없으면(최초 실행이거나, 파일은 있지만 전부 지워진 경우) 이 PC가
+            // 속한 로컬 서브넷을 기본값으로 채워 넣어, 스캔 화면을 처음 열어도 바로 사용할 수 있게 한다.
+            if (ranges.Count == 0)
+            {
                 ScanRangeInfo? localRange = LocalNetworkInfo.GetLocalSubnetRange();
                 if (localRange != null)
                 {
@@ -127,30 +154,6 @@ namespace NetworkScanner
                 }
 
                 SaveScanRanges(ranges);
-                return ranges;
-            }
-
-            foreach (string line in File.ReadAllLines(filename))
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                try
-                {
-                    string[] token = line.Split(',');
-                    if (token.Length < 4) continue;
-
-                    ranges.AddItem(new ScanRangeInfo
-                    {
-                        Index = int.Parse(token[0]),
-                        StartIP = token[1],
-                        EndIP = token[2],
-                        Description = token[3],
-                    });
-                }
-                catch (Exception ex)
-                {
-                    OnError?.Invoke("iprange.ini 파싱 실패(줄 건너뜀): " + ex.Message);
-                }
             }
 
             return ranges;
