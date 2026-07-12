@@ -112,5 +112,8 @@ namespace NetworkScanner
         // 별도 저장·동기화가 필요 없다.
         public string StatusKey => !Alive ? "bad" : (HasProhibitedPort ? "warn" : "good");
         public string StatusText => !Alive ? "없음" : (HasProhibitedPort ? "주의" : "정상");
+
+        // 제조사·열린 포트로 추정한 장비 종류(참고용). UI의 "종류" 컬럼에 표시된다.
+        public string DeviceType => DeviceClassifier.Classify(vendor, ports);
     }
 }

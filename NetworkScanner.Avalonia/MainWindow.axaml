@@ -41,7 +41,6 @@
                 </StackPanel>
                 <StackPanel Grid.Row="2" Margin="0,0,0,12">
                     <TextBlock Name="TbVersion" Foreground="White" TextAlignment="Center">version</TextBlock>
-                    <TextBlock Foreground="White" TextAlignment="Center">SMIC</TextBlock>
                 </StackPanel>
             </Grid>
         </Border>

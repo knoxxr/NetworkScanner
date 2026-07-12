@@ -107,13 +107,28 @@ namespace NetworkScanner
 
         private async void BtnAddRange_Click(object sender, RoutedEventArgs e)
         {
-            if (!IsValidIP(tbStartIP.Text))
+            string startText = tbStartIP.Text;
+            string endText = tbEndIP.Text;
+
+            // 시작 IP 칸에 "192.168.1.0/24" 처럼 CIDR을 입력하면 시작/종료 IP로 자동 변환한다.
+            if (startText.Contains('/'))
             {
-                MessageBox.Show("시작 IP 값 이상");
+                if (!IPRangeUtil.TryParseCidr(startText, out string cs, out string ce))
+                {
+                    MessageBox.Show("CIDR 형식이 올바르지 않습니다 (예: 192.168.1.0/24)");
+                    return;
+                }
+                startText = cs;
+                endText = ce;
+            }
+
+            if (!IsValidIP(startText))
+            {
+                MessageBox.Show("시작 IP 값 이상 (또는 CIDR 형식: 192.168.1.0/24)");
                 return;
             }
 
-            if (!IsValidIP(tbEndIP.Text))
+            if (!IsValidIP(endText))
             {
                 MessageBox.Show("종료 IP 값 이상");
                 return;
@@ -121,8 +136,8 @@ namespace NetworkScanner
 
             ScanRangeInfo newinfo = new ScanRangeInfo();
             newinfo.Index = 0;
-            newinfo.StartIP = tbStartIP.Text;
-            newinfo.EndIP = tbEndIP.Text;
+            newinfo.StartIP = startText;
+            newinfo.EndIP = endText;
             newinfo.Description = tbDescription.Text;
 
             if (!ScanRanges.AddItem(newinfo))

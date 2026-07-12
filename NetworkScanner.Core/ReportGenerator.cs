@@ -1,0 +1,68 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace NetworkScanner
+{
+    // 스캔 결과를 사람이 읽기 좋은 HTML 리포트로 만든다(브라우저에서 열거나 공유용).
+    public static class ReportGenerator
+    {
+        public static string BuildHtml(IEnumerable<IPInfo> items, string systemName, string timestamp)
+        {
+            List<IPInfo> all = items.ToList();
+            int alive = all.Count(i => i.Alive);
+            int prohibited = all.Count(i => i.HasProhibitedPort);
+
+            var sb = new StringBuilder();
+            sb.Append("<!doctype html><html lang=\"ko\"><head><meta charset=\"utf-8\">");
+            sb.Append("<title>NetworkScanner 리포트</title><style>");
+            sb.Append("body{font-family:-apple-system,'Segoe UI','Malgun Gothic',sans-serif;margin:24px;color:#1b2430;}");
+            sb.Append("h1{font-size:20px;} .meta{color:#5b6b7b;margin-bottom:16px;}");
+            sb.Append(".cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}");
+            sb.Append(".card{border:1px solid #d8e0e8;border-radius:8px;padding:12px 16px;min-width:100px;}");
+            sb.Append(".card b{display:block;font-size:24px;} .warn{color:#c0392b;}");
+            sb.Append("table{border-collapse:collapse;width:100%;font-size:13px;}");
+            sb.Append("th,td{border:1px solid #d8e0e8;padding:6px 8px;text-align:left;}");
+            sb.Append("th{background:#f2f6fa;} tr.bad{color:#9aa7b3;} tr.prohib{background:#fdecea;}");
+            sb.Append("</style></head><body>");
+            sb.Append("<h1>NetworkScanner 스캔 리포트</h1>");
+            sb.Append($"<div class=\"meta\">시스템: {Escape(systemName)} · 생성: {Escape(timestamp)}</div>");
+
+            sb.Append("<div class=\"cards\">");
+            sb.Append($"<div class=\"card\"><b>{all.Count}</b>전체</div>");
+            sb.Append($"<div class=\"card\"><b>{alive}</b>정상</div>");
+            sb.Append($"<div class=\"card{(prohibited > 0 ? " warn" : "")}\"><b>{prohibited}</b>위험 포트</div>");
+            sb.Append("</div>");
+
+            sb.Append("<table><thead><tr>");
+            foreach (string h in new[] { "상태", "IP", "이름", "종류", "열린 Port", "MAC", "제조사", "RTT(ms)", "비고" })
+                sb.Append($"<th>{h}</th>");
+            sb.Append("</tr></thead><tbody>");
+
+            foreach (IPInfo i in all)
+            {
+                string cls = i.HasProhibitedPort ? "prohib" : (i.Alive ? "" : "bad");
+                sb.Append($"<tr class=\"{cls}\">");
+                sb.Append($"<td>{Escape(i.StatusText)}</td>");
+                sb.Append($"<td>{Escape(i.Ip)}</td>");
+                sb.Append($"<td>{Escape(i.SystemName)}</td>");
+                sb.Append($"<td>{Escape(i.DeviceType)}</td>");
+                sb.Append($"<td>{Escape(i.Ports)}</td>");
+                sb.Append($"<td>{Escape(i.Macaddr)}</td>");
+                sb.Append($"<td>{Escape(i.Vendor)}</td>");
+                sb.Append($"<td>{Escape(i.RountTime)}</td>");
+                sb.Append($"<td>{Escape(i.Description)}</td>");
+                sb.Append("</tr>");
+            }
+
+            sb.Append("</tbody></table></body></html>");
+            return sb.ToString();
+        }
+
+        private static string Escape(string? s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+        }
+    }
+}

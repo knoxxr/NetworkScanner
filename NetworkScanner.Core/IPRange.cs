@@ -83,5 +83,32 @@ namespace NetworkScanner
             if (BitConverter.IsLittleEndian) Array.Reverse(bytes);
             return new IPAddress(bytes);
         }
+
+        // "192.168.1.0/24" 형태의 CIDR을 스캔용 시작/종료 IP로 변환한다.
+        // /1~/30은 네트워크·브로드캐스트를 제외한 사용 가능 호스트 범위를, /31·/32는 표기된 주소 전체를 반환한다.
+        public static bool TryParseCidr(string cidr, out string startIp, out string endIp)
+        {
+            startIp = "";
+            endIp = "";
+            if (string.IsNullOrWhiteSpace(cidr)) return false;
+
+            string[] parts = cidr.Trim().Split('/');
+            if (parts.Length != 2) return false;
+            if (!IPAddress.TryParse(parts[0], out IPAddress? addr)
+                || addr.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) return false;
+            if (!int.TryParse(parts[1], out int prefix) || prefix < 0 || prefix > 32) return false;
+
+            uint ip = ToUInt32(addr);
+            uint mask = prefix == 0 ? 0u : 0xFFFFFFFF << (32 - prefix);
+            uint network = ip & mask;
+            uint broadcast = network | ~mask;
+
+            uint start = prefix >= 31 ? network : network + 1;
+            uint end = prefix >= 31 ? broadcast : broadcast - 1;
+
+            startIp = FromUInt32(start).ToString();
+            endIp = FromUInt32(end).ToString();
+            return true;
+        }
     }
 }

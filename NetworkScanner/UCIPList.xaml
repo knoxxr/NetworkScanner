@@ -95,17 +95,15 @@
         </Border>
         <Grid Grid.Row="1" Margin="5,4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="260"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" FontFamily="Segoe UI"/>
-                <TextBox Grid.Column="1" Name="TbSearch" VerticalAlignment="Center" FontFamily="Segoe UI" TextChanged="TbSearch_TextChanged" ToolTip="IP/이름/포트/Mac/Vendor/비고 검색"/>
-            </Grid>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" FontFamily="Segoe UI"/>
+                <TextBox Name="TbSearch" Width="180" VerticalAlignment="Center" FontFamily="Segoe UI" TextChanged="TbSearch_TextChanged" ToolTip="IP/이름/포트/Mac/Vendor/비고 검색"/>
+                <CheckBox Name="ChkAliveOnly" Content="살아있는 것만" Margin="12,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI" Checked="ChkAliveOnly_Changed" Unchecked="ChkAliveOnly_Changed"/>
+                <Button Name="BtnReport" Content="리포트(HTML)" Margin="12,0,0,0" Padding="8,2" VerticalAlignment="Center" FontFamily="Segoe UI" Click="BtnReport_Click"/>
+            </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" Margin="0,0,4,0"/>
                 <TextBlock Text="정상" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
@@ -151,6 +149,13 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox  MinWidth="195" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="종류" Width="130">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=DeviceType, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

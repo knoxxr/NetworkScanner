@@ -51,7 +51,6 @@
                             </Button.Content>
                         </Button>
                         <TextBlock Name="tbVersion" Grid.Row="2" Foreground="White" TextAlignment="Center" VerticalAlignment="Bottom">version</TextBlock>
-                        <TextBlock  Foreground="White" TextAlignment="Center" VerticalAlignment="Bottom">SMIC</TextBlock>
                     </StackPanel>
                 </Grid>
             </Border>

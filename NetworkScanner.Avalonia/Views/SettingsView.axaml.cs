@@ -113,12 +113,27 @@ namespace NetworkScanner.Avalonia.Views
         {
             var owner = (Window)TopLevel.GetTopLevel(this)!;
 
-            if (!IsValidIP(TbStartIP.Text ?? ""))
+            string startText = TbStartIP.Text ?? "";
+            string endText = TbEndIP.Text ?? "";
+
+            // 시작 IP 칸에 "192.168.1.0/24" 처럼 CIDR을 입력하면 시작/종료 IP로 자동 변환한다.
+            if (startText.Contains('/'))
             {
-                await SimpleDialogs.ShowMessageAsync(owner, "시작 IP 값 이상");
+                if (!IPRangeUtil.TryParseCidr(startText, out string cs, out string ce))
+                {
+                    await SimpleDialogs.ShowMessageAsync(owner, "CIDR 형식이 올바르지 않습니다 (예: 192.168.1.0/24)");
+                    return;
+                }
+                startText = cs;
+                endText = ce;
+            }
+
+            if (!IsValidIP(startText))
+            {
+                await SimpleDialogs.ShowMessageAsync(owner, "시작 IP 값 이상 (또는 CIDR 형식: 192.168.1.0/24)");
                 return;
             }
-            if (!IsValidIP(TbEndIP.Text ?? ""))
+            if (!IsValidIP(endText))
             {
                 await SimpleDialogs.ShowMessageAsync(owner, "종료 IP 값 이상");
                 return;
@@ -127,8 +142,8 @@ namespace NetworkScanner.Avalonia.Views
             bool added = ScanRanges.AddItem(new ScanRangeInfo
             {
                 Index = 0,
-                StartIP = TbStartIP.Text ?? "",
-                EndIP = TbEndIP.Text ?? "",
+                StartIP = startText,
+                EndIP = endText,
                 Description = TbDescription.Text ?? "",
             });
 

@@ -37,6 +37,9 @@
                             <TextBlock VerticalAlignment="Center">파일 저장</TextBlock>
                         </StackPanel>
                     </Button>
+                    <Button Name="BtnReport" Click="BtnReport_Click">
+                        <TextBlock VerticalAlignment="Center">리포트(HTML)</TextBlock>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" Spacing="4">
                     <StackPanel Orientation="Horizontal" Spacing="12">
@@ -53,11 +56,12 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="260,*" Margin="12,6">
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" />
-                <TextBox Name="TbSearch" Width="200" VerticalAlignment="Center"
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="12,6">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                <TextBlock Text="검색:" VerticalAlignment="Center" />
+                <TextBox Name="TbSearch" Width="160" VerticalAlignment="Center"
                          Watermark="IP/이름/포트/Mac/Vendor/비고" TextChanged="TbSearch_TextChanged" />
+                <CheckBox Name="ChkAliveOnly" Content="살아있는 것만" VerticalAlignment="Center" IsCheckedChanged="ChkAliveOnly_Changed" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="4">
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" />
@@ -94,6 +98,7 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="IP" Binding="{Binding Ip}" IsReadOnly="True" Width="140" />
                 <DataGridTextColumn Header="이름" Binding="{Binding SystemName}" Width="160" />
+                <DataGridTextColumn Header="종류" Binding="{Binding DeviceType}" IsReadOnly="True" Width="120" />
                 <DataGridTextColumn Header="열린 Port" Binding="{Binding Ports}" Width="160" />
                 <DataGridTextColumn Header="Mac Address" Binding="{Binding Macaddr}" Width="160" />
                 <DataGridTextColumn Header="Vendor" Binding="{Binding Vendor}" Width="160" />

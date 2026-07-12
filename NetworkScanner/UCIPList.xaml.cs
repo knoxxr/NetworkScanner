@@ -129,8 +129,11 @@ namespace NetworkScanner
 
         private bool FilterItem(object obj)
         {
-            if (string.IsNullOrWhiteSpace(TbSearch.Text)) return true;
             if (obj is not IPInfo info) return true;
+
+            if (ChkAliveOnly.IsChecked == true && !info.Alive) return false;
+
+            if (string.IsNullOrWhiteSpace(TbSearch.Text)) return true;
 
             string keyword = TbSearch.Text.Trim();
             return (info.Ip?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
@@ -144,6 +147,39 @@ namespace NetworkScanner
         private void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             CollectionViewSource.GetDefaultView(_IPInfoList).Refresh();
+        }
+
+        private void ChkAliveOnly_Changed(object sender, RoutedEventArgs e)
+        {
+            CollectionViewSource.GetDefaultView(_IPInfoList).Refresh();
+        }
+
+        private void BtnReport_Click(object sender, RoutedEventArgs e)
+        {
+            System.Collections.Generic.List<IPInfo> snapshot;
+            lock (_engine.ItemsSyncRoot) snapshot = new System.Collections.Generic.List<IPInfo>(_IPInfoList);
+            if (snapshot.Count == 0)
+            {
+                MessageBox.Show("리포트로 저장할 결과가 없습니다.");
+                return;
+            }
+
+            string html = ReportGenerator.BuildHtml(snapshot, Config.GetSystemName(),
+                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "HTML files (*.html)|*.html|All files (*.*)|*.*",
+                FileName = $"NetworkScanner_{DateTime.Now:yyyyMMdd_HHmmss}.html",
+                InitialDirectory = ScanEngine.GetEnvDirectory(),
+            };
+            System.IO.Directory.CreateDirectory(ScanEngine.GetEnvDirectory());
+
+            if (dlg.ShowDialog() == true)
+            {
+                System.IO.File.WriteAllText(dlg.FileName, html, System.Text.Encoding.UTF8);
+                TbMsg.Text = "HTML 리포트를 저장했습니다: " + dlg.FileName;
+            }
         }
 
         public void ClearItems()

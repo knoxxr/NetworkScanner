@@ -121,12 +121,17 @@ namespace NetworkScanner.Avalonia.Views
         {
             object sync = _engine?.ItemsSyncRoot ?? _items;
             string keyword = TbSearch.Text?.Trim() ?? "";
+            bool aliveOnly = ChkAliveOnly.IsChecked == true;
             lock (sync)
             {
-                if (string.IsNullOrEmpty(keyword)) return _items.ToList();
-                return _items.Where(i => Matches(i, keyword)).ToList();
+                return _items.Where(i =>
+                        (!aliveOnly || i.Alive)
+                        && (string.IsNullOrEmpty(keyword) || Matches(i, keyword)))
+                    .ToList();
             }
         }
+
+        private void ChkAliveOnly_Changed(object? sender, RoutedEventArgs e) => RefreshGrid();
 
         private static bool Matches(IPInfo info, string keyword)
         {
@@ -206,6 +211,33 @@ namespace NetworkScanner.Avalonia.Views
         {
             if (_engine == null) return;
             await _engine.WriteIPInfo(false, Config?.GetSystemName() ?? "");
+        }
+
+        private async void BtnReport_Click(object? sender, RoutedEventArgs e)
+        {
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel?.StorageProvider == null || _engine == null) return;
+
+            List<IPInfo> snapshot;
+            lock (_engine.ItemsSyncRoot) snapshot = _items.ToList();
+            if (snapshot.Count == 0) { TbMsg.Text = "리포트로 저장할 결과가 없습니다."; return; }
+
+            string html = ReportGenerator.BuildHtml(snapshot, Config?.GetSystemName() ?? "",
+                System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "HTML 리포트 저장",
+                SuggestedFileName = $"NetworkScanner_{System.DateTime.Now:yyyyMMdd_HHmmss}.html",
+                DefaultExtension = "html",
+                FileTypeChoices = new[] { new FilePickerFileType("HTML") { Patterns = new[] { "*.html" } } },
+            });
+            if (file == null) return;
+
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(html);
+            TbMsg.Text = "HTML 리포트를 저장했습니다.";
         }
 
         private IPInfo? SelectedItem => DgIPList.SelectedItem as IPInfo;
