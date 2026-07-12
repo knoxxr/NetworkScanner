@@ -72,6 +72,9 @@ namespace NetworkScanner
             tbMonitorInterval.Text = data.MonitorIntervalMinutes.ToString();
         }
 
+        public string GetColumnWidths() => ColumnLayout.Serialize(LvIPRange);
+        public void ApplyColumnWidths(string csv) => ColumnLayout.Apply(LvIPRange, csv);
+
         public bool GetContinuousMonitoring() => ChkContinuousMonitoring.IsChecked == true;
 
         public int GetMonitorIntervalMinutes()

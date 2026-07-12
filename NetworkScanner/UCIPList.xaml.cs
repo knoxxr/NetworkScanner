@@ -243,6 +243,9 @@ namespace NetworkScanner
 
         public IPInfoList GetItems() => _IPInfoList;
 
+        public string GetColumnWidths() => ColumnLayout.Serialize(LvIPList);
+        public void ApplyColumnWidths(string csv) => ColumnLayout.Apply(LvIPList, csv);
+
         public void RefreshItems()
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => LvIPList.Items.Refresh()));

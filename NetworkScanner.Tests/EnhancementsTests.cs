@@ -76,3 +76,35 @@ namespace NetworkScanner.Tests
         }
     }
 }
+
+namespace NetworkScanner.Tests
+{
+    public class ColumnLayoutPersistenceTests
+    {
+        [Fact]
+        public void SaveColumnLayout_RoundTripsWidths_WithoutClobberingOtherSettings()
+        {
+            string cwd = System.IO.Directory.GetCurrentDirectory();
+            string path = System.IO.Path.Combine(cwd, AppSettingsStore.SettingFileName);
+            string? backup = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : null;
+            try
+            {
+                // 기존 설정을 저장해두고
+                AppSettingsStore.SaveSettings(new AppSettingsData { SystemName = "keep-me", PortList = "22/80" });
+                // 컬럼 너비만 갱신
+                AppSettingsStore.SaveColumnLayout("90,140,160", "150,150,300");
+
+                var loaded = AppSettingsStore.LoadSettings();
+                Assert.Equal("90,140,160", loaded.IpListColumnWidths);
+                Assert.Equal("150,150,300", loaded.IpRangeColumnWidths);
+                Assert.Equal("keep-me", loaded.SystemName); // 다른 설정은 보존됨
+                Assert.Equal("22/80", loaded.PortList);
+            }
+            finally
+            {
+                if (backup != null) System.IO.File.WriteAllText(path, backup);
+                else System.IO.File.Delete(path);
+            }
+        }
+    }
+}

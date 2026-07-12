@@ -83,6 +83,12 @@ namespace NetworkScanner.Avalonia.Views
             }
         }
 
+        // 사용자가 조절한 컬럼 너비를 열 순서대로 쉼표 문자열로 반환한다(설정 저장용).
+        public string GetColumnWidths() => ColumnLayout.Serialize(DgIPList);
+
+        // 저장된 컬럼 너비를 복원한다(앱 시작 시 호출).
+        public void ApplyColumnWidths(string csv) => ColumnLayout.Apply(DgIPList, csv);
+
         // 병렬 스캔은 초당 수백 번 갱신을 요청할 수 있으므로, 이미 예약된 갱신이 있으면 무시해 병합한다.
         private volatile bool _refreshPending;
         private void RequestGridRefresh()

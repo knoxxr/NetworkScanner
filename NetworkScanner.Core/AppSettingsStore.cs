@@ -27,6 +27,8 @@ namespace NetworkScanner
         private const string KeyContinuousMonitoring = "continuousmonitoring";
         private const string KeyMonitorInterval = "monitorintervalminutes";
         private const string KeyLanguage = "language";
+        private const string KeyIpListColWidths = "iplistcolwidths";
+        private const string KeyIpRangeColWidths = "iprangecolwidths";
 
         private static string HourKey(int label) => string.Format("hr{0:D2}", label);
 
@@ -78,6 +80,8 @@ namespace NetworkScanner
                         case KeyContinuousMonitoring: data.ContinuousMonitoring = bool.Parse(token[1]); break;
                         case KeyMonitorInterval: if (int.TryParse(token[1], out int mins)) data.MonitorIntervalMinutes = mins; break;
                         case KeyLanguage: data.Language = token[1]; break;
+                        case KeyIpListColWidths: data.IpListColumnWidths = token[1]; break;
+                        case KeyIpRangeColWidths: data.IpRangeColumnWidths = token[1]; break;
                     }
                 }
                 catch (Exception ex)
@@ -87,6 +91,16 @@ namespace NetworkScanner
             }
 
             return data;
+        }
+
+        // 컬럼 너비만 갱신해 저장한다. 디스크의 기존 설정을 읽어 이 두 필드만 바꾸므로,
+        // 사용자가 설정 화면에서 저장하지 않은 편집 내용을 덮어쓰지 않는다(창 종료 시 호출).
+        public static void SaveColumnLayout(string ipListWidths, string ipRangeWidths)
+        {
+            AppSettingsData data = LoadSettings();
+            data.IpListColumnWidths = ipListWidths;
+            data.IpRangeColumnWidths = ipRangeWidths;
+            SaveSettings(data);
         }
 
         public static void SaveSettings(AppSettingsData data)
@@ -112,6 +126,8 @@ namespace NetworkScanner
                 lines.Add($"{KeyContinuousMonitoring}={data.ContinuousMonitoring}");
                 lines.Add($"{KeyMonitorInterval}={data.MonitorIntervalMinutes}");
                 lines.Add($"{KeyLanguage}={data.Language}");
+                lines.Add($"{KeyIpListColWidths}={data.IpListColumnWidths}");
+                lines.Add($"{KeyIpRangeColWidths}={data.IpRangeColumnWidths}");
 
                 File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), SettingFileName), lines, Encoding.UTF8);
             }

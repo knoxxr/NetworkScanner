@@ -61,6 +61,11 @@ namespace NetworkScanner
             BdContent.Child = ucIPList;
             SetActiveNav(BtnIPList);
 
+            // 저장해 둔 컬럼 너비 복원(종료 시 Window_Closing에서 저장).
+            AppSettingsData layout = AppSettingsStore.LoadSettings();
+            ucIPList.ApplyColumnWidths(layout.IpListColumnWidths);
+            ucSetting.ApplyColumnWidths(layout.IpRangeColumnWidths);
+
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             tbVersion.Text = "ver. " + (version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "unknown");
 
@@ -280,6 +285,7 @@ namespace NetworkScanner
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            AppSettingsStore.SaveColumnLayout(ucIPList.GetColumnWidths(), ucSetting.GetColumnWidths());
             EventLogger.WriteEventLogEntry("프로그램 종료", EventLogEntryType.Information);
         }
     }

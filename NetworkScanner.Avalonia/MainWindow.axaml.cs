@@ -37,9 +37,18 @@ public partial class MainWindow : Window, IScanConfigProvider
         _timer.Tick += Timer_Tick;
         _timer.Start();
 
-        Closing += (_, _) => AppLogger.LogInfo("NetworkScanner", "프로그램 종료");
+        // 저장해 둔 컬럼 너비 복원, 종료 시 현재 너비 저장.
+        AppSettingsData startup = _settingsView.GetCurrentSettings();
+        _ipListView.ApplyColumnWidths(startup.IpListColumnWidths);
+        _settingsView.ApplyColumnWidths(startup.IpRangeColumnWidths);
 
-        if (_settingsView.GetCurrentSettings().LoadLatestFileOnStartup)
+        Closing += (_, _) =>
+        {
+            AppSettingsStore.SaveColumnLayout(_ipListView.GetColumnWidths(), _settingsView.GetColumnWidths());
+            AppLogger.LogInfo("NetworkScanner", "프로그램 종료");
+        };
+
+        if (startup.LoadLatestFileOnStartup)
         {
             _ipListView.GetLatestFilePath(GetSystemName());
         }

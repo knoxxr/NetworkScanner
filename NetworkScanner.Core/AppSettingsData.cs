@@ -26,6 +26,11 @@ namespace NetworkScanner
         // UI 언어("en"/"ko"). 기본값 영어. 변경은 재시작 시 반영된다.
         public string Language { get; set; } = Localization.English;
 
+        // 사용자가 드래그로 조절한 컬럼 너비를 열 순서대로 쉼표로 저장한다(예: "90,140,160,...").
+        // 비어 있으면 XAML 기본 너비를 사용한다.
+        public string IpListColumnWidths { get; set; } = "";
+        public string IpRangeColumnWidths { get; set; } = "";
+
         public bool IsInScheduleHour(int clockHour)
         {
             int label = clockHour == 0 ? 24 : clockHour;

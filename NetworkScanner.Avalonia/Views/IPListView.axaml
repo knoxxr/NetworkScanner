@@ -73,7 +73,7 @@
             </StackPanel>
         </Grid>
 
-        <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" CanUserSortColumns="True" FontFamily="Cascadia Code,Consolas,monospace">
+        <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" FontFamily="Cascadia Code,Consolas,monospace">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{helpers:Tr Key=menu.ping}" Click="MenuItemPing_Click" />

@@ -84,6 +84,9 @@ namespace NetworkScanner.Avalonia.Views
             return data;
         }
 
+        public string GetColumnWidths() => ColumnLayout.Serialize(DgIPRange);
+        public void ApplyColumnWidths(string csv) => ColumnLayout.Apply(DgIPRange, csv);
+
         public bool IsInScheduleHour(int hour) => CollectSettingsFromControls().IsInScheduleHour(hour);
 
         public string GetSystemName() => TbCurSystemName.Text ?? "";

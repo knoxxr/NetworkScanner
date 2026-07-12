@@ -24,7 +24,7 @@
             <Border BorderBrush="Gray" BorderThickness="1" Padding="8">
                 <StackPanel Spacing="8">
                     <TextBlock FontWeight="Bold" Text="{l:Tr Key=settings.iprange}" />
-                    <DataGrid Name="DgIPRange" Height="200" AutoGenerateColumns="False">
+                    <DataGrid Name="DgIPRange" Height="200" AutoGenerateColumns="False" CanUserResizeColumns="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="{l:Tr Key=settings.startip}" Binding="{Binding StartIP}" Width="150" />
                             <DataGridTextColumn Header="{l:Tr Key=settings.endip}" Binding="{Binding EndIP}" Width="150" />
