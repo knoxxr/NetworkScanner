@@ -31,19 +31,19 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" Grid.Column="0">
                     <Image Margin="10" Source="/img/Setup.png"/>
-                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White">설정 화면</Label>
+                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White" Content="{local:Tr Key=settings.title}" />
                 </StackPanel>
                 <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#00DDDDDD" BorderBrush="#00707070" Name="Btn_SaveFile" Click="Btn_SaveFile_Click">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <Image Margin="3" Height="30" Width="30" Source="/img/save-as-48.png"/>
-                            <Label FontWeight="Bold" Foreground="White">설정 저장</Label>
+                            <Label FontWeight="Bold" Foreground="White" Content="{local:Tr Key=settings.save}" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
             </Grid>
         </Border>
-        <GroupBox Grid.Row="1" Header="IP 검색 범위" Background="White" Margin="3">
+        <GroupBox Grid.Row="1" Header="{local:Tr Key=settings.iprange}" Background="White" Margin="3">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition ></RowDefinition>
@@ -54,21 +54,21 @@
                     <GridView>
                         <!--GridViewColumn Header="번호" Width="30" DisplayMemberBinding="{Binding Path=Index}">
                     </GridViewColumn-->
-                        <GridViewColumn Header="시작 IP" Width="150">
+                        <GridViewColumn Header="{local:Tr Key=settings.startip}" Width="150">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBox  Text="{Binding Path=StartIP, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="White"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="종료 IP" Width="150">
+                        <GridViewColumn Header="{local:Tr Key=settings.endip}" Width="150">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBox   Text="{Binding Path=EndIP, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="White"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="비고" Width="300">
+                        <GridViewColumn Header="{local:Tr Key=col.note}" Width="300">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBox  Text="{Binding Path=Description, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -81,69 +81,69 @@
             <Grid Grid.Row="1" Background="LightGray">
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="80">시작 IP</Label>
+                        <Label Width="80" Content="{local:Tr Key=settings.startip}" />
                         <TextBox Width="150" Name="tbStartIP"></TextBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="80">종료IP</Label>
+                        <Label Width="80" Content="{local:Tr Key=settings.endip}" />
                         <TextBox Width="150" Name="tbEndIP"></TextBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="80">설명</Label>
+                        <Label Width="80" Content="{local:Tr Key=settings.desc}" />
                         <TextBox Width="150" Name="tbDescription"></TextBox>
                     </StackPanel>
                     <Border MinWidth="50"></Border>
-                    <Button Width="100" Margin="3,0" Name="BtnAddRange" Click="BtnAddRange_Click">대역 추가</Button>
-                    <Button Width="100" Margin="3,0" Name="BtnRemoveRange" Click="BtnRemoveRange_Click">대역 삭제</Button>
+                    <Button Width="100" Margin="3,0" Name="BtnAddRange" Click="BtnAddRange_Click" Content="{local:Tr Key=settings.addrange}" />
+                    <Button Width="100" Margin="3,0" Name="BtnRemoveRange" Click="BtnRemoveRange_Click" Content="{local:Tr Key=settings.removerange}" />
                 </StackPanel>
                 </Grid>
             </Grid>
         </GroupBox>
         <Border Grid.Row="2" Background="White">
-            <GroupBox Header="검색할 Port" Margin="3">
+            <GroupBox Header="{local:Tr Key=settings.ports}" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
-                    <CheckBox Name="ChkCheckPort" Width="180" Content="Port 검색 사용" HorizontalAlignment="Center" VerticalAlignment="Center" ></CheckBox>
-                    <Label Width="100">Port 번호</Label>
+                    <CheckBox Name="ChkCheckPort" Width="180" Content="{local:Tr Key=settings.useportcheck}" HorizontalAlignment="Center" VerticalAlignment="Center" ></CheckBox>
+                    <Label Width="100" Content="{local:Tr Key=settings.portno}" />
                     <TextBox Name="tbPortsList" HorizontalAlignment="Stretch" MinWidth="500">22/80/8080</TextBox>
                 </StackPanel>
             </GroupBox>
         </Border>
         <Border Grid.Row="3" Background="White">
-            <GroupBox Header="스케줄링" Margin="3">
+            <GroupBox Header="{local:Tr Key=settings.scheduling}" Margin="3">
                 <Grid  Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <CheckBox Name="ChkScheduling" Content="스케줄링 사용"></CheckBox>
+                    <CheckBox Name="ChkScheduling" Content="{local:Tr Key=settings.usescheduling}"></CheckBox>
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <CheckBox Name="Chk01" Content="01시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk02" Content="02시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk03" Content="03시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk04" Content="04시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk05" Content="05시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk06" Content="06시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk07" Content="07시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk08" Content="08시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk09" Content="09시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk10" Content="10시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk11" Content="11시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk12" Content="12시" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk01" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk02" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk03" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk04" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk05" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk06" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk07" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk08" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk09" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk10" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk11" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk12" Margin="10,3"></CheckBox>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
-                        <CheckBox Name="Chk13" Content="13시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk14" Content="14시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk15" Content="15시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk16" Content="16시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk17" Content="17시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk18" Content="18시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk19" Content="19시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk20" Content="20시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk21" Content="21시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk22" Content="22시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk23" Content="23시" Margin="10,3"></CheckBox>
-                        <CheckBox Name="Chk24" Content="24시" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk13" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk14" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk15" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk16" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk17" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk18" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk19" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk20" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk21" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk22" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk23" Margin="10,3"></CheckBox>
+                        <CheckBox Name="Chk24" Margin="10,3"></CheckBox>
 
                     </StackPanel>
                 </Grid>
@@ -151,10 +151,10 @@
           
         </Border>
         <Border Grid.Row="4" Background="White">
-            <GroupBox Header="파일저장위치" Margin="3">
-                <GroupBox Header="FTP 저장" Margin="3">
+            <GroupBox Header="{local:Tr Key=settings.filelocation}" Margin="3">
+                <GroupBox Header="{local:Tr Key=settings.ftpsave}" Margin="3">
                     <StackPanel Margin="3">
-                        <CheckBox Name="ChkUseFTP" Height="20">FTP 저장 사용</CheckBox>
+                        <CheckBox Name="ChkUseFTP" Height="20" Content="{local:Tr Key=settings.useftp}" />
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition></ColumnDefinition>
@@ -175,16 +175,23 @@
             </GroupBox>
         </Border>
         <Border Grid.Row="5" Background="White">
-            <GroupBox Header="일반" Margin="3">
+            <GroupBox Header="{local:Tr Key=settings.general}" Margin="3">
                 <StackPanel Orientation="Horizontal" Margin="3">
-                    <Label Width="100">시스템 이름</Label>
+                    <Label Width="100" Content="{local:Tr Key=settings.systemname}" />
                     <TextBox Name="tbCurSystemName" Width="200" Margin="3">MyComputer</TextBox>
                     <Border Width="40"></Border>
-                    <CheckBox Name="chkLoadLastestFileWhenStartup" Margin="3" VerticalAlignment="Center" IsChecked="True">시작시 최근 기록 부르기</CheckBox>
+                    <CheckBox Name="chkLoadLastestFileWhenStartup" Margin="3" VerticalAlignment="Center" IsChecked="True" Content="{local:Tr Key=settings.loadlatest}" />
                     <Border Width="20"></Border>
-                    <CheckBox Name="ChkContinuousMonitoring" Margin="3" VerticalAlignment="Center">연속 모니터링</CheckBox>
+                    <CheckBox Name="ChkContinuousMonitoring" Margin="3" VerticalAlignment="Center" Content="{local:Tr Key=settings.continuous}" />
                     <TextBox Name="tbMonitorInterval" Width="50" Margin="3" VerticalAlignment="Center">10</TextBox>
-                    <Label VerticalAlignment="Center">분 간격</Label>
+                    <Label VerticalAlignment="Center" Content="{local:Tr Key=settings.interval}" />
+                    <Border Width="30"></Border>
+                    <Label VerticalAlignment="Center" Content="{local:Tr Key=settings.language}"/>
+                    <ComboBox Name="CmbLanguage" Width="110" Margin="3" VerticalAlignment="Center">
+                        <ComboBoxItem Tag="en">English</ComboBoxItem>
+                        <ComboBoxItem Tag="ko">한국어</ComboBoxItem>
+                    </ComboBox>
+                    <Label VerticalAlignment="Center" Content="{local:Tr Key=settings.lang.restart}"/>
                 </StackPanel>
             </GroupBox>
         </Border>

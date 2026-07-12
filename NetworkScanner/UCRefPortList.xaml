@@ -22,7 +22,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Image Margin="10" Source="/keyring-icon.png"/>
-                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White">(참조) 주요 포트 번호</Label>
+                    <Label VerticalAlignment="Center" FontSize="24" FontWeight="Bold" FontFamily="Consolas" Foreground="White" Content="{local:Tr Key=portinfo.title}" />
                 </StackPanel>             
             </Grid>
         </Border>
@@ -34,9 +34,9 @@
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Foreground="White"> ◎ 예약 Port</TextBlock>
+                <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" Text="{local:Tr Key=portinfo.reserved}" />
                 <ListBox Grid.Row="1"  Name="LBOpenPortList"/>
-                <TextBlock Grid.Row="2" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White">◎ 백도어와 트로이 목마가 자주 사용하는 포트</TextBlock>
+                <TextBlock Grid.Row="2" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" Text="{local:Tr Key=portinfo.backdoor}" />
                 <ListBox Grid.Row="3"  Name="LBProhibitPortList"/>
             </Grid>
         </Border>

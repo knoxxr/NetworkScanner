@@ -28,7 +28,7 @@
                             <Button.Content>
                                 <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="0">
                                     <Image Width="40" Height="40" Source="/img/iplist.png"/>
-                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">IP 리스트</Label>
+                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Content="{local:Tr Key=nav.iplist}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -36,7 +36,7 @@
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <Image Width="40" Height="40" Source="/img/settings-2-48.png" />
-                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center">설정</Label>
+                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{local:Tr Key=nav.settings}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -46,7 +46,7 @@
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <Image Width="40" Height="40" Source="/img/info.png" />
-                                    <Label  Foreground="#FFFFFEFE" VerticalAlignment="Center">참고. 포트정보</Label>
+                                    <Label  Foreground="#FFFFFEFE" VerticalAlignment="Center" Content="{local:Tr Key=nav.portinfo}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

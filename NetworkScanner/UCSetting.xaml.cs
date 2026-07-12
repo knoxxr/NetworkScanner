@@ -55,7 +55,10 @@ namespace NetworkScanner
             foreach (var entry in HourCheckboxMap)
             {
                 entry.Value.IsChecked = data.HourEnabled[entry.Key - 1];
+                // 시간대 라벨은 언어에 맞춰 코드에서 설정한다("01시" / "01h").
+                entry.Value.Content = Localization.IsKorean ? $"{entry.Key:D2}시" : $"{entry.Key:D2}h";
             }
+            CmbLanguage.SelectedIndex = data.Language == Localization.Korean ? 1 : 0;
             ChkUseFTP.IsChecked = data.UseFTP;
             TbFTPIP.Text = data.FtpIp;
             TbFTPID.Text = data.FtpId;
@@ -90,6 +93,7 @@ namespace NetworkScanner
                 LoadLatestFileOnStartup = chkLoadLastestFileWhenStartup.IsChecked == true,
                 ContinuousMonitoring = ChkContinuousMonitoring.IsChecked == true,
                 MonitorIntervalMinutes = GetMonitorIntervalMinutes(),
+                Language = CmbLanguage.SelectedIndex == 1 ? Localization.Korean : Localization.English,
             };
 
             foreach (var entry in HourCheckboxMap)
@@ -105,13 +109,13 @@ namespace NetworkScanner
         public async Task WriteScanRangeInfo()
         {
             await Task.Run(() => AppSettingsStore.SaveScanRanges(ScanRanges));
-            DisplayMsg("IP 검색 대역 파일을 저장하였습니다.");
+            DisplayMsg(Localization.T("msg.range.saved"));
         }
 
         public async Task WriteSettingInfo()
         {
             await Task.Run(() => AppSettingsStore.SaveSettings(CollectSettingsFromControls()));
-            DisplayMsg("설정 파일을 저장하였습니다.");
+            DisplayMsg(Localization.T("msg.settings.saved"));
         }
 
         private async void BtnAddRange_Click(object sender, RoutedEventArgs e)
@@ -124,7 +128,7 @@ namespace NetworkScanner
             {
                 if (!IPRangeUtil.TryParseCidr(startText, out string cs, out string ce))
                 {
-                    MessageBox.Show("CIDR 형식이 올바르지 않습니다 (예: 192.168.1.0/24)");
+                    MessageBox.Show(Localization.T("msg.cidr.invalid"));
                     return;
                 }
                 startText = cs;
@@ -133,13 +137,13 @@ namespace NetworkScanner
 
             if (!IsValidIP(startText))
             {
-                MessageBox.Show("시작 IP 값 이상 (또는 CIDR 형식: 192.168.1.0/24)");
+                MessageBox.Show(Localization.T("msg.startip.invalid"));
                 return;
             }
 
             if (!IsValidIP(endText))
             {
-                MessageBox.Show("종료 IP 값 이상");
+                MessageBox.Show(Localization.T("msg.endip.invalid"));
                 return;
             }
 
@@ -151,7 +155,7 @@ namespace NetworkScanner
 
             if (!ScanRanges.AddItem(newinfo))
             {
-                MessageBox.Show("이미 등록된 대역입니다.");
+                MessageBox.Show(Localization.T("msg.range.duplicate"));
                 return;
             }
 
@@ -168,7 +172,7 @@ namespace NetworkScanner
             if (LvIPRange.SelectedItems.Count == 0) return;
             ScanRangeInfo item = (ScanRangeInfo)LvIPRange.SelectedItems[0];
 
-            if (MessageBox.Show(String.Format("{0} ~ {1} 대역을 삭제하시겠습니까?", item.StartIP, item.EndIP), "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"{item.StartIP} ~ {item.EndIP}", Localization.T("settings.removerange"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 ScanRanges.DelItem(item.StartIP, item.EndIP);
             }
@@ -208,7 +212,7 @@ namespace NetworkScanner
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Update 하시겠습니까?", "확인", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Update?", Localization.T("dlg.confirm"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 ProgramUpdate.CheckCurVersion();
             }

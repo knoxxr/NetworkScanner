@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="clr-namespace:NetworkScanner.Avalonia.Helpers"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="700"
         x:Class="NetworkScanner.Avalonia.MainWindow"
         Icon="avares://NetworkScanner.Avalonia/Assets/app.ico"
@@ -21,21 +22,21 @@
                             Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/iplist.png" Width="24" Height="24" />
-                            <TextBlock VerticalAlignment="Center">IP 리스트</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{l:Tr Key=nav.iplist}" />
                         </StackPanel>
                     </Button>
                     <Button Name="BtnSetting" Click="BtnSetting_Click" HorizontalAlignment="Stretch"
                             Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/settings.png" Width="24" Height="24" />
-                            <TextBlock VerticalAlignment="Center">설정</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{l:Tr Key=nav.settings}" />
                         </StackPanel>
                     </Button>
                     <Button Name="BtnPortInfo" Click="BtnPortInfo_Click" HorizontalAlignment="Stretch"
                             Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/info.png" Width="24" Height="24" />
-                            <TextBlock VerticalAlignment="Center">참고. 포트정보</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{l:Tr Key=nav.portinfo}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:l="clr-namespace:NetworkScanner.Avalonia.Helpers"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="NetworkScanner.Avalonia.Views.RefPortListView">
     <Grid Background="#303030">
@@ -15,13 +16,13 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="16" Spacing="10">
             <Image Source="avares://NetworkScanner.Avalonia/Assets/keyring.png" Width="28" Height="28" />
-            <TextBlock FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">(참조) 주요 포트 번호</TextBlock>
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" Text="{l:Tr Key=portinfo.title}" />
         </StackPanel>
 
-        <TextBlock Grid.Row="1" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">◎ 예약 Port</TextBlock>
+        <TextBlock Grid.Row="1" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" Text="{l:Tr Key=portinfo.reserved}" />
         <ListBox Grid.Row="2" Margin="16,0" Name="LbOpenPortList" />
 
-        <TextBlock Grid.Row="3" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">◎ 백도어와 트로이 목마가 자주 사용하는 포트</TextBlock>
+        <TextBlock Grid.Row="3" Margin="16,0" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" Text="{l:Tr Key=portinfo.backdoor}" />
         <ListBox Grid.Row="4" Margin="16,0,16,16" Name="LbProhibitPortList" />
     </Grid>
 </UserControl>

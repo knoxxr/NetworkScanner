@@ -36,10 +36,10 @@ namespace NetworkScanner
                 bool wasAlive = prev is { Alive: true };
 
                 if (cur.Alive && !wasAlive && !firstScan)
-                    changes.Add(new ScanChange(ScanChangeType.NewHost, ip, prev == null ? "새 장비" : "재접속"));
+                    changes.Add(new ScanChange(ScanChangeType.NewHost, ip, prev == null ? Localization.T("change.newdevice") : Localization.T("change.reconnect")));
 
                 if (!cur.Alive && wasAlive)
-                    changes.Add(new ScanChange(ScanChangeType.HostOffline, ip, "응답 없음"));
+                    changes.Add(new ScanChange(ScanChangeType.HostOffline, ip, Localization.T("change.noresponse")));
 
                 if (prev != null
                     && !string.IsNullOrEmpty(prev.Mac) && !string.IsNullOrEmpty(cur.Mac)
@@ -65,11 +65,11 @@ namespace NetworkScanner
         // 사용자에게 보여줄 한 줄 설명.
         public static string Describe(ScanChange c) => c.Type switch
         {
-            ScanChangeType.NewHost => $"신규/재접속 호스트: {c.Ip} ({c.Detail})",
-            ScanChangeType.HostOffline => $"오프라인 전환: {c.Ip}",
-            ScanChangeType.MacChanged => $"⚠ MAC 변경: {c.Ip}  {c.Detail}",
-            ScanChangeType.NewOpenPort => $"새 포트 열림: {c.Ip}  :{c.Detail}",
-            ScanChangeType.ProhibitedPort => $"⚠ 위험 포트 발견: {c.Ip}  ({c.Detail})",
+            ScanChangeType.NewHost => $"{Localization.T("change.newhost")} {c.Ip} ({c.Detail})",
+            ScanChangeType.HostOffline => $"{Localization.T("change.offline")} {c.Ip}",
+            ScanChangeType.MacChanged => $"{Localization.T("change.macchanged")} {c.Ip}  {c.Detail}",
+            ScanChangeType.NewOpenPort => $"{Localization.T("change.newport")} {c.Ip}  :{c.Detail}",
+            ScanChangeType.ProhibitedPort => $"{Localization.T("change.prohibited")} {c.Ip}  ({c.Detail})",
             _ => $"{c.Ip} {c.Detail}",
         };
 

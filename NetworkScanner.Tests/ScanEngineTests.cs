@@ -59,7 +59,7 @@ namespace NetworkScanner.Tests
 
             await engine.DoScanAllRange(scheduling: false, systemName: "test", CancellationToken.None);
 
-            Assert.Contains("대역", lastMessage);
+            Assert.Equal(Localization.T("scan.norange"), lastMessage);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace NetworkScanner.Tests
 
             Assert.Same(scan, finished); // 5초 안에 끝났는가
             await scan; // 예외를 삼키지 않고 정상 완료되는지 확인
-            Assert.Contains("취소", lastMessage);
+            Assert.Contains(Localization.T("scan.cancelled"), lastMessage);
         }
     }
 }

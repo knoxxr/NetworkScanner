@@ -17,6 +17,9 @@ class Program
         // vpk로 패키징된 실행 파일이 정상 동작하려면(특히 Windows 설치 시) 반드시 필요하다.
         VelopackApp.Build().Run();
 
+        // UI를 만들기 전에 설정에서 언어를 읽어 적용한다(마크업 확장이 로드 시점에 이 값을 참조).
+        Localization.Current = AppSettingsStore.LoadSettings().Language;
+
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

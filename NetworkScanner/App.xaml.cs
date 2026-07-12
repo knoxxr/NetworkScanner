@@ -18,6 +18,9 @@ namespace NetworkScanner
         {
             base.OnStartup(e);
 
+            // UI를 만들기 전에 설정에서 언어를 읽어 적용한다(마크업 확장이 로드 시점에 이 값을 참조).
+            Localization.Current = AppSettingsStore.LoadSettings().Language;
+
             // NetworkScanner.Core는 플랫폼 종속적인 로깅에 의존하지 않으므로,
             // 실제 로깅 대상(Windows 이벤트 로그/폴백 파일)은 호스트 앱이 여기서 연결한다.
             OUIInfo.OnError = message => EventLogger.WriteEventLogEntry(message, EventLogEntryType.Error);

@@ -43,7 +43,7 @@
                         <Button.Content>
                             <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="0">
                                 <Image Width="30" Height="30" Source="/img/document-48.png"/>
-                                <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">새로 만들기</Label>
+                                <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Content="{local:Tr Key=btn.new}" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
@@ -51,7 +51,7 @@
                         <Button.Content>
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
                                 <Image Width="30" Height="30" Source="/img/open-in-browser-48.png"></Image>
-                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 열기</Label>
+                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold" Content="{local:Tr Key=btn.open}" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
@@ -59,7 +59,7 @@
                         <Button.Content>
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0">
                                 <Image Width="30" Height="30" Source="/img/save-as-48.png"/>
-                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold">파일 저장</Label>
+                                <Label  Foreground="#FFFFFEFE" FontWeight="Bold" Content="{local:Tr Key=btn.save}" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
@@ -78,13 +78,13 @@
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Margin="0,10,0,10" Source="/img/Search-PNG-Image-File.png"/>
-                            <TextBlock Grid.Column="1" Name="TbScanLabel" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">스캔</TextBlock>
+                            <TextBlock Grid.Column="1" Name="TbScanLabel" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White" Text="{local:Tr Key=btn.scan}" />
                         </Grid>
                     </Button.Content>
                 </Button>
                     <Button Grid.Column="2" Margin="3" Background="Transparent" BorderBrush="#00707070" x:Name="BtnStop" IsEnabled="False" Click="BtnStop_Click">
                         <Button.Content>
-                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White">취소</TextBlock>
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White" Text="{local:Tr Key=btn.cancel}" />
                         </Button.Content>
                     </Button>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -99,37 +99,37 @@
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="검색:" VerticalAlignment="Center" Margin="0,0,5,0" FontFamily="Segoe UI"/>
-                <TextBox Name="TbSearch" Width="180" VerticalAlignment="Center" FontFamily="Segoe UI" TextChanged="TbSearch_TextChanged" ToolTip="IP/이름/포트/Mac/Vendor/비고 검색"/>
-                <CheckBox Name="ChkAliveOnly" Content="살아있는 것만" Margin="12,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI" Checked="ChkAliveOnly_Changed" Unchecked="ChkAliveOnly_Changed"/>
-                <Button Name="BtnReport" Content="리포트(HTML)" Margin="12,0,0,0" Padding="8,2" VerticalAlignment="Center" FontFamily="Segoe UI" Click="BtnReport_Click"/>
+                <TextBlock Text="{local:Tr Key=label.search}" VerticalAlignment="Center" Margin="0,0,5,0" FontFamily="Segoe UI"/>
+                <TextBox Name="TbSearch" Width="180" VerticalAlignment="Center" FontFamily="Segoe UI" TextChanged="TbSearch_TextChanged" ToolTip="{local:Tr Key=search.watermark}"/>
+                <CheckBox Name="ChkAliveOnly" Content="{local:Tr Key=filter.aliveonly}" Margin="12,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI" Checked="ChkAliveOnly_Changed" Unchecked="ChkAliveOnly_Changed"/>
+                <Button Name="BtnReport" Content="{local:Tr Key=btn.report}" Margin="12,0,0,0" Padding="8,2" VerticalAlignment="Center" FontFamily="Segoe UI" Click="BtnReport_Click"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" Margin="0,0,4,0"/>
-                <TextBlock Text="정상" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                <TextBlock Text="{local:Tr Key=legend.up}" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusWarnBrush}" Margin="0,0,4,0"/>
-                <TextBlock Text="주의(위험포트)" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                <TextBlock Text="{local:Tr Key=legend.warn}" Margin="0,0,12,0" VerticalAlignment="Center" FontFamily="Segoe UI"/>
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusBadBrush}" Margin="0,0,4,0"/>
-                <TextBlock Text="없음" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                <TextBlock Text="{local:Tr Key=legend.down}" VerticalAlignment="Center" FontFamily="Segoe UI"/>
             </StackPanel>
         </Grid>
         <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp" GridViewColumnHeader.Click="LvHeader_Click">
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
-                    <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
-                    <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
-                    <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.ping}" Click="MenuItemPing_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.checkport}" Click="MenuItemCheckPort_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.checkreserved}" Click="MenuItemCheckReservedPort_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.checkprohibit}" Click="MenuItemCheckProhibitPort_Click" />
                     <Separator />
-                    <MenuItem Header="Wake-on-LAN (원격 켜기)" Click="MenuItemWakeOnLan_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.wol}" Click="MenuItemWakeOnLan_Click" />
                     <Separator />
-                    <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
+                    <MenuItem Header="{local:Tr Key=menu.remove}" Click="MenuItemRemove_Click" />
                 </ContextMenu>
             </ListView.ContextMenu>
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="상태" Width="80" >
+                    <GridViewColumn Header="{local:Tr Key=col.status}" Width="80" >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -139,7 +139,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="IP" Width="160">
+                    <GridViewColumn Header="{local:Tr Key=col.ip}" Width="160">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Content="{Binding Path=Ip, Mode=OneWay}" FontFamily="Consolas" HorizontalContentAlignment="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -147,63 +147,63 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="이름" Width="200">
+                    <GridViewColumn Header="{local:Tr Key=col.name}" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox  MinWidth="195" Text="{Binding Path=SystemName, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="종류" Width="130">
+                    <GridViewColumn Header="{local:Tr Key=col.type}" Width="130">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=DeviceType, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="OS추정" Width="120">
+                    <GridViewColumn Header="{local:Tr Key=col.os}" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=OsGuess, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="열린 Port" Width="160">
+                    <GridViewColumn Header="{local:Tr Key=col.ports}" Width="160">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox  MinWidth="155" Text="{Binding Path=Ports, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="서비스" Width="180">
+                    <GridViewColumn Header="{local:Tr Key=col.service}" Width="180">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Service, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Mac Address" Width="200">
+                    <GridViewColumn Header="{local:Tr Key=col.mac}" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox  MinWidth="195" Text="{Binding Path=Macaddr, Mode=TwoWay}" FontFamily="Consolas" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-					<GridViewColumn Header="Vendor" Width="200">
+					<GridViewColumn Header="{local:Tr Key=col.vendor}" Width="200">
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
                                 <TextBox  MinWidth="195" Text="{Binding Path=Vendor, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
-                    <GridViewColumn Header="Round Time(ms)" Width="120">
+                    <GridViewColumn Header="{local:Tr Key=col.rtt}" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=RountTime, Mode=OneWay}" FontFamily="Consolas" MinWidth="115" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Right" Margin="0,0,10,0" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="비고" Width="300">
+                    <GridViewColumn Header="{local:Tr Key=col.note}" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox MinWidth="295" Text="{Binding Path=Description, Mode=TwoWay}" Width="295"  BorderBrush="White"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -211,7 +211,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="생성일" Width="200">
+                    <GridViewColumn Header="{local:Tr Key=col.created}" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Width="200" Content="{Binding Path=CommitDate, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>

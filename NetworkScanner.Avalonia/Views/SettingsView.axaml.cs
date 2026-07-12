@@ -25,7 +25,7 @@ namespace NetworkScanner.Avalonia.Views
         {
             for (int label = 1; label <= 24; label++)
             {
-                var checkBox = new CheckBox { Content = $"{label:D2}시", Margin = new global::Avalonia.Thickness(8, 2) };
+                var checkBox = new CheckBox { Content = Localization.IsKorean ? $"{label:D2}시" : $"{label:D2}h", Margin = new global::Avalonia.Thickness(8, 2) };
                 _hourCheckboxes[label - 1] = checkBox;
                 HourCheckboxPanel.Children.Add(checkBox);
             }
@@ -57,6 +57,7 @@ namespace NetworkScanner.Avalonia.Views
             ChkLoadLatestFileWhenStartup.IsChecked = data.LoadLatestFileOnStartup;
             ChkContinuousMonitoring.IsChecked = data.ContinuousMonitoring;
             TbMonitorInterval.Text = data.MonitorIntervalMinutes.ToString();
+            CmbLanguage.SelectedIndex = data.Language == Localization.Korean ? 1 : 0;
         }
 
         private AppSettingsData CollectSettingsFromControls()
@@ -75,6 +76,7 @@ namespace NetworkScanner.Avalonia.Views
                 LoadLatestFileOnStartup = ChkLoadLatestFileWhenStartup.IsChecked == true,
                 ContinuousMonitoring = ChkContinuousMonitoring.IsChecked == true,
                 MonitorIntervalMinutes = int.TryParse(TbMonitorInterval.Text, out int m) && m > 0 ? m : 10,
+                Language = CmbLanguage.SelectedIndex == 1 ? Localization.Korean : Localization.English,
             };
 
             for (int i = 0; i < 24; i++) data.HourEnabled[i] = _hourCheckboxes[i].IsChecked == true;
@@ -92,13 +94,13 @@ namespace NetworkScanner.Avalonia.Views
         private void SaveScanRanges()
         {
             AppSettingsStore.SaveScanRanges(ScanRanges);
-            TbMsg.Text = "IP 검색 대역 파일을 저장하였습니다.";
+            TbMsg.Text = Localization.T("msg.range.saved");
         }
 
         private void SaveSettings()
         {
             AppSettingsStore.SaveSettings(CollectSettingsFromControls());
-            TbMsg.Text = "설정 파일을 저장하였습니다.";
+            TbMsg.Text = Localization.T("msg.settings.saved");
         }
 
         private static bool IsValidIP(string val)
@@ -125,7 +127,7 @@ namespace NetworkScanner.Avalonia.Views
             {
                 if (!IPRangeUtil.TryParseCidr(startText, out string cs, out string ce))
                 {
-                    await SimpleDialogs.ShowMessageAsync(owner, "CIDR 형식이 올바르지 않습니다 (예: 192.168.1.0/24)");
+                    await SimpleDialogs.ShowMessageAsync(owner, Localization.T("msg.cidr.invalid"));
                     return;
                 }
                 startText = cs;
@@ -134,12 +136,12 @@ namespace NetworkScanner.Avalonia.Views
 
             if (!IsValidIP(startText))
             {
-                await SimpleDialogs.ShowMessageAsync(owner, "시작 IP 값 이상 (또는 CIDR 형식: 192.168.1.0/24)");
+                await SimpleDialogs.ShowMessageAsync(owner, Localization.T("msg.startip.invalid"));
                 return;
             }
             if (!IsValidIP(endText))
             {
-                await SimpleDialogs.ShowMessageAsync(owner, "종료 IP 값 이상");
+                await SimpleDialogs.ShowMessageAsync(owner, Localization.T("msg.endip.invalid"));
                 return;
             }
 
@@ -153,7 +155,7 @@ namespace NetworkScanner.Avalonia.Views
 
             if (!added)
             {
-                await SimpleDialogs.ShowMessageAsync(owner, "이미 등록된 대역입니다.");
+                await SimpleDialogs.ShowMessageAsync(owner, Localization.T("msg.range.duplicate"));
                 return;
             }
 
@@ -170,7 +172,7 @@ namespace NetworkScanner.Avalonia.Views
             if (DgIPRange.SelectedItem is not ScanRangeInfo item) return;
 
             var owner = (Window)TopLevel.GetTopLevel(this)!;
-            bool confirmed = await SimpleDialogs.ShowConfirmAsync(owner, $"{item.StartIP} ~ {item.EndIP} 대역을 삭제하시겠습니까?", "삭제");
+            bool confirmed = await SimpleDialogs.ShowConfirmAsync(owner, $"{item.StartIP} ~ {item.EndIP}", Localization.T("settings.removerange"));
             if (confirmed)
             {
                 ScanRanges.DelItem(item.StartIP, item.EndIP);

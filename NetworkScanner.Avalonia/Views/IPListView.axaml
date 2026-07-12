@@ -17,28 +17,28 @@
         <Border Grid.Row="0" Background="#FF326678" Padding="12">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Grid.Column="0" FontSize="22" FontWeight="Bold" Foreground="White"
-                           VerticalAlignment="Center" Margin="0,0,24,0">IP List</TextBlock>
+                           VerticalAlignment="Center" Margin="0,0,24,0" Text="{helpers:Tr Key=iplist.title}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <Button Name="BtnNewFile" Click="BtnNewFile_Click">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/new-file.png" Width="20" Height="20" />
-                            <TextBlock VerticalAlignment="Center">새로 만들기</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{helpers:Tr Key=btn.new}" />
                         </StackPanel>
                     </Button>
                     <Button Name="BtnLoadFile" Click="BtnLoadFile_Click">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/open-file.png" Width="20" Height="20" />
-                            <TextBlock VerticalAlignment="Center">파일 열기</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{helpers:Tr Key=btn.open}" />
                         </StackPanel>
                     </Button>
                     <Button Name="BtnSaveFile" Click="BtnSaveFile_Click">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Image Source="avares://NetworkScanner.Avalonia/Assets/save-file.png" Width="20" Height="20" />
-                            <TextBlock VerticalAlignment="Center">파일 저장</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Text="{helpers:Tr Key=btn.save}" />
                         </StackPanel>
                     </Button>
                     <Button Name="BtnReport" Click="BtnReport_Click">
-                        <TextBlock VerticalAlignment="Center">리포트(HTML)</TextBlock>
+                        <TextBlock VerticalAlignment="Center" Text="{helpers:Tr Key=btn.report}" />
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" Spacing="4">
@@ -46,10 +46,10 @@
                         <Button Name="BtnRefresh" Click="BtnRefresh_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <Image Source="avares://NetworkScanner.Avalonia/Assets/refresh.png" Width="20" Height="20" />
-                                <TextBlock Name="TbScanLabel" VerticalAlignment="Center">스캔</TextBlock>
+                                <TextBlock Name="TbScanLabel" VerticalAlignment="Center" Text="{helpers:Tr Key=btn.scan}" />
                             </StackPanel>
                         </Button>
-                        <Button Name="BtnStop" Click="BtnStop_Click" IsEnabled="False">취소</Button>
+                        <Button Name="BtnStop" Click="BtnStop_Click" IsEnabled="False" Content="{helpers:Tr Key=btn.cancel}" />
                     </StackPanel>
                     <TextBlock Name="TbResult" Foreground="White" HorizontalAlignment="Right" />
                 </StackPanel>
@@ -58,36 +58,36 @@
 
         <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="12,6">
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                <TextBlock Text="검색:" VerticalAlignment="Center" />
+                <TextBlock Text="{helpers:Tr Key=label.search}" VerticalAlignment="Center" />
                 <TextBox Name="TbSearch" Width="160" VerticalAlignment="Center"
-                         Watermark="IP/이름/포트/Mac/Vendor/비고" TextChanged="TbSearch_TextChanged" />
-                <CheckBox Name="ChkAliveOnly" Content="살아있는 것만" VerticalAlignment="Center" IsCheckedChanged="ChkAliveOnly_Changed" />
+                         Watermark="{helpers:Tr Key=search.watermark}" TextChanged="TbSearch_TextChanged" />
+                <CheckBox Name="ChkAliveOnly" Content="{helpers:Tr Key=filter.aliveonly}" VerticalAlignment="Center" IsCheckedChanged="ChkAliveOnly_Changed" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="4">
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusGoodBrush}" />
-                <TextBlock Text="정상" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <TextBlock Text="{helpers:Tr Key=legend.up}" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusWarnBrush}" />
-                <TextBlock Text="주의(위험포트)" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <TextBlock Text="{helpers:Tr Key=legend.warn}" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <Ellipse Width="10" Height="10" Fill="{StaticResource StatusBadBrush}" />
-                <TextBlock Text="없음" VerticalAlignment="Center" />
+                <TextBlock Text="{helpers:Tr Key=legend.down}" VerticalAlignment="Center" />
             </StackPanel>
         </Grid>
 
         <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" CanUserSortColumns="True" FontFamily="Cascadia Code,Consolas,monospace">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
-                    <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
-                    <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
-                    <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.ping}" Click="MenuItemPing_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.checkport}" Click="MenuItemCheckPort_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.checkreserved}" Click="MenuItemCheckReservedPort_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.checkprohibit}" Click="MenuItemCheckProhibitPort_Click" />
                     <Separator />
-                    <MenuItem Header="Wake-on-LAN (원격 켜기)" Click="MenuItemWakeOnLan_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.wol}" Click="MenuItemWakeOnLan_Click" />
                     <Separator />
-                    <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
+                    <MenuItem Header="{helpers:Tr Key=menu.remove}" Click="MenuItemRemove_Click" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="상태" Width="90" SortMemberPath="StatusText">
+                <DataGridTemplateColumn Header="{helpers:Tr Key=col.status}" Width="90" SortMemberPath="StatusText">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
@@ -98,17 +98,17 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="IP" Binding="{Binding Ip}" IsReadOnly="True" Width="140" />
-                <DataGridTextColumn Header="이름" Binding="{Binding SystemName}" Width="160" />
-                <DataGridTextColumn Header="종류" Binding="{Binding DeviceType}" IsReadOnly="True" Width="120" />
-                <DataGridTextColumn Header="OS추정" Binding="{Binding OsGuess}" IsReadOnly="True" Width="120" />
-                <DataGridTextColumn Header="열린 Port" Binding="{Binding Ports}" Width="140" />
-                <DataGridTextColumn Header="서비스" Binding="{Binding Service}" IsReadOnly="True" Width="180" />
-                <DataGridTextColumn Header="Mac Address" Binding="{Binding Macaddr}" Width="160" />
-                <DataGridTextColumn Header="Vendor" Binding="{Binding Vendor}" Width="160" />
-                <DataGridTextColumn Header="Round Time(ms)" Binding="{Binding RountTime}" IsReadOnly="True" Width="120" />
-                <DataGridTextColumn Header="비고" Binding="{Binding Description}" Width="240" />
-                <DataGridTextColumn Header="생성일" Binding="{Binding CommitDate}" IsReadOnly="True" Width="160" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.ip}" Binding="{Binding Ip}" IsReadOnly="True" Width="140" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.name}" Binding="{Binding SystemName}" Width="160" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.type}" Binding="{Binding DeviceType}" IsReadOnly="True" Width="120" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.os}" Binding="{Binding OsGuess}" IsReadOnly="True" Width="120" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.ports}" Binding="{Binding Ports}" Width="140" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.service}" Binding="{Binding Service}" IsReadOnly="True" Width="180" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.mac}" Binding="{Binding Macaddr}" Width="160" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.vendor}" Binding="{Binding Vendor}" Width="160" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.rtt}" Binding="{Binding RountTime}" IsReadOnly="True" Width="120" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.note}" Binding="{Binding Description}" Width="240" />
+                <DataGridTextColumn Header="{helpers:Tr Key=col.created}" Binding="{Binding CommitDate}" IsReadOnly="True" Width="160" />
             </DataGrid.Columns>
         </DataGrid>
 

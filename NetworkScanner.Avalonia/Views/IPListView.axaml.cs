@@ -49,7 +49,7 @@ namespace NetworkScanner.Avalonia.Views
                 UpdateProgressPercentText(val, (int)PbProgress.Maximum);
             });
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.UIThread.Post(() =>
-                TbResult.Text = $"정상:{alive},끊김{dead}/전체{total}");
+                TbResult.Text = $"{Localization.T("status.up")}:{alive} {Localization.T("status.down")}:{dead} / {total}");
             _engine.ItemsRefreshNeeded += RequestGridRefresh;
             _engine.ScanStarted += () => Dispatcher.UIThread.Post(() => SetScanningState(true));
             _engine.ScanFinished += () => Dispatcher.UIThread.Post(() =>
@@ -70,15 +70,16 @@ namespace NetworkScanner.Avalonia.Views
             foreach (ScanChange c in changes)
             {
                 string line = ScanDiff.Describe(c);
-                if (ScanDiff.IsSecurityRelevant(c.Type)) { AppLogger.LogError("NetworkScanner", "스캔 변화: " + line); security.Add(line); }
-                else AppLogger.LogInfo("NetworkScanner", "스캔 변화: " + line);
+                if (ScanDiff.IsSecurityRelevant(c.Type)) { AppLogger.LogError("NetworkScanner", line); security.Add(line); }
+                else AppLogger.LogInfo("NetworkScanner", line);
             }
 
-            TbMsg.Text = $"변화 {changes.Count}건 감지" + (security.Count > 0 ? $" (보안 경고 {security.Count}건)" : "");
+            TbMsg.Text = $"{changes.Count} {Localization.T("change.detected")}"
+                + (security.Count > 0 ? $" ({security.Count} {Localization.T("change.securityalert")})" : "");
 
             if (security.Count > 0 && TopLevel.GetTopLevel(this) is Window owner)
             {
-                await SimpleDialogs.ShowMessageAsync(owner, string.Join("\n", security), "보안 경고 - 스캔 변화 감지");
+                await SimpleDialogs.ShowMessageAsync(owner, string.Join("\n", security), Localization.T("change.dialogtitle"));
             }
         }
 
@@ -100,7 +101,7 @@ namespace NetworkScanner.Avalonia.Views
         {
             BtnRefresh.IsEnabled = !scanning;
             BtnStop.IsEnabled = scanning;
-            TbScanLabel.Text = scanning ? "스캔 중..." : "스캔";
+            TbScanLabel.Text = scanning ? Localization.T("btn.scanning") : Localization.T("btn.scan");
         }
 
         // 진행률 바 위에 겹쳐 보여줄 "N% (진행/전체)" 텍스트를 계산한다. 전체 개수가 0이면(스캔 시작 전) 비워둔다.
@@ -181,7 +182,7 @@ namespace NetworkScanner.Avalonia.Views
         private async void BtnNewFile_Click(object? sender, RoutedEventArgs e)
         {
             var owner = (Window)TopLevel.GetTopLevel(this)!;
-            if (await SimpleDialogs.ShowConfirmAsync(owner, "리스트를 모두 삭제할까요?", "삭제"))
+            if (await SimpleDialogs.ShowConfirmAsync(owner, Localization.T("msg.deleteall"), Localization.T("msg.delete")))
             {
                 ClearItems();
             }
@@ -223,7 +224,7 @@ namespace NetworkScanner.Avalonia.Views
 
             List<IPInfo> snapshot;
             lock (_engine.ItemsSyncRoot) snapshot = _items.ToList();
-            if (snapshot.Count == 0) { TbMsg.Text = "리포트로 저장할 결과가 없습니다."; return; }
+            if (snapshot.Count == 0) { TbMsg.Text = Localization.T("msg.noresult.report"); return; }
 
             var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
@@ -247,7 +248,7 @@ namespace NetworkScanner.Avalonia.Views
             await using var stream = await file.OpenWriteAsync();
             await using var writer = new StreamWriter(stream);
             await writer.WriteAsync(content);
-            TbMsg.Text = json ? "JSON 리포트를 저장했습니다." : "HTML 리포트를 저장했습니다.";
+            TbMsg.Text = json ? Localization.T("msg.report.saved.json") : Localization.T("msg.report.saved.html");
         }
 
         private async void MenuItemWakeOnLan_Click(object? sender, RoutedEventArgs e)
@@ -255,17 +256,17 @@ namespace NetworkScanner.Avalonia.Views
             if (SelectedItem == null) return;
             if (string.IsNullOrWhiteSpace(SelectedItem.Macaddr))
             {
-                TbMsg.Text = "MAC 주소가 없어 Wake-on-LAN을 보낼 수 없습니다.";
+                TbMsg.Text = Localization.T("msg.wol.nomac");
                 return;
             }
 
             bool ok = WakeOnLan.Send(SelectedItem.Macaddr);
             TbMsg.Text = ok
-                ? $"Wake-on-LAN 매직 패킷을 보냈습니다: {SelectedItem.Macaddr}"
-                : "Wake-on-LAN 전송에 실패했습니다.";
+                ? $"{Localization.T("msg.wol.sent")} {SelectedItem.Macaddr}"
+                : Localization.T("msg.wol.failed");
 
             if (!ok && TopLevel.GetTopLevel(this) is Window owner)
-                await SimpleDialogs.ShowMessageAsync(owner, "Wake-on-LAN 전송에 실패했습니다. MAC 주소를 확인하세요.");
+                await SimpleDialogs.ShowMessageAsync(owner, Localization.T("msg.wol.failed"));
         }
 
         private IPInfo? SelectedItem => DgIPList.SelectedItem as IPInfo;

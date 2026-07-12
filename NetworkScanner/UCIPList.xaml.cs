@@ -63,7 +63,7 @@ namespace NetworkScanner
                 UpdateProgressPercentText(val, (int)pbProgress.Maximum);
             }));
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
-                tbResult.Text = string.Format("정상:{0},끊김{1}/전체{2}", alive, dead, total)));
+                tbResult.Text = $"{Localization.T("status.up")}:{alive} {Localization.T("status.down")}:{dead} / {total}"));
             _engine.ItemsRefreshNeeded += RequestGridRefresh;
             _engine.ScanStarted += () => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => SetScanningState(true)));
             _engine.ScanFinished += () => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
@@ -106,16 +106,16 @@ namespace NetworkScanner
             foreach (ScanChange c in changes)
             {
                 string line = ScanDiff.Describe(c);
-                EventLogger.WriteEventLogEntry("스캔 변화: " + line,
+                EventLogger.WriteEventLogEntry(line,
                     ScanDiff.IsSecurityRelevant(c.Type) ? System.Diagnostics.EventLogEntryType.Warning : System.Diagnostics.EventLogEntryType.Information);
                 if (ScanDiff.IsSecurityRelevant(c.Type)) security.Add(line);
             }
 
-            TbMsg.Text = $"변화 {changes.Count}건 감지" + (security.Count > 0 ? $" (보안 경고 {security.Count}건)" : "");
+            TbMsg.Text = $"{changes.Count} {Localization.T("change.detected")}" + (security.Count > 0 ? $" ({security.Count} {Localization.T("change.securityalert")})" : "");
 
             if (security.Count > 0)
             {
-                MessageBox.Show(string.Join("\n", security), "보안 경고 - 스캔 변화 감지",
+                MessageBox.Show(string.Join("\n", security), Localization.T("change.dialogtitle"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -125,7 +125,7 @@ namespace NetworkScanner
         {
             BtnRefresh.IsEnabled = !scanning;
             BtnStop.IsEnabled = scanning;
-            TbScanLabel.Text = scanning ? "스캔 중..." : "스캔";
+            TbScanLabel.Text = scanning ? Localization.T("btn.scanning") : Localization.T("btn.scan");
         }
 
         private bool FilterItem(object obj)
@@ -161,7 +161,7 @@ namespace NetworkScanner
             lock (_engine.ItemsSyncRoot) snapshot = new System.Collections.Generic.List<IPInfo>(_IPInfoList);
             if (snapshot.Count == 0)
             {
-                MessageBox.Show("리포트로 저장할 결과가 없습니다.");
+                MessageBox.Show(Localization.T("msg.noresult.report"));
                 return;
             }
 
@@ -181,7 +181,7 @@ namespace NetworkScanner
                     ? ReportGenerator.BuildJson(snapshot, Config.GetSystemName(), ts)
                     : ReportGenerator.BuildHtml(snapshot, Config.GetSystemName(), ts);
                 System.IO.File.WriteAllText(dlg.FileName, content, System.Text.Encoding.UTF8);
-                TbMsg.Text = (json ? "JSON" : "HTML") + " 리포트를 저장했습니다: " + dlg.FileName;
+                TbMsg.Text = (json ? Localization.T("msg.report.saved.json") : Localization.T("msg.report.saved.html")) + " " + dlg.FileName;
             }
         }
 
@@ -191,24 +191,28 @@ namespace NetworkScanner
             if (selValue == null) return;
             if (string.IsNullOrWhiteSpace(selValue.Macaddr))
             {
-                MessageBox.Show("MAC 주소가 없어 Wake-on-LAN을 보낼 수 없습니다.");
+                MessageBox.Show(Localization.T("msg.wol.nomac"));
                 return;
             }
 
             bool ok = WakeOnLan.Send(selValue.Macaddr);
             TbMsg.Text = ok
-                ? $"Wake-on-LAN 매직 패킷을 보냈습니다: {selValue.Macaddr}"
-                : "Wake-on-LAN 전송에 실패했습니다.";
+                ? $"{Localization.T("msg.wol.sent")} {selValue.Macaddr}"
+                : Localization.T("msg.wol.failed");
         }
 
         // GridView 헤더 클릭 시 해당 컬럼 기준으로 정렬한다(같은 컬럼 재클릭 시 오름/내림 전환).
         private string _sortColumn;
         private ListSortDirection _sortDirection = ListSortDirection.Ascending;
+        // 헤더 텍스트는 현재 언어로 표시되므로, 정렬 매핑도 지역화된 헤더 문자열을 키로 만든다.
         private static readonly System.Collections.Generic.Dictionary<string, string> HeaderToProperty = new()
         {
-            ["상태"] = "StatusText", ["IP"] = "Ip", ["이름"] = "SystemName", ["종류"] = "DeviceType",
-            ["OS추정"] = "OsGuess", ["열린 Port"] = "Ports", ["서비스"] = "Service", ["Mac Address"] = "Macaddr",
-            ["Vendor"] = "Vendor", ["Round Time(ms)"] = "RountTime", ["비고"] = "Description", ["생성일"] = "CommitDate",
+            [Localization.T("col.status")] = "StatusText", [Localization.T("col.ip")] = "Ip",
+            [Localization.T("col.name")] = "SystemName", [Localization.T("col.type")] = "DeviceType",
+            [Localization.T("col.os")] = "OsGuess", [Localization.T("col.ports")] = "Ports",
+            [Localization.T("col.service")] = "Service", [Localization.T("col.mac")] = "Macaddr",
+            [Localization.T("col.vendor")] = "Vendor", [Localization.T("col.rtt")] = "RountTime",
+            [Localization.T("col.note")] = "Description", [Localization.T("col.created")] = "CommitDate",
         };
 
         private void LvHeader_Click(object sender, RoutedEventArgs e)
@@ -269,7 +273,7 @@ namespace NetworkScanner
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("리스트를 모두 삭제할까요?", "삭제", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (MessageBox.Show(Localization.T("msg.deleteall"), Localization.T("msg.delete"), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 ClearItems();
             }

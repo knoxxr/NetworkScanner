@@ -113,7 +113,7 @@ namespace NetworkScanner
         // UI가 상태를 색상/배지로 표시할 때 쓰는 3단계 상태 키. Alive/HasProhibitedPort 조합으로 계산되므로
         // 별도 저장·동기화가 필요 없다.
         public string StatusKey => !Alive ? "bad" : (HasProhibitedPort ? "warn" : "good");
-        public string StatusText => !Alive ? "없음" : (HasProhibitedPort ? "주의" : "정상");
+        public string StatusText => !Alive ? Localization.T("status.down") : (HasProhibitedPort ? Localization.T("status.warn") : Localization.T("status.up"));
 
         // 제조사·열린 포트로 추정한 장비 종류(참고용). UI의 "종류" 컬럼에 표시된다.
         public string DeviceType => DeviceClassifier.Classify(vendor, ports);

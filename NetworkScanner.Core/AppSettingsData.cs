@@ -23,6 +23,9 @@ namespace NetworkScanner
         public bool ContinuousMonitoring { get; set; }
         public int MonitorIntervalMinutes { get; set; } = 10;
 
+        // UI 언어("en"/"ko"). 기본값 영어. 변경은 재시작 시 반영된다.
+        public string Language { get; set; } = Localization.English;
+
         public bool IsInScheduleHour(int clockHour)
         {
             int label = clockHour == 0 ? 24 : clockHour;

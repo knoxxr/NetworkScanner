@@ -26,6 +26,7 @@ namespace NetworkScanner
         private const string KeyLoadLatestFile = "loadlastestfile";
         private const string KeyContinuousMonitoring = "continuousmonitoring";
         private const string KeyMonitorInterval = "monitorintervalminutes";
+        private const string KeyLanguage = "language";
 
         private static string HourKey(int label) => string.Format("hr{0:D2}", label);
 
@@ -76,6 +77,7 @@ namespace NetworkScanner
                         case KeyLoadLatestFile: data.LoadLatestFileOnStartup = bool.Parse(token[1]); break;
                         case KeyContinuousMonitoring: data.ContinuousMonitoring = bool.Parse(token[1]); break;
                         case KeyMonitorInterval: if (int.TryParse(token[1], out int mins)) data.MonitorIntervalMinutes = mins; break;
+                        case KeyLanguage: data.Language = token[1]; break;
                     }
                 }
                 catch (Exception ex)
@@ -109,6 +111,7 @@ namespace NetworkScanner
                 lines.Add($"{KeyLoadLatestFile}={data.LoadLatestFileOnStartup}");
                 lines.Add($"{KeyContinuousMonitoring}={data.ContinuousMonitoring}");
                 lines.Add($"{KeyMonitorInterval}={data.MonitorIntervalMinutes}");
+                lines.Add($"{KeyLanguage}={data.Language}");
 
                 File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), SettingFileName), lines, Encoding.UTF8);
             }

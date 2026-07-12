@@ -215,7 +215,7 @@ namespace NetworkScanner
             {
                 if (IsScanning())
                 {
-                    Message?.Invoke("이미 스캐닝 중입니다.");
+                    Message?.Invoke(Localization.T("scan.alreadyscanning"));
                     token = default;
                     return false;
                 }
@@ -233,7 +233,7 @@ namespace NetworkScanner
             {
                 _scanCts?.Cancel();
             }
-            Message?.Invoke("스캔 취소를 요청했습니다.");
+            Message?.Invoke(Localization.T("scan.cancelrequested"));
         }
 
         public bool IsScanning()
@@ -413,7 +413,7 @@ namespace NetworkScanner
 
             if (maxCnt == 0)
             {
-                Message?.Invoke("설정된 IP 검색 대역이 없습니다. 설정 화면에서 대역을 추가해주세요.");
+                Message?.Invoke(Localization.T("scan.norange"));
                 return;
             }
 
@@ -429,7 +429,7 @@ namespace NetworkScanner
             Dictionary<string, HostState> baseline = SnapshotStates();
 
             // ---- 1단계: 빠른 Ping 스윕(+ ICMP 무응답 시 TCP로 생존 재확인) ----
-            Message?.Invoke($"[1/2] 호스트 검색 시작 (대상 {maxCnt}개). {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+            Message?.Invoke($"{Localization.T("scan.phase1.start")} ({maxCnt}). {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
             var aliveIps = new System.Collections.Concurrent.ConcurrentBag<string>();
             int pinged = 0;
             try
@@ -452,7 +452,7 @@ namespace NetworkScanner
 
                     int cur = Interlocked.Increment(ref pinged);
                     ProgressChanged?.Invoke(cur);
-                    Message?.Invoke($"[1/2] 호스트 검색: {strIp} ({cur}/{maxCnt})");
+                    Message?.Invoke($"{Localization.T("scan.phase1.progress")}: {strIp} ({cur}/{maxCnt})");
                     RaiseResultsSummary();
                 });
             }
@@ -463,7 +463,7 @@ namespace NetworkScanner
             if (aliveList.Count > 0 && !token.IsCancellationRequested)
             {
                 ProgressMaxChanged?.Invoke(aliveList.Count);
-                Message?.Invoke($"[2/2] 상세 조회 시작: MAC·제조사·이름{(usePortChecking ? "·열린 포트" : "")} (대상 {aliveList.Count}개)");
+                Message?.Invoke($"{Localization.T("scan.phase2.start")} ({aliveList.Count})");
                 int enriched = 0;
                 try
                 {
@@ -473,7 +473,7 @@ namespace NetworkScanner
 
                         int cur = Interlocked.Increment(ref enriched);
                         ProgressChanged?.Invoke(cur);
-                        Message?.Invoke($"[2/2] 상세 조회: {strIp} ({cur}/{aliveList.Count})");
+                        Message?.Invoke($"{Localization.T("scan.phase2.progress")}: {strIp} ({cur}/{aliveList.Count})");
                     });
                 }
                 catch (OperationCanceledException) { }
@@ -488,8 +488,8 @@ namespace NetworkScanner
 
             ProgressChanged?.Invoke(0);
             Message?.Invoke(token.IsCancellationRequested
-                ? $"스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
-                : $"스캔을 완료했습니다. 살아있는 호스트 {aliveList.Count}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+                ? $"{Localization.T("scan.cancelled")} {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
+                : $"{Localization.T("scan.completed")} {Localization.T("scan.alivecount")}: {aliveList.Count}. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
 
             if (scheduling && !token.IsCancellationRequested)
             {
