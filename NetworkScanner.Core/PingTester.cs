@@ -78,6 +78,26 @@ namespace NetworkScanner
             return result.ToString();
         }
 
+        // ICMP Ping에 응답하지 않지만 살아있는 호스트(방화벽이 ping을 막는 서버/프린터/IoT 등)를 놓치지 않도록,
+        // 대표 포트 몇 개에 TCP 연결을 시도해 하나라도 열려 있으면 살아있는 것으로 본다. 열린 포트가 나오는
+        // 즉시 반환하고, 대상 호스트가 죽어 있으면 timeoutMs 안에 모두 실패하며 끝난다.
+        public static async Task<bool> IsAliveByTcpAsync(int[] ports, string ip, int timeoutMs = 400)
+        {
+            var pending = new List<Task<bool>>();
+            foreach (int port in ports)
+            {
+                pending.Add(CheckPortAsync(ip, port, timeoutMs));
+            }
+
+            while (pending.Count > 0)
+            {
+                Task<bool> finished = await Task.WhenAny(pending);
+                pending.Remove(finished);
+                if (await finished) return true;
+            }
+            return false;
+        }
+
         public static async Task<bool> CheckPortAsync(string ip, int port, int timeoutMs = 300)
         {
             using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

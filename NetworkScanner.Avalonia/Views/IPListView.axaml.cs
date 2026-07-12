@@ -58,8 +58,28 @@ namespace NetworkScanner.Avalonia.Views
                 RefreshGrid();
                 TbProgressPercent.Text = "";
             });
+            _engine.ScanChangesDetected += changes => Dispatcher.UIThread.Post(() => ReportChanges(changes));
 
             _engine.InitFromConfig();
+        }
+
+        // 직전 스캔 대비 변화를 로그에 남기고, 보안상 중요한 변화(MAC 변경/위험 포트)는 팝업으로 경고한다.
+        private async void ReportChanges(System.Collections.Generic.IReadOnlyList<ScanChange> changes)
+        {
+            var security = new System.Collections.Generic.List<string>();
+            foreach (ScanChange c in changes)
+            {
+                string line = ScanDiff.Describe(c);
+                if (ScanDiff.IsSecurityRelevant(c.Type)) { AppLogger.LogError("NetworkScanner", "스캔 변화: " + line); security.Add(line); }
+                else AppLogger.LogInfo("NetworkScanner", "스캔 변화: " + line);
+            }
+
+            TbMsg.Text = $"변화 {changes.Count}건 감지" + (security.Count > 0 ? $" (보안 경고 {security.Count}건)" : "");
+
+            if (security.Count > 0 && TopLevel.GetTopLevel(this) is Window owner)
+            {
+                await SimpleDialogs.ShowMessageAsync(owner, string.Join("\n", security), "보안 경고 - 스캔 변화 감지");
+            }
         }
 
         // 병렬 스캔은 초당 수백 번 갱신을 요청할 수 있으므로, 이미 예약된 갱신이 있으면 무시해 병합한다.

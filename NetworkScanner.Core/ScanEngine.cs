@@ -26,6 +26,9 @@ namespace NetworkScanner
         // 대역 스캔 시 동시에 검사할 IP 개수. 대부분의 시간이 Ping 응답 대기(I/O)라 CPU 코어 수보다 크게 잡는다.
         private const int ScanParallelism = 64;
 
+        // ICMP에 응답하지 않는 호스트의 생존 여부를 재확인할 때 두드려 볼 대표 TCP 포트.
+        private static readonly int[] LivenessProbePorts = { 80, 443, 22, 445, 3389, 8080 };
+
         public IScanConfigProvider Config { get; set; }
         public Task? Scanning { get; private set; }
         public IPInfoList Items => _items;
@@ -41,6 +44,8 @@ namespace NetworkScanner
         public event Action? ItemsRefreshNeeded;
         public event Action? ScanStarted;
         public event Action? ScanFinished;
+        // 직전 스캔 대비 변화(신규/오프라인/ MAC 변경/새 포트/위험 포트)를 스캔 완료 시 한 번에 알린다.
+        public event Action<IReadOnlyList<ScanChange>>? ScanChangesDetected;
 
         public ScanEngine(IPInfoList items, OUIInfo oui, IScanConfigProvider config)
         {
@@ -411,7 +416,10 @@ namespace NetworkScanner
             HashSet<int> prohibitedPorts = GetProhibitedPortSet();
             var options = new ParallelOptions { MaxDegreeOfParallelism = ScanParallelism, CancellationToken = token };
 
-            // ---- 1단계: 빠른 Ping 스윕 ----
+            // 변화 감지를 위해 스캔 시작 시점의 상태를 기준선으로 저장해 둔다.
+            Dictionary<string, HostState> baseline = SnapshotStates();
+
+            // ---- 1단계: 빠른 Ping 스윕(+ ICMP 무응답 시 TCP로 생존 재확인) ----
             Message?.Invoke($"[1/2] 호스트 검색 시작 (대상 {maxCnt}개). {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
             var aliveIps = new System.Collections.Concurrent.ConcurrentBag<string>();
             int pinged = 0;
@@ -420,8 +428,17 @@ namespace NetworkScanner
                 await Parallel.ForEachAsync(targets, options, async (strIp, ct) =>
                 {
                     PingReply? reply = await PingTester.SendPingAsync(IPAddress.Parse(strIp));
-                    if (reply != null && reply.Status == IPStatus.Success) aliveIps.Add(strIp);
-                    ApplyPingResult(reply, strIp);
+                    bool alive = reply != null && reply.Status == IPStatus.Success;
+                    long? roundtrip = alive ? reply!.RoundtripTime : null;
+
+                    // ICMP에 응답이 없으면 대표 포트로 TCP 생존 확인을 한 번 더 시도한다.
+                    if (!alive)
+                    {
+                        alive = await PingTester.IsAliveByTcpAsync(LivenessProbePorts, strIp);
+                    }
+
+                    if (alive) aliveIps.Add(strIp);
+                    ApplyPingResult(alive, roundtrip, strIp);
 
                     int cur = Interlocked.Increment(ref pinged);
                     ProgressChanged?.Invoke(cur);
@@ -452,12 +469,33 @@ namespace NetworkScanner
                 catch (OperationCanceledException) { }
             }
 
+            // ---- 변화 감지: 기준선과 이번 결과를 비교해 신규/오프라인/MAC 변경/새 포트/위험 포트를 알린다. ----
+            if (!token.IsCancellationRequested)
+            {
+                List<ScanChange> changes = ScanDiff.ComputeChanges(baseline, SnapshotStates());
+                if (changes.Count > 0) ScanChangesDetected?.Invoke(changes);
+            }
+
             ProgressChanged?.Invoke(0);
             Message?.Invoke(token.IsCancellationRequested
                 ? $"스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
                 : $"스캔을 완료했습니다. 살아있는 호스트 {aliveList.Count}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
 
             if (scheduling && !token.IsCancellationRequested) await WriteIPInfo(true, systemName);
+        }
+
+        // 결과 목록의 현재 상태를 IP→상태 딕셔너리로 스냅샷한다(변화 감지 기준선/비교 대상으로 사용).
+        private Dictionary<string, HostState> SnapshotStates()
+        {
+            lock (_itemsLock)
+            {
+                var map = new Dictionary<string, HostState>(_items.Count);
+                foreach (IPInfo i in _items)
+                {
+                    map[i.Ip] = new HostState(i.Alive, i.Macaddr ?? "", i.Ports ?? "", i.HasProhibitedPort);
+                }
+                return map;
+            }
         }
 
         // 스캔 대상 IP들을 미리 문자열 목록으로 펼친다. 잘못된 대역은 건너뛰며 안내 메시지를 남긴다.
@@ -515,10 +553,11 @@ namespace NetworkScanner
             return cnt;
         }
 
-        // 1단계 전용: Ping 결과(생존/응답시간)만 반영한다. 느린 부가 조회는 하지 않아 대역을 빠르게 훑는다.
-        private void ApplyPingResult(PingReply? reply, string targetIp)
+        // 1단계 전용: 생존 여부/응답시간만 반영한다. 느린 부가 조회는 하지 않아 대역을 빠르게 훑는다.
+        // roundtripMs가 null이면서 alive면 ICMP는 무응답이지만 TCP로 생존이 확인된 경우로, 응답시간을 "TCP"로 표기한다.
+        private void ApplyPingResult(bool alive, long? roundtripMs, string targetIp)
         {
-            bool success = reply != null && reply.Status == IPStatus.Success;
+            string roundTime = alive ? (roundtripMs.HasValue ? roundtripMs.Value.ToString() : "TCP") : "Timeout";
             bool changed = false;
 
             lock (_itemsLock)
@@ -526,11 +565,11 @@ namespace NetworkScanner
                 IPInfo info = _items.GetItem(targetIp);
                 if (info != null)
                 {
-                    info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
-                    info.Alive = success;
+                    info.RountTime = roundTime;
+                    info.Alive = alive;
                     changed = true;
                 }
-                else if (success)
+                else if (alive)
                 {
                     _items.Add(new IPInfo
                     {
@@ -538,7 +577,7 @@ namespace NetworkScanner
                         Ports = "",
                         Description = "",
                         CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
-                        RountTime = reply!.RoundtripTime.ToString(),
+                        RountTime = roundTime,
                         Alive = true,
                         Macaddr = "",
                         Vendor = "",

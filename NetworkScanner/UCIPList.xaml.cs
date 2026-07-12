@@ -71,6 +71,7 @@ namespace NetworkScanner
                 LvIPList.Items.Refresh();
                 TbProgressPercent.Text = "";
             }));
+            _engine.ScanChangesDetected += changes => Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => ReportChanges(changes)));
 
             CollectionViewSource.GetDefaultView(_IPInfoList).Filter = FilterItem;
 
@@ -95,6 +96,27 @@ namespace NetworkScanner
         private void UpdateProgressPercentText(int value, int max)
         {
             TbProgressPercent.Text = max > 0 ? $"{value * 100 / max}% ({value}/{max})" : "";
+        }
+
+        // 직전 스캔 대비 변화를 이벤트 로그에 남기고, 보안상 중요한 변화(MAC 변경/위험 포트)는 팝업으로 경고한다.
+        private void ReportChanges(System.Collections.Generic.IReadOnlyList<ScanChange> changes)
+        {
+            var security = new System.Collections.Generic.List<string>();
+            foreach (ScanChange c in changes)
+            {
+                string line = ScanDiff.Describe(c);
+                EventLogger.WriteEventLogEntry("스캔 변화: " + line,
+                    ScanDiff.IsSecurityRelevant(c.Type) ? System.Diagnostics.EventLogEntryType.Warning : System.Diagnostics.EventLogEntryType.Information);
+                if (ScanDiff.IsSecurityRelevant(c.Type)) security.Add(line);
+            }
+
+            TbMsg.Text = $"변화 {changes.Count}건 감지" + (security.Count > 0 ? $" (보안 경고 {security.Count}건)" : "");
+
+            if (security.Count > 0)
+            {
+                MessageBox.Show(string.Join("\n", security), "보안 경고 - 스캔 변화 감지",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         // 스캔 진행 중에는 "스캔" 버튼을 비활성화하고 "취소" 버튼만 눌리도록 해 중복 스캔 시작을 막는다.
