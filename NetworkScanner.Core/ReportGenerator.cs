@@ -1,12 +1,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace NetworkScanner
 {
-    // 스캔 결과를 사람이 읽기 좋은 HTML 리포트로 만든다(브라우저에서 열거나 공유용).
+    // 스캔 결과를 사람이 읽기 좋은 HTML 리포트, 또는 다른 도구와 연동하기 좋은 JSON으로 만든다.
     public static class ReportGenerator
     {
+        // 다른 시스템 연동/후처리를 위한 JSON 리포트.
+        public static string BuildJson(IEnumerable<IPInfo> items, string systemName, string timestamp)
+        {
+            var report = new
+            {
+                systemName,
+                generatedAt = timestamp,
+                hosts = items.Select(i => new
+                {
+                    ip = i.Ip,
+                    alive = i.Alive,
+                    status = i.StatusText,
+                    name = i.SystemName,
+                    deviceType = i.DeviceType,
+                    osGuess = i.OsGuess,
+                    ports = i.Ports,
+                    service = i.Service,
+                    mac = i.Macaddr,
+                    vendor = i.Vendor,
+                    roundTime = i.RountTime,
+                    hasProhibitedPort = i.HasProhibitedPort,
+                    description = i.Description,
+                    commitDate = i.CommitDate,
+                }),
+            };
+            return JsonSerializer.Serialize(report, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // 한글이 \uXXXX로 이스케이프되지 않도록
+            });
+        }
+
         public static string BuildHtml(IEnumerable<IPInfo> items, string systemName, string timestamp)
         {
             List<IPInfo> all = items.ToList();
@@ -35,7 +68,7 @@ namespace NetworkScanner
             sb.Append("</div>");
 
             sb.Append("<table><thead><tr>");
-            foreach (string h in new[] { "상태", "IP", "이름", "종류", "열린 Port", "MAC", "제조사", "RTT(ms)", "비고" })
+            foreach (string h in new[] { "상태", "IP", "이름", "종류", "OS추정", "열린 Port", "서비스", "MAC", "제조사", "RTT(ms)", "비고" })
                 sb.Append($"<th>{h}</th>");
             sb.Append("</tr></thead><tbody>");
 
@@ -47,7 +80,9 @@ namespace NetworkScanner
                 sb.Append($"<td>{Escape(i.Ip)}</td>");
                 sb.Append($"<td>{Escape(i.SystemName)}</td>");
                 sb.Append($"<td>{Escape(i.DeviceType)}</td>");
+                sb.Append($"<td>{Escape(i.OsGuess)}</td>");
                 sb.Append($"<td>{Escape(i.Ports)}</td>");
+                sb.Append($"<td>{Escape(i.Service)}</td>");
                 sb.Append($"<td>{Escape(i.Macaddr)}</td>");
                 sb.Append($"<td>{Escape(i.Vendor)}</td>");
                 sb.Append($"<td>{Escape(i.RountTime)}</td>");

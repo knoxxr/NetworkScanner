@@ -24,6 +24,8 @@ namespace NetworkScanner
         private const string KeyPortList = "portlist";
         private const string KeyUsePortChecking = "useportchecking";
         private const string KeyLoadLatestFile = "loadlastestfile";
+        private const string KeyContinuousMonitoring = "continuousmonitoring";
+        private const string KeyMonitorInterval = "monitorintervalminutes";
 
         private static string HourKey(int label) => string.Format("hr{0:D2}", label);
 
@@ -72,6 +74,8 @@ namespace NetworkScanner
                         case KeyPortList: data.PortList = token[1]; break;
                         case KeyUsePortChecking: data.UsePortChecking = bool.Parse(token[1]); break;
                         case KeyLoadLatestFile: data.LoadLatestFileOnStartup = bool.Parse(token[1]); break;
+                        case KeyContinuousMonitoring: data.ContinuousMonitoring = bool.Parse(token[1]); break;
+                        case KeyMonitorInterval: if (int.TryParse(token[1], out int mins)) data.MonitorIntervalMinutes = mins; break;
                     }
                 }
                 catch (Exception ex)
@@ -103,6 +107,8 @@ namespace NetworkScanner
                 lines.Add($"{KeyPortList}={data.PortList}");
                 lines.Add($"{KeyUsePortChecking}={data.UsePortChecking}");
                 lines.Add($"{KeyLoadLatestFile}={data.LoadLatestFileOnStartup}");
+                lines.Add($"{KeyContinuousMonitoring}={data.ContinuousMonitoring}");
+                lines.Add($"{KeyMonitorInterval}={data.MonitorIntervalMinutes}");
 
                 File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), SettingFileName), lines, Encoding.UTF8);
             }

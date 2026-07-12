@@ -23,6 +23,9 @@ namespace NetworkScanner
         private readonly object _itemsLock = new object();
         private CancellationTokenSource? _scanCts;
 
+        // 사용자가 지정한 이름/비고(IP 기준). 스캔 시작 시 파일에서 읽어와 새 호스트에 자동 병합한다.
+        private Dictionary<string, AnnotationStore.Annotation> _annotations = new();
+
         // 대역 스캔 시 동시에 검사할 IP 개수. 대부분의 시간이 Ping 응답 대기(I/O)라 CPU 코어 수보다 크게 잡는다.
         private const int ScanParallelism = 64;
 
@@ -174,6 +177,9 @@ namespace NetworkScanner
                 {
                     _ftp.UploadFileList(path + Path.DirectorySeparatorChar, filename);
                 }
+
+                // 사용자가 지정한 이름/비고를 IP 기준으로 보관해 다음 스캔/재시작 후에도 유지되게 한다.
+                AnnotationStore.Save(_items);
 
                 Message?.Invoke($"파일을 저장했습니다.  File Name : {filename}");
             }
@@ -416,6 +422,9 @@ namespace NetworkScanner
             HashSet<int> prohibitedPorts = GetProhibitedPortSet();
             var options = new ParallelOptions { MaxDegreeOfParallelism = ScanParallelism, CancellationToken = token };
 
+            // 사용자가 지정해 둔 이름/비고를 읽어와, 스캔 중 새로 발견되는 호스트에 자동 병합한다.
+            _annotations = AnnotationStore.Load();
+
             // 변화 감지를 위해 스캔 시작 시점의 상태를 기준선으로 저장해 둔다.
             Dictionary<string, HostState> baseline = SnapshotStates();
 
@@ -430,6 +439,7 @@ namespace NetworkScanner
                     PingReply? reply = await PingTester.SendPingAsync(IPAddress.Parse(strIp));
                     bool alive = reply != null && reply.Status == IPStatus.Success;
                     long? roundtrip = alive ? reply!.RoundtripTime : null;
+                    int ttl = alive && reply!.Options != null ? reply.Options.Ttl : 0;
 
                     // ICMP에 응답이 없으면 대표 포트로 TCP 생존 확인을 한 번 더 시도한다.
                     if (!alive)
@@ -438,7 +448,7 @@ namespace NetworkScanner
                     }
 
                     if (alive) aliveIps.Add(strIp);
-                    ApplyPingResult(alive, roundtrip, strIp);
+                    ApplyPingResult(alive, roundtrip, ttl, strIp);
 
                     int cur = Interlocked.Increment(ref pinged);
                     ProgressChanged?.Invoke(cur);
@@ -481,7 +491,38 @@ namespace NetworkScanner
                 ? $"스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
                 : $"스캔을 완료했습니다. 살아있는 호스트 {aliveList.Count}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
 
-            if (scheduling && !token.IsCancellationRequested) await WriteIPInfo(true, systemName);
+            if (scheduling && !token.IsCancellationRequested)
+            {
+                await WriteIPInfo(true, systemName);
+                await WriteAndUploadReport(systemName); // 무인 스케줄 스캔은 HTML 리포트도 함께 남기고, FTP 사용 시 업로드한다.
+            }
+        }
+
+        // HTML 리포트를 env 폴더에 저장하고, FTP 사용 설정이면 함께 업로드한다.
+        private async Task WriteAndUploadReport(string systemName)
+        {
+            try
+            {
+                List<IPInfo> snapshot;
+                lock (_itemsLock) snapshot = new List<IPInfo>(_items);
+                if (snapshot.Count == 0) return;
+
+                string html = ReportGenerator.BuildHtml(snapshot, systemName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                string path = GetEnvDirectory();
+                Directory.CreateDirectory(path);
+                string filename = $"{SanitizeFileNameComponent(systemName)}{DateTime.Now:_yyyyMMdd_HHmmss}_report.html";
+                await File.WriteAllTextAsync(Path.Combine(path, filename), html, Encoding.UTF8);
+
+                if (Config.GetUseFTP() == true)
+                {
+                    _ftp.UploadFileList(path + Path.DirectorySeparatorChar, filename);
+                }
+                Message?.Invoke($"리포트를 저장했습니다. File Name : {filename}");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError("NetworkScanner", "자동 리포트 저장 실패: " + ex.Message);
+            }
         }
 
         // 결과 목록의 현재 상태를 IP→상태 딕셔너리로 스냅샷한다(변화 감지 기준선/비교 대상으로 사용).
@@ -553,9 +594,9 @@ namespace NetworkScanner
             return cnt;
         }
 
-        // 1단계 전용: 생존 여부/응답시간만 반영한다. 느린 부가 조회는 하지 않아 대역을 빠르게 훑는다.
+        // 1단계 전용: 생존 여부/응답시간/TTL만 반영한다. 느린 부가 조회는 하지 않아 대역을 빠르게 훑는다.
         // roundtripMs가 null이면서 alive면 ICMP는 무응답이지만 TCP로 생존이 확인된 경우로, 응답시간을 "TCP"로 표기한다.
-        private void ApplyPingResult(bool alive, long? roundtripMs, string targetIp)
+        private void ApplyPingResult(bool alive, long? roundtripMs, int ttl, string targetIp)
         {
             string roundTime = alive ? (roundtripMs.HasValue ? roundtripMs.Value.ToString() : "TCP") : "Timeout";
             bool changed = false;
@@ -567,11 +608,12 @@ namespace NetworkScanner
                 {
                     info.RountTime = roundTime;
                     info.Alive = alive;
+                    if (ttl > 0) info.Ttl = ttl;
                     changed = true;
                 }
                 else if (alive)
                 {
-                    _items.Add(new IPInfo
+                    IPInfo added = new()
                     {
                         Ip = targetIp,
                         Ports = "",
@@ -582,7 +624,15 @@ namespace NetworkScanner
                         Macaddr = "",
                         Vendor = "",
                         SystemName = "",
-                    });
+                        Ttl = ttl,
+                    };
+                    // 사용자가 이전에 지정한 이름/비고가 있으면 새 호스트에 자동으로 채운다.
+                    if (_annotations.TryGetValue(targetIp, out var note))
+                    {
+                        added.SystemName = note.Name;
+                        added.Description = note.Description;
+                    }
+                    _items.Add(added);
                     changed = true;
                 }
             }
@@ -592,6 +642,9 @@ namespace NetworkScanner
 
         // 2단계 전용: 살아있는 호스트 한 대의 MAC/제조사/호스트명/열린 포트를 조회해 해당 행을 채운다.
         // ARP·DNS·포트 검사는 모두 결과 목록 락 밖에서 수행하고, 마지막에 짧게 락을 잡아 값만 반영한다.
+        // 서비스/배너를 수집할 만한 대표 포트(HTTP/SSH/FTP/SMTP 등). 열려 있으면 첫 번째 것의 배너를 읽는다.
+        private static readonly int[] BannerPorts = { 80, 8080, 443, 22, 21, 25, 23, 3306 };
+
         private async Task EnrichHostAsync(string targetIp, bool usePortChecking, HashSet<int> prohibitedPorts)
         {
             string? mac = _items.GetMACAddress(targetIp);
@@ -599,6 +652,10 @@ namespace NetworkScanner
             string? hostName = await LookupHostNameAsync(targetIp, 1500);
             string openPorts = usePortChecking ? await PingTester.CheckPortsOpenAsync(targetIp) : "";
             bool hasProhibited = ContainsProhibitedPort(openPorts, prohibitedPorts);
+
+            // 열린 포트 중 배너를 읽을 만한 첫 포트에서 서비스 정보를 한 줄 수집한다.
+            string service = usePortChecking ? await GrabServiceAsync(targetIp, openPorts) : "";
+
             bool changed = false;
 
             lock (_itemsLock)
@@ -614,12 +671,28 @@ namespace NetworkScanner
                     {
                         info.Ports = openPorts;
                         info.HasProhibitedPort = hasProhibited;
+                        if (!string.IsNullOrEmpty(service)) info.Service = service;
                     }
                     changed = true;
                 }
             }
 
             if (changed) ItemsRefreshNeeded?.Invoke();
+        }
+
+        private static async Task<string> GrabServiceAsync(string ip, string openPorts)
+        {
+            HashSet<int> open = new();
+            foreach (string token in (openPorts ?? "").Split('/', StringSplitOptions.RemoveEmptyEntries))
+                if (int.TryParse(token, out int p)) open.Add(p);
+
+            foreach (int port in BannerPorts)
+            {
+                if (!open.Contains(port)) continue;
+                string banner = await PingTester.GrabBannerAsync(ip, port);
+                if (!string.IsNullOrEmpty(banner)) return banner;
+            }
+            return "";
         }
 
         // 역방향 DNS 조회. PTR 레코드가 없는 LAN 호스트에서 오래 걸릴 수 있으므로 타임아웃을 강제한다.

@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -164,12 +165,9 @@ namespace NetworkScanner
                 return;
             }
 
-            string html = ReportGenerator.BuildHtml(snapshot, Config.GetSystemName(),
-                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
             var dlg = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "HTML files (*.html)|*.html|All files (*.*)|*.*",
+                Filter = "HTML files (*.html)|*.html|JSON files (*.json)|*.json|All files (*.*)|*.*",
                 FileName = $"NetworkScanner_{DateTime.Now:yyyyMMdd_HHmmss}.html",
                 InitialDirectory = ScanEngine.GetEnvDirectory(),
             };
@@ -177,9 +175,60 @@ namespace NetworkScanner
 
             if (dlg.ShowDialog() == true)
             {
-                System.IO.File.WriteAllText(dlg.FileName, html, System.Text.Encoding.UTF8);
-                TbMsg.Text = "HTML 리포트를 저장했습니다: " + dlg.FileName;
+                string ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                bool json = dlg.FileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+                string content = json
+                    ? ReportGenerator.BuildJson(snapshot, Config.GetSystemName(), ts)
+                    : ReportGenerator.BuildHtml(snapshot, Config.GetSystemName(), ts);
+                System.IO.File.WriteAllText(dlg.FileName, content, System.Text.Encoding.UTF8);
+                TbMsg.Text = (json ? "JSON" : "HTML") + " 리포트를 저장했습니다: " + dlg.FileName;
             }
+        }
+
+        private void MenuItemWakeOnLan_Click(object sender, RoutedEventArgs e)
+        {
+            var selValue = (IPInfo)LvIPList.SelectedValue;
+            if (selValue == null) return;
+            if (string.IsNullOrWhiteSpace(selValue.Macaddr))
+            {
+                MessageBox.Show("MAC 주소가 없어 Wake-on-LAN을 보낼 수 없습니다.");
+                return;
+            }
+
+            bool ok = WakeOnLan.Send(selValue.Macaddr);
+            TbMsg.Text = ok
+                ? $"Wake-on-LAN 매직 패킷을 보냈습니다: {selValue.Macaddr}"
+                : "Wake-on-LAN 전송에 실패했습니다.";
+        }
+
+        // GridView 헤더 클릭 시 해당 컬럼 기준으로 정렬한다(같은 컬럼 재클릭 시 오름/내림 전환).
+        private string _sortColumn;
+        private ListSortDirection _sortDirection = ListSortDirection.Ascending;
+        private static readonly System.Collections.Generic.Dictionary<string, string> HeaderToProperty = new()
+        {
+            ["상태"] = "StatusText", ["IP"] = "Ip", ["이름"] = "SystemName", ["종류"] = "DeviceType",
+            ["OS추정"] = "OsGuess", ["열린 Port"] = "Ports", ["서비스"] = "Service", ["Mac Address"] = "Macaddr",
+            ["Vendor"] = "Vendor", ["Round Time(ms)"] = "RountTime", ["비고"] = "Description", ["생성일"] = "CommitDate",
+        };
+
+        private void LvHeader_Click(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is not GridViewColumnHeader header) return;
+            if (header.Content is not string headerText) return;
+            if (!HeaderToProperty.TryGetValue(headerText, out string property)) return;
+
+            if (_sortColumn == property)
+                _sortDirection = _sortDirection == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+            else
+            {
+                _sortColumn = property;
+                _sortDirection = ListSortDirection.Ascending;
+            }
+
+            var view = CollectionViewSource.GetDefaultView(_IPInfoList);
+            view.SortDescriptions.Clear();
+            view.SortDescriptions.Add(new SortDescription(property, _sortDirection));
+            view.Refresh();
         }
 
         public void ClearItems()
@@ -198,6 +247,9 @@ namespace NetworkScanner
         public void LoadIPInfo(string filename) => _engine.LoadIPInfo(filename);
 
         public void SchedulingScan() => _engine.StartSchedulingScan(Config.GetSystemName());
+
+        // 연속 모니터링용: 자동저장 없이 전체 대역을 재스캔한다(변화 감지 알림은 그대로 동작).
+        public void StartScan() => _engine.StartRefreshAllRange(Config.GetSystemName());
 
         public void ScanningStop() => _engine.ScanningStop();
 

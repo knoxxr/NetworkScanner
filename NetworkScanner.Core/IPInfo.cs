@@ -87,6 +87,8 @@ namespace NetworkScanner
         private string macaddr;
         private string vendor;
         private bool hasProhibitedPort;
+        private int ttl;
+        private string service;
 
         public string Ip
         {
@@ -115,5 +117,12 @@ namespace NetworkScanner
 
         // 제조사·열린 포트로 추정한 장비 종류(참고용). UI의 "종류" 컬럼에 표시된다.
         public string DeviceType => DeviceClassifier.Classify(vendor, ports);
+
+        // Ping 응답의 TTL(0이면 미측정). OsGuess는 TTL로 추정한 OS 계열(참고용).
+        public int Ttl { get => ttl; set => ttl = value; }
+        public string OsGuess => OsGuesser.FromTtl(ttl);
+
+        // 열린 포트에서 수집한 서비스/배너 정보(예: "HTTP: nginx", "SSH-2.0-OpenSSH_8.9").
+        public string Service { get => service; set => service = value; }
     }
 }

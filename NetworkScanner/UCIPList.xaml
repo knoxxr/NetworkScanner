@@ -113,13 +113,15 @@
                 <TextBlock Text="없음" VerticalAlignment="Center" FontFamily="Segoe UI"/>
             </StackPanel>
         </Grid>
-        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp">
+        <ListView Grid.Row="2" Name="LvIPList"  ItemsSource="{Binding Source={StaticResource IPInfoList}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseRightButtonUp="LvIPList_MouseRightButtonUp" GridViewColumnHeader.Click="LvHeader_Click">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
                     <MenuItem Header="설정된 Port만 검색" Click="MenuItemCheckPort_Click" />
                     <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
                     <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
+                    <Separator />
+                    <MenuItem Header="Wake-on-LAN (원격 켜기)" Click="MenuItemWakeOnLan_Click" />
                     <Separator />
                     <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
                 </ContextMenu>
@@ -159,10 +161,24 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="열린 Port" Width="200">
+                    <GridViewColumn Header="OS추정" Width="120">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox  MinWidth="195" Text="{Binding Path=Ports, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                <TextBlock Text="{Binding Path=OsGuess, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="열린 Port" Width="160">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox  MinWidth="155" Text="{Binding Path=Ports, Mode=TwoWay}" BorderBrush="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="서비스" Width="180">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Service, Mode=OneWay}" FontFamily="Segoe UI" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

@@ -73,7 +73,7 @@
             </StackPanel>
         </Grid>
 
-        <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" FontFamily="Cascadia Code,Consolas,monospace">
+        <DataGrid Grid.Row="2" Name="DgIPList" AutoGenerateColumns="False" CanUserSortColumns="True" FontFamily="Cascadia Code,Consolas,monospace">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Ping 보내기" Click="MenuItemPing_Click" />
@@ -81,11 +81,13 @@
                     <MenuItem Header="예약 Port 전체 검색" Click="MenuItemCheckReservedPort_Click" />
                     <MenuItem Header="위험 Port 전체 검색" Click="MenuItemCheckProhibitPort_Click" />
                     <Separator />
+                    <MenuItem Header="Wake-on-LAN (원격 켜기)" Click="MenuItemWakeOnLan_Click" />
+                    <Separator />
                     <MenuItem Header="삭제" Click="MenuItemRemove_Click" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="상태" Width="90">
+                <DataGridTemplateColumn Header="상태" Width="90" SortMemberPath="StatusText">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
@@ -99,7 +101,9 @@
                 <DataGridTextColumn Header="IP" Binding="{Binding Ip}" IsReadOnly="True" Width="140" />
                 <DataGridTextColumn Header="이름" Binding="{Binding SystemName}" Width="160" />
                 <DataGridTextColumn Header="종류" Binding="{Binding DeviceType}" IsReadOnly="True" Width="120" />
-                <DataGridTextColumn Header="열린 Port" Binding="{Binding Ports}" Width="160" />
+                <DataGridTextColumn Header="OS추정" Binding="{Binding OsGuess}" IsReadOnly="True" Width="120" />
+                <DataGridTextColumn Header="열린 Port" Binding="{Binding Ports}" Width="140" />
+                <DataGridTextColumn Header="서비스" Binding="{Binding Service}" IsReadOnly="True" Width="180" />
                 <DataGridTextColumn Header="Mac Address" Binding="{Binding Macaddr}" Width="160" />
                 <DataGridTextColumn Header="Vendor" Binding="{Binding Vendor}" Width="160" />
                 <DataGridTextColumn Header="Round Time(ms)" Binding="{Binding RountTime}" IsReadOnly="True" Width="120" />

@@ -88,8 +88,21 @@ namespace NetworkScanner
         {
         }
 
+        private DateTime _lastMonitorScan = DateTime.MinValue;
+
         private void _Timer_Tick(object? sender, EventArgs e)
         {
+            // 연속 모니터링: 지정한 분 간격마다 자동 재스캔한다(스케줄링과 독립적으로 동작).
+            if (ucSetting.GetContinuousMonitoring())
+            {
+                int interval = ucSetting.GetMonitorIntervalMinutes();
+                if ((DateTime.Now - _lastMonitorScan).TotalMinutes >= interval && ucIPList.IsScanning() == false)
+                {
+                    _lastMonitorScan = DateTime.Now;
+                    ucIPList.StartScan();
+                }
+            }
+
             bool? useSchd = false;
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {

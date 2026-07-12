@@ -45,8 +45,22 @@ public partial class MainWindow : Window, IScanConfigProvider
         }
     }
 
+    private DateTime _lastMonitorScan = DateTime.MinValue;
+
     private void Timer_Tick(object? sender, EventArgs e)
     {
+        AppSettingsData settings = _settingsView.GetCurrentSettings();
+
+        // 연속 모니터링: 지정한 분 간격마다 자동 재스캔(스케줄링과 독립적으로 동작).
+        if (settings.ContinuousMonitoring
+            && (DateTime.Now - _lastMonitorScan).TotalMinutes >= settings.MonitorIntervalMinutes
+            && !_ipListView.IsScanning())
+        {
+            _lastMonitorScan = DateTime.Now;
+            _ipListView.StartScan();
+            return;
+        }
+
         if (!_settingsView.IsInScheduleHour(DateTime.Now.Hour)) return;
         if (DateTime.Now.Minute != 0) return;
         if (_ipListView.IsScanning()) return;

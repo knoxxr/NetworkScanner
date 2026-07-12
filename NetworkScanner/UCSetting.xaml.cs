@@ -65,7 +65,14 @@ namespace NetworkScanner
             tbPortsList.Text = data.PortList;
             ChkCheckPort.IsChecked = data.UsePortChecking;
             chkLoadLastestFileWhenStartup.IsChecked = data.LoadLatestFileOnStartup;
+            ChkContinuousMonitoring.IsChecked = data.ContinuousMonitoring;
+            tbMonitorInterval.Text = data.MonitorIntervalMinutes.ToString();
         }
+
+        public bool GetContinuousMonitoring() => ChkContinuousMonitoring.IsChecked == true;
+
+        public int GetMonitorIntervalMinutes()
+            => int.TryParse(tbMonitorInterval.Text, out int m) && m > 0 ? m : 10;
 
         private AppSettingsData CollectSettingsFromControls()
         {
@@ -81,6 +88,8 @@ namespace NetworkScanner
                 PortList = tbPortsList.Text,
                 UsePortChecking = ChkCheckPort.IsChecked == true,
                 LoadLatestFileOnStartup = chkLoadLastestFileWhenStartup.IsChecked == true,
+                ContinuousMonitoring = ChkContinuousMonitoring.IsChecked == true,
+                MonitorIntervalMinutes = GetMonitorIntervalMinutes(),
             };
 
             foreach (var entry in HourCheckboxMap)

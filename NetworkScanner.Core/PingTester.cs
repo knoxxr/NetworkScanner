@@ -114,6 +114,54 @@ namespace NetworkScanner
             }
         }
 
+        // 열린 포트에 접속해 서비스/배너를 한 줄 수집한다. HTTP 계열은 간단한 요청을 보내 Server 헤더를,
+        // SSH/FTP/SMTP 등은 접속 시 서버가 먼저 보내는 인사말을 읽는다. 실패하면 빈 문자열.
+        public static async Task<string> GrabBannerAsync(string ip, int port, int timeoutMs = 700)
+        {
+            try
+            {
+                using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                using var cts = new CancellationTokenSource(timeoutMs);
+                await socket.ConnectAsync(ip, port, cts.Token);
+
+                bool http = port is 80 or 8080 or 8000 or 443 or 8443;
+                if (http)
+                {
+                    byte[] req = Encoding.ASCII.GetBytes($"HEAD / HTTP/1.0\r\nHost: {ip}\r\n\r\n");
+                    await socket.SendAsync(req, SocketFlags.None, cts.Token);
+                }
+
+                var buffer = new byte[512];
+                int read = await socket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
+                if (read <= 0) return "";
+
+                string text = Encoding.ASCII.GetString(buffer, 0, read);
+                return http ? ExtractHttpServer(text) : FirstLine(text);
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private static string FirstLine(string text)
+        {
+            int nl = text.IndexOfAny(new[] { '\r', '\n' });
+            string line = (nl >= 0 ? text.Substring(0, nl) : text).Trim();
+            return line.Length > 80 ? line.Substring(0, 80) : line;
+        }
+
+        private static string ExtractHttpServer(string response)
+        {
+            foreach (string line in response.Split('\n'))
+            {
+                if (line.StartsWith("Server:", StringComparison.OrdinalIgnoreCase))
+                    return "HTTP: " + line.Substring(7).Trim();
+            }
+            // Server 헤더가 없으면 상태 라인(예: "HTTP/1.1 200 OK")이라도 돌려준다.
+            return FirstLine(response);
+        }
+
         private static void ReportPingFailure(Exception ex)
         {
             if (IsPermissionDenied(ex) && !_permissionHintLogged)

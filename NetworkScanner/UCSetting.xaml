@@ -179,8 +179,12 @@
                 <StackPanel Orientation="Horizontal" Margin="3">
                     <Label Width="100">시스템 이름</Label>
                     <TextBox Name="tbCurSystemName" Width="200" Margin="3">MyComputer</TextBox>
-                    <Border Width="100"></Border>
-                    <CheckBox Name="chkLoadLastestFileWhenStartup" Margin="3" Width="200" IsChecked="True">시작시 최근 기록 부르기</CheckBox>
+                    <Border Width="40"></Border>
+                    <CheckBox Name="chkLoadLastestFileWhenStartup" Margin="3" VerticalAlignment="Center" IsChecked="True">시작시 최근 기록 부르기</CheckBox>
+                    <Border Width="20"></Border>
+                    <CheckBox Name="ChkContinuousMonitoring" Margin="3" VerticalAlignment="Center">연속 모니터링</CheckBox>
+                    <TextBox Name="tbMonitorInterval" Width="50" Margin="3" VerticalAlignment="Center">10</TextBox>
+                    <Label VerticalAlignment="Center">분 간격</Label>
                 </StackPanel>
             </GroupBox>
         </Border>

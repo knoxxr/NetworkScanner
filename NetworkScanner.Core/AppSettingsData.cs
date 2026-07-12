@@ -19,6 +19,10 @@ namespace NetworkScanner
         public bool UsePortChecking { get; set; }
         public bool LoadLatestFileOnStartup { get; set; } = true;
 
+        // 연속 모니터링: 켜면 지정한 분(分) 간격마다 자동으로 전체 대역을 재스캔한다.
+        public bool ContinuousMonitoring { get; set; }
+        public int MonitorIntervalMinutes { get; set; } = 10;
+
         public bool IsInScheduleHour(int clockHour)
         {
             int label = clockHour == 0 ? 24 : clockHour;

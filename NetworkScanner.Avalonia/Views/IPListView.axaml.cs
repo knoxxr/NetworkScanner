@@ -159,6 +159,9 @@ namespace NetworkScanner.Avalonia.Views
 
         public void SchedulingScan() => _engine?.StartSchedulingScan(Config?.GetSystemName() ?? "");
 
+        // 연속 모니터링용: 자동저장 없이 전체 대역을 재스캔한다(변화 감지 알림은 그대로 동작).
+        public void StartScan() => _engine?.StartRefreshAllRange(Config?.GetSystemName() ?? "");
+
         public void ScanningStop() => _engine?.ScanningStop();
 
         public bool IsScanning() => _engine?.IsScanning() ?? false;
@@ -222,22 +225,47 @@ namespace NetworkScanner.Avalonia.Views
             lock (_engine.ItemsSyncRoot) snapshot = _items.ToList();
             if (snapshot.Count == 0) { TbMsg.Text = "리포트로 저장할 결과가 없습니다."; return; }
 
-            string html = ReportGenerator.BuildHtml(snapshot, Config?.GetSystemName() ?? "",
-                System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
             var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title = "HTML 리포트 저장",
+                Title = "리포트 저장 (HTML/JSON)",
                 SuggestedFileName = $"NetworkScanner_{System.DateTime.Now:yyyyMMdd_HHmmss}.html",
                 DefaultExtension = "html",
-                FileTypeChoices = new[] { new FilePickerFileType("HTML") { Patterns = new[] { "*.html" } } },
+                FileTypeChoices = new[]
+                {
+                    new FilePickerFileType("HTML") { Patterns = new[] { "*.html" } },
+                    new FilePickerFileType("JSON") { Patterns = new[] { "*.json" } },
+                },
             });
             if (file == null) return;
 
+            string ts = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            bool json = file.Name.EndsWith(".json", System.StringComparison.OrdinalIgnoreCase);
+            string content = json
+                ? ReportGenerator.BuildJson(snapshot, Config?.GetSystemName() ?? "", ts)
+                : ReportGenerator.BuildHtml(snapshot, Config?.GetSystemName() ?? "", ts);
+
             await using var stream = await file.OpenWriteAsync();
             await using var writer = new StreamWriter(stream);
-            await writer.WriteAsync(html);
-            TbMsg.Text = "HTML 리포트를 저장했습니다.";
+            await writer.WriteAsync(content);
+            TbMsg.Text = json ? "JSON 리포트를 저장했습니다." : "HTML 리포트를 저장했습니다.";
+        }
+
+        private async void MenuItemWakeOnLan_Click(object? sender, RoutedEventArgs e)
+        {
+            if (SelectedItem == null) return;
+            if (string.IsNullOrWhiteSpace(SelectedItem.Macaddr))
+            {
+                TbMsg.Text = "MAC 주소가 없어 Wake-on-LAN을 보낼 수 없습니다.";
+                return;
+            }
+
+            bool ok = WakeOnLan.Send(SelectedItem.Macaddr);
+            TbMsg.Text = ok
+                ? $"Wake-on-LAN 매직 패킷을 보냈습니다: {SelectedItem.Macaddr}"
+                : "Wake-on-LAN 전송에 실패했습니다.";
+
+            if (!ok && TopLevel.GetTopLevel(this) is Window owner)
+                await SimpleDialogs.ShowMessageAsync(owner, "Wake-on-LAN 전송에 실패했습니다. MAC 주소를 확인하세요.");
         }
 
         private IPInfo? SelectedItem => DgIPList.SelectedItem as IPInfo;

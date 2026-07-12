@@ -55,6 +55,8 @@ namespace NetworkScanner.Avalonia.Views
             TbPortsList.Text = data.PortList;
             ChkCheckPort.IsChecked = data.UsePortChecking;
             ChkLoadLatestFileWhenStartup.IsChecked = data.LoadLatestFileOnStartup;
+            ChkContinuousMonitoring.IsChecked = data.ContinuousMonitoring;
+            TbMonitorInterval.Text = data.MonitorIntervalMinutes.ToString();
         }
 
         private AppSettingsData CollectSettingsFromControls()
@@ -71,6 +73,8 @@ namespace NetworkScanner.Avalonia.Views
                 PortList = TbPortsList.Text ?? "",
                 UsePortChecking = ChkCheckPort.IsChecked == true,
                 LoadLatestFileOnStartup = ChkLoadLatestFileWhenStartup.IsChecked == true,
+                ContinuousMonitoring = ChkContinuousMonitoring.IsChecked == true,
+                MonitorIntervalMinutes = int.TryParse(TbMonitorInterval.Text, out int m) && m > 0 ? m : 10,
             };
 
             for (int i = 0; i < 24; i++) data.HourEnabled[i] = _hourCheckboxes[i].IsChecked == true;
