@@ -26,7 +26,10 @@ namespace NetworkScanner.Avalonia.Views
         {
             InitializeComponent();
             _oui.LoadInfo();
-            DgIPList.ItemsSource = _items;
+            // DataGrid는 절대 라이브 컬렉션(_items)에 직접 바인딩하지 않는다. 병렬 스캔이 백그라운드
+            // 스레드에서 _items를 수정하면 Avalonia가 UI 스레드가 아닌 곳에서 CollectionChanged를
+            // 처리하려다 교착/예외에 빠지기 때문이다. 항상 락으로 뜬 스냅샷(복사본)만 바인딩한다.
+            RefreshGrid();
         }
 
         public void Initialize(IScanConfigProvider config)
