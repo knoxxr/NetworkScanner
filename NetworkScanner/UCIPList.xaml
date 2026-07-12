@@ -200,7 +200,10 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ProgressBar Grid.Row="3" Value="0" Height="20" Margin="2,1" Foreground="#FF46C2B8" Name="pbProgress"></ProgressBar>
+        <Grid Grid.Row="3">
+            <ProgressBar Value="0" Height="20" Margin="2,1" Foreground="#FF46C2B8" Name="pbProgress"></ProgressBar>
+            <TextBlock Name="TbProgressPercent" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" FontWeight="Bold"></TextBlock>
+        </Grid>
         <TextBlock Grid.Row="4" Name="TbMsg"></TextBlock>
     </Grid>
 </UserControl>

@@ -47,17 +47,32 @@ namespace NetworkScanner
             {
                 pbProgress.Maximum = max;
                 pbProgress.Value = 0;
+                UpdateProgressPercentText(0, max);
             }));
-            _engine.ProgressChanged += val => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => pbProgress.Value = val));
+            _engine.ProgressChanged += val => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                pbProgress.Value = val;
+                UpdateProgressPercentText(val, (int)pbProgress.Maximum);
+            }));
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
                 tbResult.Text = string.Format("정상:{0},끊김{1}/전체{2}", alive, dead, total)));
             _engine.ItemsRefreshNeeded += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => LvIPList.Items.Refresh()));
             _engine.ScanStarted += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => SetScanningState(true)));
-            _engine.ScanFinished += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => SetScanningState(false)));
+            _engine.ScanFinished += () => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                SetScanningState(false);
+                TbProgressPercent.Text = "";
+            }));
 
             CollectionViewSource.GetDefaultView(_IPInfoList).Filter = FilterItem;
 
             _engine.InitFromConfig();
+        }
+
+        // 진행률 바 위에 겹쳐 보여줄 "N% (진행/전체)" 텍스트를 계산한다. 전체 개수가 0이면(스캔 시작 전) 비워둔다.
+        private void UpdateProgressPercentText(int value, int max)
+        {
+            TbProgressPercent.Text = max > 0 ? $"{value * 100 / max}% ({value}/{max})" : "";
         }
 
         // 스캔 진행 중에는 "스캔" 버튼을 비활성화하고 "취소" 버튼만 눌리도록 해 중복 스캔 시작을 막는다.

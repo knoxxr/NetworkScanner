@@ -38,13 +38,22 @@ namespace NetworkScanner.Avalonia.Views
             {
                 PbProgress.Maximum = max;
                 PbProgress.Value = 0;
+                UpdateProgressPercentText(0, max);
             });
-            _engine.ProgressChanged += val => Dispatcher.UIThread.Post(() => PbProgress.Value = val);
+            _engine.ProgressChanged += val => Dispatcher.UIThread.Post(() =>
+            {
+                PbProgress.Value = val;
+                UpdateProgressPercentText(val, (int)PbProgress.Maximum);
+            });
             _engine.ResultsSummaryChanged += (alive, dead, total) => Dispatcher.UIThread.Post(() =>
                 TbResult.Text = $"정상:{alive},끊김{dead}/전체{total}");
             _engine.ItemsRefreshNeeded += () => Dispatcher.UIThread.Post(RefreshGrid);
             _engine.ScanStarted += () => Dispatcher.UIThread.Post(() => SetScanningState(true));
-            _engine.ScanFinished += () => Dispatcher.UIThread.Post(() => SetScanningState(false));
+            _engine.ScanFinished += () => Dispatcher.UIThread.Post(() =>
+            {
+                SetScanningState(false);
+                TbProgressPercent.Text = "";
+            });
 
             _engine.InitFromConfig();
         }
@@ -55,6 +64,12 @@ namespace NetworkScanner.Avalonia.Views
             BtnRefresh.IsEnabled = !scanning;
             BtnStop.IsEnabled = scanning;
             TbScanLabel.Text = scanning ? "스캔 중..." : "스캔";
+        }
+
+        // 진행률 바 위에 겹쳐 보여줄 "N% (진행/전체)" 텍스트를 계산한다. 전체 개수가 0이면(스캔 시작 전) 비워둔다.
+        private void UpdateProgressPercentText(int value, int max)
+        {
+            TbProgressPercent.Text = max > 0 ? $"{value * 100 / max}% ({value}/{max})" : "";
         }
 
         private void RefreshGrid()
