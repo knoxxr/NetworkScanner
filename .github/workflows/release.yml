@@ -56,6 +56,7 @@ jobs:
         run: >
           dotnet publish NetworkScanner.Avalonia/NetworkScanner.Avalonia.csproj
           -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:Version=${{ steps.version.outputs.value }}
           -o publish/${{ matrix.rid }}
 
       - name: Install Velopack CLI

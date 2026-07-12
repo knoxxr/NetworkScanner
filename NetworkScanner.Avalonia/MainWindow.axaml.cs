@@ -30,7 +30,8 @@ public partial class MainWindow : Window, IScanConfigProvider
         ContentArea.Content = _ipListView;
         SetActiveNav(BtnIPList);
 
-        TbVersion.Text = "ver. " + (Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown");
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        TbVersion.Text = "ver. " + (version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "unknown");
 
         _timer.Interval = TimeSpan.FromMinutes(1);
         _timer.Tick += Timer_Tick;

@@ -61,7 +61,8 @@ namespace NetworkScanner
             BdContent.Child = ucIPList;
             SetActiveNav(BtnIPList);
 
-            tbVersion.Text = "ver. "+ System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            tbVersion.Text = "ver. " + (version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "unknown");
 
             _Timer.Interval = TimeSpan.FromMilliseconds(1000*60);
             _Timer.Tick += _Timer_Tick;
