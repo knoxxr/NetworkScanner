@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# NetworkScanner runtime files (may contain FTP credentials / internal network info) — never commit
+/setting.ini
+/iprange.ini
+/annotations.ini
+/ouiinfo.ini
+/env/
