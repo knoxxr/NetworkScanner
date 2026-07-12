@@ -18,7 +18,7 @@ namespace NetworkScanner
 
             try
             {
-                string[] prohibitContents = File.ReadAllLines("prohibitports.ini", Encoding.Default);
+                string[] prohibitContents = File.ReadAllLines(DataPaths.Resolve("prohibitports.ini"), Encoding.Default);
                 foreach (string s in prohibitContents)
                 {
                     if (string.IsNullOrWhiteSpace(s)) continue;
@@ -38,7 +38,7 @@ namespace NetworkScanner
 
             try
             {
-                string[] reservedContents = File.ReadAllLines("reservedports.ini", Encoding.Default);
+                string[] reservedContents = File.ReadAllLines(DataPaths.Resolve("reservedports.ini"), Encoding.Default);
                 foreach (string s in reservedContents)
                 {
                     if (string.IsNullOrWhiteSpace(s)) continue;

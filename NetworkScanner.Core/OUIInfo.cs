@@ -22,7 +22,7 @@ namespace NetworkScanner
             string[] sContents;
             try
             {
-                sContents = File.ReadAllLines("ouiinfo.ini", Encoding.Default);
+                sContents = File.ReadAllLines(DataPaths.Resolve("ouiinfo.ini"), Encoding.Default);
             }
             catch (Exception ex)
             {
