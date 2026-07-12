@@ -119,8 +119,14 @@ namespace NetworkScanner
 
             if (!File.Exists(filename))
             {
-                try { using (File.Create(filename)) { } }
-                catch (Exception ex) { OnError?.Invoke("iprange.ini 생성 실패: " + ex.Message); }
+                // 최초 실행이라 설정된 대역이 없으면, 이 PC가 속한 로컬 서브넷을 기본값으로 제안한다.
+                ScanRangeInfo? localRange = LocalNetworkInfo.GetLocalSubnetRange();
+                if (localRange != null)
+                {
+                    ranges.AddItem(localRange);
+                }
+
+                SaveScanRanges(ranges);
                 return ranges;
             }
 
