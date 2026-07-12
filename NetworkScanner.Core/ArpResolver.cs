@@ -58,7 +58,19 @@ namespace NetworkScanner
             Match match = Regex.Match(output, @"([0-9A-Fa-f]{1,2}[:-]){5}[0-9A-Fa-f]{1,2}");
             if (!match.Success) return null;
 
-            return match.Value.Replace(':', '-').ToUpperInvariant();
+            return NormalizeMac(match.Value);
+        }
+
+        // macOS/Linux의 arp는 각 옥텟에서 앞자리 0을 생략해 "0:23:aa:..." 처럼 출력한다.
+        // OUI 조회 키("00-23-AA")·표시 형식과 맞도록 옥텟마다 2자리로 0을 채우고 대문자·하이픈 형식으로 정규화한다.
+        private static string NormalizeMac(string raw)
+        {
+            string[] octets = raw.Split(':', '-');
+            for (int i = 0; i < octets.Length; i++)
+            {
+                octets[i] = octets[i].ToUpperInvariant().PadLeft(2, '0');
+            }
+            return string.Join("-", octets);
         }
 
         private static string RunProcess(string fileName, string arguments)

@@ -387,6 +387,12 @@ namespace NetworkScanner
             Message?.Invoke($" {ipInfo.Ip}으로 사용자 포트 전부 검색 했습니다. 결과 : {userPorts}");
         }
 
+        // 스캔을 2단계로 나눈다.
+        //  1단계: 대역 전체를 병렬 Ping으로 훑어 살아있는 호스트를 빠르게(수 초) 찾아 목록에 표시한다.
+        //  2단계: 살아있는 호스트에 대해서만 느린 부가 정보(MAC/제조사/호스트명/열린 포트)를 백그라운드로
+        //         조회하며 각 행을 점진적으로 채운다.
+        // 이렇게 하면 대부분의 대기 시간이 걸리는 부가 조회를 소수의 살아있는 호스트로 한정하고, 사용자는
+        // 1단계 결과를 곧바로 보게 되어 전체를 기다리지 않아도 된다.
         public async Task DoScanAllRange(bool scheduling, string systemName, CancellationToken token)
         {
             ScanRangeList ranges = Config.GetScanRanges();
@@ -401,41 +407,55 @@ namespace NetworkScanner
             }
 
             // 스캔 중에는 UI(설정)를 건드리지 않으므로 위험포트/포트검사 설정을 루프 밖에서 한 번만 읽는다.
-            // (매 IP마다 Config를 호출하면 WPF에서 스레드마다 UI 마샬링이 일어나 오히려 느려진다.)
             bool usePortChecking = Config.GetUsePortChecking() == true;
             HashSet<int> prohibitedPorts = GetProhibitedPortSet();
-
-            Message?.Invoke($"전체 대역 스캔을 시작합니다. 대상 {maxCnt}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
-            int done = 0;
-
             var options = new ParallelOptions { MaxDegreeOfParallelism = ScanParallelism, CancellationToken = token };
+
+            // ---- 1단계: 빠른 Ping 스윕 ----
+            Message?.Invoke($"[1/2] 호스트 검색 시작 (대상 {maxCnt}개). {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+            var aliveIps = new System.Collections.Concurrent.ConcurrentBag<string>();
+            int pinged = 0;
             try
             {
                 await Parallel.ForEachAsync(targets, options, async (strIp, ct) =>
                 {
                     PingReply? reply = await PingTester.SendPingAsync(IPAddress.Parse(strIp));
-                    bool alive = reply != null && reply.Status == IPStatus.Success;
+                    if (reply != null && reply.Status == IPStatus.Success) aliveIps.Add(strIp);
+                    ApplyPingResult(reply, strIp);
 
-                    // 응답이 있는(살아있는) 호스트에 대해서만 포트를 검사해 불필요한 대기를 없앤다.
-                    string openPorts = (usePortChecking && alive) ? await PingTester.CheckPortsOpenAsync(strIp) : "";
-
-                    RefreshIPInfo(reply, strIp, openPorts, prohibitedPorts);
-
-                    int cur = Interlocked.Increment(ref done);
+                    int cur = Interlocked.Increment(ref pinged);
                     ProgressChanged?.Invoke(cur);
-                    Message?.Invoke($"스캔 중: {strIp} ({cur}/{maxCnt})");
+                    Message?.Invoke($"[1/2] 호스트 검색: {strIp} ({cur}/{maxCnt})");
                     RaiseResultsSummary();
                 });
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) { }
+
+            // ---- 2단계: 살아있는 호스트 부가 정보 조회 ----
+            List<string> aliveList = aliveIps.ToList();
+            if (aliveList.Count > 0 && !token.IsCancellationRequested)
             {
-                // 사용자가 취소한 경우로, 아래 완료 메시지에서 취소 여부를 반영한다.
+                ProgressMaxChanged?.Invoke(aliveList.Count);
+                Message?.Invoke($"[2/2] 상세 조회 시작: MAC·제조사·이름{(usePortChecking ? "·열린 포트" : "")} (대상 {aliveList.Count}개)");
+                int enriched = 0;
+                try
+                {
+                    await Parallel.ForEachAsync(aliveList, options, async (strIp, ct) =>
+                    {
+                        await EnrichHostAsync(strIp, usePortChecking, prohibitedPorts);
+
+                        int cur = Interlocked.Increment(ref enriched);
+                        ProgressChanged?.Invoke(cur);
+                        Message?.Invoke($"[2/2] 상세 조회: {strIp} ({cur}/{aliveList.Count})");
+                    });
+                }
+                catch (OperationCanceledException) { }
             }
 
             ProgressChanged?.Invoke(0);
             Message?.Invoke(token.IsCancellationRequested
-                ? $"전체 대역 스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
-                : $"전체 대역 스캔을 완료했습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+                ? $"스캔이 취소되었습니다. {DateTime.Now:yyyy/MM/dd HH:mm:ss}"
+                : $"스캔을 완료했습니다. 살아있는 호스트 {aliveList.Count}개. {DateTime.Now:yyyy/MM/dd HH:mm:ss}");
 
             if (scheduling && !token.IsCancellationRequested) await WriteIPInfo(true, systemName);
         }
@@ -493,6 +513,88 @@ namespace NetworkScanner
                 }
             }
             return cnt;
+        }
+
+        // 1단계 전용: Ping 결과(생존/응답시간)만 반영한다. 느린 부가 조회는 하지 않아 대역을 빠르게 훑는다.
+        private void ApplyPingResult(PingReply? reply, string targetIp)
+        {
+            bool success = reply != null && reply.Status == IPStatus.Success;
+            bool changed = false;
+
+            lock (_itemsLock)
+            {
+                IPInfo info = _items.GetItem(targetIp);
+                if (info != null)
+                {
+                    info.RountTime = success ? reply!.RoundtripTime.ToString() : "Timeout";
+                    info.Alive = success;
+                    changed = true;
+                }
+                else if (success)
+                {
+                    _items.Add(new IPInfo
+                    {
+                        Ip = targetIp,
+                        Ports = "",
+                        Description = "",
+                        CommitDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                        RountTime = reply!.RoundtripTime.ToString(),
+                        Alive = true,
+                        Macaddr = "",
+                        Vendor = "",
+                        SystemName = "",
+                    });
+                    changed = true;
+                }
+            }
+
+            if (changed) ItemsRefreshNeeded?.Invoke();
+        }
+
+        // 2단계 전용: 살아있는 호스트 한 대의 MAC/제조사/호스트명/열린 포트를 조회해 해당 행을 채운다.
+        // ARP·DNS·포트 검사는 모두 결과 목록 락 밖에서 수행하고, 마지막에 짧게 락을 잡아 값만 반영한다.
+        private async Task EnrichHostAsync(string targetIp, bool usePortChecking, HashSet<int> prohibitedPorts)
+        {
+            string? mac = _items.GetMACAddress(targetIp);
+            string vendor = string.IsNullOrEmpty(mac) ? "" : _oui.GetVender(mac);
+            string? hostName = await LookupHostNameAsync(targetIp, 1500);
+            string openPorts = usePortChecking ? await PingTester.CheckPortsOpenAsync(targetIp) : "";
+            bool hasProhibited = ContainsProhibitedPort(openPorts, prohibitedPorts);
+            bool changed = false;
+
+            lock (_itemsLock)
+            {
+                IPInfo info = _items.GetItem(targetIp);
+                if (info != null)
+                {
+                    if (!string.IsNullOrEmpty(mac)) info.Macaddr = mac;
+                    if (!string.IsNullOrEmpty(vendor)) info.Vendor = vendor;
+                    if (string.IsNullOrEmpty(info.SystemName) && !string.IsNullOrEmpty(hostName) && hostName != targetIp)
+                        info.SystemName = hostName;
+                    if (usePortChecking)
+                    {
+                        info.Ports = openPorts;
+                        info.HasProhibitedPort = hasProhibited;
+                    }
+                    changed = true;
+                }
+            }
+
+            if (changed) ItemsRefreshNeeded?.Invoke();
+        }
+
+        // 역방향 DNS 조회. PTR 레코드가 없는 LAN 호스트에서 오래 걸릴 수 있으므로 타임아웃을 강제한다.
+        private static async Task<string?> LookupHostNameAsync(string ip, int timeoutMs)
+        {
+            try
+            {
+                IPHostEntry entry = await Dns.GetHostEntryAsync(ip).WaitAsync(TimeSpan.FromMilliseconds(timeoutMs));
+                return entry.HostName;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void RefreshIPInfo(PingReply? reply, string targetIp, string openPorts, HashSet<int> prohibitedPorts)
