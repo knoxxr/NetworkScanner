@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkScanner.Core", "Netw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkScanner.Avalonia", "NetworkScanner.Avalonia\NetworkScanner.Avalonia.csproj", "{5B963DEA-CD4D-4F1D-B6EF-29E67D76EE7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkScanner.Cli", "NetworkScanner.Cli\NetworkScanner.Cli.csproj", "{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,18 @@ Global
 		{5B963DEA-CD4D-4F1D-B6EF-29E67D76EE7F}.Release|x64.Build.0 = Release|Any CPU
 		{5B963DEA-CD4D-4F1D-B6EF-29E67D76EE7F}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B963DEA-CD4D-4F1D-B6EF-29E67D76EE7F}.Release|x86.Build.0 = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|x64.Build.0 = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{C1CE9E80-0F40-4C30-A40E-19961C1F33D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

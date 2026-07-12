@@ -7,55 +7,62 @@ namespace NetworkScanner
     public static class DeviceClassifier
     {
         // 제조사명에 포함되면 해당 분류로 보는 키워드. 위쪽(더 구체적인 것)부터 검사한다.
-        private static readonly (string keyword, string category)[] VendorRules =
+        // 분류값은 지역화 키이며, 최종 표시 문자열은 Localization.T로 변환한다.
+        private static readonly (string keyword, string categoryKey)[] VendorRules =
         {
-            ("apple", "Apple 기기"),
-            ("samsung", "Samsung 기기"),
-            ("lg electronics", "LG 기기"),
-            ("raspberry", "라즈베리파이"),
-            ("intel", "PC/노트북"),
-            ("dell", "PC/노트북"),
-            ("asustek", "PC/네트워크"),
-            ("giga-byte", "PC"),
-            ("micro-star", "PC"),
-            ("hewlett", "프린터/PC"),
-            ("canon", "프린터"),
-            ("epson", "프린터"),
-            ("brother", "프린터"),
-            ("cisco", "네트워크 장비"),
-            ("tp-link", "네트워크 장비"),
-            ("netgear", "네트워크 장비"),
-            ("ubiquiti", "네트워크 장비"),
-            ("mikrotik", "네트워크 장비"),
-            ("d-link", "네트워크 장비"),
-            ("zyxel", "네트워크 장비"),
-            ("hangzhou hikvision", "CCTV/IP카메라"),
-            ("dahua", "CCTV/IP카메라"),
-            ("espressif", "IoT 장치"),
-            ("texas instrument", "IoT 장치"),
-            ("google", "IoT/미디어"),
-            ("amazon", "IoT/미디어"),
-            ("sonos", "미디어 기기"),
+            ("apple", "dev.apple"),
+            ("samsung", "dev.samsung"),
+            ("lg electronics", "dev.lg"),
+            ("raspberry", "dev.raspberrypi"),
+            ("intel", "dev.pclaptop"),
+            ("dell", "dev.pclaptop"),
+            ("asustek", "dev.pcnet"),
+            ("giga-byte", "dev.pc"),
+            ("micro-star", "dev.pc"),
+            ("hewlett", "dev.printerpc"),
+            ("canon", "dev.printer"),
+            ("epson", "dev.printer"),
+            ("brother", "dev.printer"),
+            ("cisco", "dev.network"),
+            ("tp-link", "dev.network"),
+            ("netgear", "dev.network"),
+            ("ubiquiti", "dev.network"),
+            ("mikrotik", "dev.network"),
+            ("d-link", "dev.network"),
+            ("zyxel", "dev.network"),
+            ("hangzhou hikvision", "dev.cctv"),
+            ("dahua", "dev.cctv"),
+            ("espressif", "dev.iot"),
+            ("texas instrument", "dev.iot"),
+            ("google", "dev.iotmedia"),
+            ("amazon", "dev.iotmedia"),
+            ("sonos", "dev.media"),
         };
 
         public static string Classify(string? vendor, string? openPorts)
         {
+            string? key = ClassifyKey(vendor, openPorts);
+            return key == null ? "" : Localization.T(key);
+        }
+
+        private static string? ClassifyKey(string? vendor, string? openPorts)
+        {
             string v = (vendor ?? "").ToLowerInvariant();
-            foreach (var (keyword, category) in VendorRules)
+            foreach (var (keyword, categoryKey) in VendorRules)
             {
-                if (v.Contains(keyword)) return category;
+                if (v.Contains(keyword)) return categoryKey;
             }
 
             // 제조사로 못 맞추면 열린 포트로 대략 추정한다.
             HashSet<int> ports = ParsePorts(openPorts);
-            if (ports.Contains(9100) || ports.Contains(515) || ports.Contains(631)) return "프린터";
-            if (ports.Contains(554)) return "CCTV/IP카메라";
-            if (ports.Contains(3389)) return "Windows PC";
-            if (ports.Contains(445) || ports.Contains(139)) return "Windows/파일공유";
-            if (ports.Contains(22)) return "서버/리눅스";
-            if (ports.Contains(80) || ports.Contains(443)) return "웹 서비스 장비";
+            if (ports.Contains(9100) || ports.Contains(515) || ports.Contains(631)) return "dev.printer";
+            if (ports.Contains(554)) return "dev.cctv";
+            if (ports.Contains(3389)) return "dev.windowspc";
+            if (ports.Contains(445) || ports.Contains(139)) return "dev.winshare";
+            if (ports.Contains(22)) return "dev.server";
+            if (ports.Contains(80) || ports.Contains(443)) return "dev.web";
 
-            return "";
+            return null;
         }
 
         private static HashSet<int> ParsePorts(string? field)

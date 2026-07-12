@@ -13,6 +13,7 @@ To try it without building, grab the file for your OS from the **[Releases page]
 | Windows | `NetworkScanner-win-Setup.exe` (installer) or `NetworkScanner-win-Portable.zip` (unzip and run) |
 | macOS | `NetworkScanner-osx-Setup.pkg` (installer) or `NetworkScanner-osx-Portable.zip` (unzip and run the `.app`) |
 | Linux | `NetworkScanner.AppImage` — make it executable (`chmod +x NetworkScanner.AppImage`) and run |
+| CLI (headless) | `netscan-<version>-linux-x64.tar.gz`, `…-osx-arm64.tar.gz`, `…-win-x64.zip` — a command-line scanner for servers/SSH/automation (see [Command-line interface](#command-line-interface-netscan)) |
 
 The `*.nupkg`, `RELEASES*`, `assets.*.json`, and `releases.*.json` files you may also see in the Release assets are internal files for Velopack's auto-update feed — you don't need to download them.
 
@@ -25,6 +26,7 @@ New versions are published by pushing a `v*.*.*` git tag: `.github/workflows/rel
 - [Requirements](#requirements)
 - [Build and run](#build-and-run)
 - [Tests](#tests)
+- [Command-line interface (netscan)](#command-line-interface-netscan)
 - [Packaging for distribution](#packaging-for-distribution)
 - [Runtime configuration / data files](#runtime-configuration--data-files)
 - [Known limitations (cross-platform)](#known-limitations-cross-platform)
@@ -90,6 +92,21 @@ dotnet test NetworkScanner.Tests/NetworkScanner.Tests.csproj
 ```
 
 The tests reference only `NetworkScanner.Core`, so they run on non-Windows environments too.
+
+## Command-line interface (netscan)
+
+`NetworkScanner.Cli` is a headless, cross-platform console front-end (`netscan`) over the same `NetworkScanner.Core` engine — for servers, SSH sessions, cron jobs, and pipelines where no GUI is available. Progress is written to stderr and final results to stdout, so JSON output is safe to pipe.
+
+```bash
+# From source
+dotnet run --project NetworkScanner.Cli -- --range 192.168.1.0/24 --ports 22,80,443
+
+# Or the released single-file binary
+./netscan --range 10.0.0.0/24 -o json --out scan.json
+./netscan            # scan the auto-detected local subnet, table output
+```
+
+Key options: `--range <CIDR|start-end|ip>` (repeatable; defaults to the local subnet), `--ports 22,80,443`, `-o table|json|csv`, `--out <file>`, `--lang en|ko`, `-q`. Run `netscan --help` for the full list. The same vendor/OS/service detection and reserved/backdoor-port matching as the GUI are applied.
 
 ## Packaging for distribution
 

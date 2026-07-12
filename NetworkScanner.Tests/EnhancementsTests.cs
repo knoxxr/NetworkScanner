@@ -36,15 +36,15 @@ namespace NetworkScanner.Tests
         [Fact]
         public void Classify_ByVendorKeyword()
         {
-            Assert.Equal("Apple 기기", DeviceClassifier.Classify("Apple, Inc.", ""));
-            Assert.Equal("네트워크 장비", DeviceClassifier.Classify("Cisco Systems", ""));
+            Assert.Equal(Localization.T("dev.apple"), DeviceClassifier.Classify("Apple, Inc.", ""));
+            Assert.Equal(Localization.T("dev.network"), DeviceClassifier.Classify("Cisco Systems", ""));
         }
 
         [Fact]
         public void Classify_FallsBackToPortHeuristics_WhenVendorUnknown()
         {
-            Assert.Equal("프린터", DeviceClassifier.Classify("", "9100/"));
-            Assert.Equal("서버/리눅스", DeviceClassifier.Classify("Unknown Co", "22/"));
+            Assert.Equal(Localization.T("dev.printer"), DeviceClassifier.Classify("", "9100/"));
+            Assert.Equal(Localization.T("dev.server"), DeviceClassifier.Classify("Unknown Co", "22/"));
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace NetworkScanner.Tests
             Assert.Contains("10.0.0.2", html);
             Assert.Contains("prohib", html);      // 위험 포트 행이 강조 클래스로 표시됨
             Assert.Contains("TestSys", html);
-            Assert.Contains("네트워크 장비", html); // Cisco -> 종류 분류가 리포트에 반영됨
+            Assert.Contains(Localization.T("dev.network"), html); // Cisco -> 종류 분류가 리포트에 반영됨
         }
     }
 }

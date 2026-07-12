@@ -133,6 +133,26 @@ namespace NetworkScanner
             ["change.reconnect"] = ("reconnected", "재접속"),
             ["change.noresponse"] = ("no response", "응답 없음"),
 
+            // 장비 종류 분류(DeviceClassifier)
+            ["dev.apple"] = ("Apple device", "Apple 기기"),
+            ["dev.samsung"] = ("Samsung device", "Samsung 기기"),
+            ["dev.lg"] = ("LG device", "LG 기기"),
+            ["dev.raspberrypi"] = ("Raspberry Pi", "라즈베리파이"),
+            ["dev.pc"] = ("PC", "PC"),
+            ["dev.pclaptop"] = ("PC/Laptop", "PC/노트북"),
+            ["dev.pcnet"] = ("PC/Network", "PC/네트워크"),
+            ["dev.printerpc"] = ("Printer/PC", "프린터/PC"),
+            ["dev.printer"] = ("Printer", "프린터"),
+            ["dev.network"] = ("Network device", "네트워크 장비"),
+            ["dev.cctv"] = ("CCTV/IP camera", "CCTV/IP카메라"),
+            ["dev.iot"] = ("IoT device", "IoT 장치"),
+            ["dev.iotmedia"] = ("IoT/Media", "IoT/미디어"),
+            ["dev.media"] = ("Media device", "미디어 기기"),
+            ["dev.windowspc"] = ("Windows PC", "Windows PC"),
+            ["dev.winshare"] = ("Windows/File share", "Windows/파일공유"),
+            ["dev.server"] = ("Server/Linux", "서버/리눅스"),
+            ["dev.web"] = ("Web service device", "웹 서비스 장비"),
+
             // 참조 포트 정보 화면
             ["portinfo.title"] = ("(Reference) Common port numbers", "(참조) 주요 포트 번호"),
             ["portinfo.reserved"] = ("◎ Reserved ports", "◎ 예약 Port"),

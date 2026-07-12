@@ -9,7 +9,7 @@ namespace NetworkScanner
             if (ttl <= 0) return "";
             if (ttl <= 64) return "Linux/Unix/macOS";
             if (ttl <= 128) return "Windows";
-            return "네트워크 장비";
+            return Localization.T("dev.network");
         }
     }
 }

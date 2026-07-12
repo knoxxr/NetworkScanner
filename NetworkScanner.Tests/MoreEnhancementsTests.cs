@@ -14,11 +14,16 @@ namespace NetworkScanner.Tests
         [InlineData(64, "Linux/Unix/macOS")]
         [InlineData(117, "Windows")]
         [InlineData(128, "Windows")]
-        [InlineData(250, "네트워크 장비")]
         [InlineData(0, "")]
         public void FromTtl_GuessesOsFamily(int ttl, string expected)
         {
             Assert.Equal(expected, OsGuesser.FromTtl(ttl));
+        }
+
+        [Fact]
+        public void FromTtl_HighTtl_IsNetworkDevice()
+        {
+            Assert.Equal(Localization.T("dev.network"), OsGuesser.FromTtl(250));
         }
     }
 

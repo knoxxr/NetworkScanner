@@ -84,9 +84,64 @@ jobs:
           name: NetworkScanner-${{ matrix.rid }}
           path: release-packages/${{ matrix.rid }}
 
+  # 헤드리스/서버용 CLI(netscan)를 OS별 단일 실행 파일로 publish해 압축본으로 첨부한다.
+  # GUI 설치본(Velopack)과 달리 CLI는 단순 tar.gz/zip이면 충분하다.
+  cli:
+    name: CLI (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+          - os: windows-latest
+            rid: win-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish CLI (${{ matrix.rid }})
+        run: >
+          dotnet publish NetworkScanner.Cli/NetworkScanner.Cli.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:PublishSingleFile=true -p:Version=${{ steps.version.outputs.value }}
+          -o publish-cli/${{ matrix.rid }}
+
+      - name: Archive CLI
+        shell: bash
+        run: |
+          mkdir -p cli-packages
+          NAME="netscan-${{ steps.version.outputs.value }}-${{ matrix.rid }}"
+          if [ "${{ matrix.rid }}" = "win-x64" ]; then
+            (cd "publish-cli/${{ matrix.rid }}" && 7z a "../../cli-packages/${NAME}.zip" .)
+          else
+            tar -czf "cli-packages/${NAME}.tar.gz" -C "publish-cli/${{ matrix.rid }}" .
+          fi
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: netscan-${{ matrix.rid }}
+          path: cli-packages
+
   release:
     name: Create GitHub Release
-    needs: package
+    needs: [package, cli]
     runs-on: ubuntu-latest
     steps:
       - name: Download all platform packages

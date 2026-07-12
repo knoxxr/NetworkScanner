@@ -34,6 +34,7 @@ The important structural fact: **all real logic lives in `NetworkScanner.Core` (
 - **`NetworkScanner.Core`** — scan engine, settings/CSV/ini persistence, IP-range math, OS-specific helpers. Shared by both UIs and exercised by the tests.
 - **`NetworkScanner`** — Windows-only **WPF** UI (`net8.0-windows...`, `UseWPF=true`).
 - **`NetworkScanner.Avalonia`** — cross-platform **Avalonia** UI (`net8.0`).
+- **`NetworkScanner.Cli`** — headless cross-platform console front-end (`netscan`) over Core; implements `IScanConfigProvider` from command-line args, subscribes to the engine events, and prints table/JSON/CSV. Progress → stderr, results → stdout.
 - **`NetworkScanner.Tests`** — xUnit, references Core only.
 - **`OUIConvertor`** — standalone WPF utility that regenerates `ouiinfo.ini` (MAC OUI → vendor table); not part of the app runtime.
 - **`SetupNetworkScanner`** — legacy WPF `.vdproj` installer; not built by `dotnet` (MSBuild warns and skips it).
