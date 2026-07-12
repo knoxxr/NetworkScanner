@@ -40,7 +40,14 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-                <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                <StackPanel Grid.Row="2" Margin="0,0,0,12" Spacing="8">
+                    <!-- 새 버전이 확인되면 표시되는 업데이트 버튼(평소에는 숨김). -->
+                    <Button Name="BtnUpdate" Click="BtnUpdate_Click" IsVisible="False"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Margin="8,0" Background="{StaticResource AccentBrush}" Foreground="White">
+                        <TextBlock Name="TbUpdate" TextAlignment="Center" TextWrapping="Wrap"
+                                   Text="{l:Tr Key=update.button}" />
+                    </Button>
                     <TextBlock Name="TbVersion" Foreground="White" TextAlignment="Center">version</TextBlock>
                 </StackPanel>
             </Grid>

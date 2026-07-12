@@ -16,6 +16,7 @@ public partial class MainWindow : Window, IScanConfigProvider
     private readonly SettingsView _settingsView = new();
     private readonly RefPortListView _refPortListView = new();
     private readonly DispatcherTimer _timer = new();
+    private readonly UpdateService _updateService = new();
 
     public MainWindow()
     {
@@ -51,6 +52,45 @@ public partial class MainWindow : Window, IScanConfigProvider
         if (startup.LoadLatestFileOnStartup)
         {
             _ipListView.GetLatestFilePath(GetSystemName());
+        }
+
+        _ = CheckForUpdatesAsync();
+    }
+
+    // GitHub Releases에서 새 버전을 확인하고, 있으면 사이드바의 업데이트 버튼을 노출한다.
+    // 설치본이 아닌 개발 실행(dotnet run)에서는 조용히 아무것도 하지 않는다.
+    private async System.Threading.Tasks.Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            string? newVersion = await _updateService.CheckAsync();
+            if (newVersion == null) return;
+
+            TbUpdate.Text = $"{Localization.T("update.button")} v{newVersion}";
+            ToolTip.SetTip(BtnUpdate, string.Format(Localization.T("update.available"), newVersion));
+            BtnUpdate.IsVisible = true;
+        }
+        catch (Exception ex)
+        {
+            // 오프라인 등 확인 실패는 치명적이지 않다 - 로그만 남긴다.
+            AppLogger.LogInfo("NetworkScanner", "업데이트 확인 실패: " + ex.Message);
+        }
+    }
+
+    private async void BtnUpdate_Click(object? sender, RoutedEventArgs e)
+    {
+        BtnUpdate.IsEnabled = false;
+        try
+        {
+            await _updateService.DownloadAndApplyAsync(percent =>
+                Dispatcher.UIThread.Post(() =>
+                    TbUpdate.Text = $"{Localization.T("update.downloading")} {percent}%"));
+        }
+        catch (Exception ex)
+        {
+            AppLogger.LogError("NetworkScanner", "업데이트 실패: " + ex.Message);
+            TbUpdate.Text = Localization.T("update.failed");
+            BtnUpdate.IsEnabled = true;
         }
     }
 

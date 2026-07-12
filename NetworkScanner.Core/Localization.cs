@@ -153,6 +153,12 @@ namespace NetworkScanner
             ["dev.server"] = ("Server/Linux", "서버/리눅스"),
             ["dev.web"] = ("Web service device", "웹 서비스 장비"),
 
+            // 업데이트
+            ["update.button"] = ("Update", "업데이트"),
+            ["update.available"] = ("New version {0} is available. Click to install.", "새 버전 {0}이(가) 있습니다. 클릭하면 설치합니다."),
+            ["update.downloading"] = ("Downloading...", "다운로드 중..."),
+            ["update.failed"] = ("Update failed", "업데이트 실패"),
+
             // 참조 포트 정보 화면
             ["portinfo.title"] = ("(Reference) Common port numbers", "(참조) 주요 포트 번호"),
             ["portinfo.reserved"] = ("◎ Reserved ports", "◎ 예약 Port"),

@@ -10,7 +10,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <!-- 개발 머신에 .NET 8 런타임이 없어도(예: .NET 9만 설치) 로컬 실행이 가능하도록 허용. -->
     <RollForward>LatestMajor</RollForward>
-    <Version>1.7.2</Version>
+    <Version>1.7.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
