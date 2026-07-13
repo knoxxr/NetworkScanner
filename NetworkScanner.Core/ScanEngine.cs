@@ -140,7 +140,7 @@ namespace NetworkScanner
 
         public static string GetEnvDirectory()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "env");
+            return UserDataPaths.Resolve("env");
         }
 
         public async Task WriteIPInfo(bool autosave, string systemName)

@@ -35,7 +35,7 @@ namespace NetworkScanner
         public static AppSettingsData LoadSettings()
         {
             var data = new AppSettingsData();
-            string filename = Path.Combine(Directory.GetCurrentDirectory(), SettingFileName);
+            string filename = UserDataPaths.Resolve(SettingFileName);
 
             if (!File.Exists(filename))
             {
@@ -129,7 +129,7 @@ namespace NetworkScanner
                 lines.Add($"{KeyIpListColWidths}={data.IpListColumnWidths}");
                 lines.Add($"{KeyIpRangeColWidths}={data.IpRangeColumnWidths}");
 
-                File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), SettingFileName), lines, Encoding.UTF8);
+                File.WriteAllLines(UserDataPaths.Resolve(SettingFileName), lines, Encoding.UTF8);
             }
             catch (Exception ex)
             {
@@ -140,7 +140,7 @@ namespace NetworkScanner
         public static ScanRangeList LoadScanRanges()
         {
             var ranges = new ScanRangeList();
-            string filename = Path.Combine(Directory.GetCurrentDirectory(), IPRangeFileName);
+            string filename = UserDataPaths.Resolve(IPRangeFileName);
 
             if (File.Exists(filename))
             {
@@ -193,7 +193,7 @@ namespace NetworkScanner
                 {
                     lines.Add($"{info.Index},{info.StartIP},{info.EndIP},{info.Description}");
                 }
-                File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), IPRangeFileName), lines, Encoding.UTF8);
+                File.WriteAllLines(UserDataPaths.Resolve(IPRangeFileName), lines, Encoding.UTF8);
             }
             catch (Exception ex)
             {

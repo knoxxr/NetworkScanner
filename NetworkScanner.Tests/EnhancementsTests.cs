@@ -84,8 +84,9 @@ namespace NetworkScanner.Tests
         [Fact]
         public void SaveColumnLayout_RoundTripsWidths_WithoutClobberingOtherSettings()
         {
-            string cwd = System.IO.Directory.GetCurrentDirectory();
-            string path = System.IO.Path.Combine(cwd, AppSettingsStore.SettingFileName);
+            // 사용자 프로필의 실제 설정을 건드리지 않도록 저장 위치를 테스트 폴더로 돌린다.
+            UserDataPaths.OverrideRoot = System.IO.Directory.GetCurrentDirectory();
+            string path = UserDataPaths.Resolve(AppSettingsStore.SettingFileName);
             string? backup = System.IO.File.Exists(path) ? System.IO.File.ReadAllText(path) : null;
             try
             {

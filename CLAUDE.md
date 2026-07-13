@@ -72,7 +72,7 @@ OS branches live behind small helpers so the rest of Core stays portable:
 
 ## Runtime data files
 
-`ouiinfo.ini`, `reservedports.ini`, `prohibitports.ini` live in the WPF project and are linked into the Avalonia project (copied to output, not duplicated). `setting.ini` and `iprange.ini` are written at runtime in the working directory — do not commit them (a scan or app launch will regenerate them).
+`ouiinfo.ini`, `reservedports.ini`, `prohibitports.ini` live in the WPF project and are linked into the Avalonia project (copied to output, not duplicated). User data — `setting.ini`, `iprange.ini`, `annotations.ini`, and the `env/` scan-result folder — is written via `UserDataPaths` to a per-user directory (`%APPDATA%\NetworkScanner` on Windows, `~/.config/NetworkScanner` on Unix) so Velopack updates, which replace the app folder, don't wipe it. `UserDataPaths` migrates files it finds in the old locations (working dir / exe dir) once. Tests set `UserDataPaths.OverrideRoot` instead of touching the real profile. Do not commit these files.
 
 ## Making changes across both UIs
 

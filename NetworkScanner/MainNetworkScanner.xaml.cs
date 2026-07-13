@@ -214,7 +214,7 @@ namespace NetworkScanner
 
         private void BtnLoadFile_Click(object sender, RoutedEventArgs e)
         {
-            string path = Directory.GetCurrentDirectory() + "\\env";
+            string path = ScanEngine.GetEnvDirectory();
             DirectoryInfo di = new DirectoryInfo(path);
             if (!di.Exists)
             {
@@ -222,7 +222,7 @@ namespace NetworkScanner
             }
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = path + @"\env";
+            openFileDialog.InitialDirectory = path;
             openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;

@@ -77,8 +77,9 @@ namespace NetworkScanner.Tests
         [Fact]
         public void SaveThenLoad_RoundTripsNameAndDescription()
         {
-            string cwd = Directory.GetCurrentDirectory();
-            string path = Path.Combine(cwd, AnnotationStore.FileName);
+            // 사용자 프로필의 실제 데이터를 건드리지 않도록 저장 위치를 테스트 폴더로 돌린다.
+            UserDataPaths.OverrideRoot = Directory.GetCurrentDirectory();
+            string path = UserDataPaths.Resolve(AnnotationStore.FileName);
             File.Delete(path);
             try
             {

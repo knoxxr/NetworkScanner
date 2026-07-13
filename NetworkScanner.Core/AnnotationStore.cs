@@ -17,7 +17,7 @@ namespace NetworkScanner
         public static Dictionary<string, Annotation> Load()
         {
             var map = new Dictionary<string, Annotation>();
-            string path = Path.Combine(Directory.GetCurrentDirectory(), FileName);
+            string path = UserDataPaths.Resolve(FileName);
             if (!File.Exists(path)) return map;
 
             try
@@ -51,7 +51,7 @@ namespace NetworkScanner
                     // 탭/개행이 값에 섞이면 형식이 깨지므로 공백으로 치환한다.
                     lines.Add($"{i.Ip}\t{Clean(name)}\t{Clean(desc)}");
                 }
-                File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), FileName), lines, Encoding.UTF8);
+                File.WriteAllLines(UserDataPaths.Resolve(FileName), lines, Encoding.UTF8);
             }
             catch (Exception ex)
             {
