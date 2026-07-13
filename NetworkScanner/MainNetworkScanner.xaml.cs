@@ -30,6 +30,7 @@ namespace NetworkScanner
         UCSetting ucSetting = new UCSetting();
         UCIPList ucIPList = new UCIPList();
         UCRefPortList ucReservedPortInfo = new UCRefPortList();
+        UCUserGuide ucUserGuide = new UCUserGuide();
 
         DispatcherTimer _Timer = new DispatcherTimer();
 
@@ -255,6 +256,12 @@ namespace NetworkScanner
             SetActiveNav(BtnInfo);
         }
 
+        private void BtnGuide_Click(object sender, RoutedEventArgs e)
+        {
+            BdContent.Child = ucUserGuide;
+            SetActiveNav(BtnGuide);
+        }
+
         private void BtnIPList_Click(object sender, RoutedEventArgs e)
         {
             BdContent.Child = ucIPList;
@@ -268,7 +275,7 @@ namespace NetworkScanner
             var activeBg = (Brush)Resources["SideActiveBackgroundBrush"];
             var inactiveBg = (Brush)Resources["SideBackgroundBrush"];
 
-            foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnInfo })
+            foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnInfo, BtnGuide })
             {
                 bool isActive = ReferenceEquals(nav, active);
                 nav.Background = isActive ? activeBg : inactiveBg;

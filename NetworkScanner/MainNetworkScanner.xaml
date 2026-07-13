@@ -40,6 +40,14 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
+                        <Button Name="BtnGuide" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0" HorizontalAlignment="Stretch" Click="BtnGuide_Click">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <Image Width="40" Height="40" Source="/img/document-48.png" />
+                                    <Label  Foreground="#FFFFFEFE" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{local:Tr Key=nav.guide}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
                     </StackPanel>
                     <StackPanel Grid.Row="2" >
                         <Button Name="BtnInfo" Height="120" Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0" HorizontalAlignment="Stretch" Click="BtnPortInfo_Click">

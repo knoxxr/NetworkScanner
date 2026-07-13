@@ -15,6 +15,7 @@ public partial class MainWindow : Window, IScanConfigProvider
     private readonly IPListView _ipListView = new();
     private readonly SettingsView _settingsView = new();
     private readonly RefPortListView _refPortListView = new();
+    private readonly UserGuideView _userGuideView = new();
     private readonly DispatcherTimer _timer = new();
     private readonly UpdateService _updateService = new();
 
@@ -135,6 +136,12 @@ public partial class MainWindow : Window, IScanConfigProvider
         SetActiveNav(BtnPortInfo);
     }
 
+    private void BtnGuide_Click(object? sender, RoutedEventArgs e)
+    {
+        ContentArea.Content = _userGuideView;
+        SetActiveNav(BtnGuide);
+    }
+
     // 사이드바에서 지금 어느 화면을 보고 있는지 좌측 강조선 + 배경 틴트로 표시한다.
     private void SetActiveNav(Button active)
     {
@@ -142,7 +149,7 @@ public partial class MainWindow : Window, IScanConfigProvider
         var activeBg = (IBrush)Resources["SideActiveBackgroundBrush"]!;
         var inactiveBg = (IBrush)Resources["SideBackgroundBrush"]!;
 
-        foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnPortInfo })
+        foreach (Button nav in new[] { BtnIPList, BtnSetting, BtnPortInfo, BtnGuide })
         {
             bool isActive = ReferenceEquals(nav, active);
             nav.Background = isActive ? activeBg : inactiveBg;

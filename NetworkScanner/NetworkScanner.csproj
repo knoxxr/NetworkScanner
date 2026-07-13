@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <StartupObject>NetworkScanner.App</StartupObject>
     <ApplicationIcon>img\Kyo-Tux-Delikate-Network.ico</ApplicationIcon>
-    <Version>1.7.4</Version>
+    <Version>1.7.5</Version>
 <Deterministic>false</Deterministic>
 <Description>Scan all network system on ip range .</Description>
 <PackageIcon>networkscanner.png</PackageIcon>

@@ -39,6 +39,13 @@
                             <TextBlock VerticalAlignment="Center" Text="{l:Tr Key=nav.portinfo}" />
                         </StackPanel>
                     </Button>
+                    <Button Name="BtnGuide" Click="BtnGuide_Click" HorizontalAlignment="Stretch"
+                            Background="{StaticResource SideBackgroundBrush}" BorderBrush="Transparent" BorderThickness="3,0,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Image Source="avares://NetworkScanner.Avalonia/Assets/new-file.png" Width="24" Height="24" />
+                            <TextBlock VerticalAlignment="Center" Text="{l:Tr Key=nav.guide}" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Row="2" Margin="0,0,0,12" Spacing="8">
                     <!-- 새 버전이 확인되면 표시되는 업데이트 버튼(평소에는 숨김). -->

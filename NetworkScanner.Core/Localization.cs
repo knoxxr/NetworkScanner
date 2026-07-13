@@ -22,6 +22,8 @@ namespace NetworkScanner
             ["nav.iplist"] = ("IP List", "IP 리스트"),
             ["nav.settings"] = ("Settings", "설정"),
             ["nav.portinfo"] = ("Ref. Ports", "참고. 포트정보"),
+            ["nav.guide"] = ("User Guide", "사용 설명서"),
+            ["guide.title"] = ("User Guide", "사용 설명서"),
 
             // IP 리스트 화면
             ["iplist.title"] = ("IP List", "IP List"),
